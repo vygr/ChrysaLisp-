@@ -83,14 +83,54 @@ std::shared_ptr<Lisp_Obj> Lisp::read_number(std::istream &in)
 		char c;
 		in >> c;
 	}
+	auto buffer = std::string{};
 	for (;;)
 	{
 		auto p = in.peek();
-		if (!std::isdigit(((unsigned char)p))) break;
-		char c;
-		in >> c;
-		obj->m_value = obj->m_value * 10 + (c - '0');
+		if (p == '.'
+			|| (p >= '0' && p <= '9')
+			|| (p >= 'a' && p <= 'z')
+			|| (p >= 'A' && p <= 'Z'))
+		{
+			char c;
+			in >> c;
+			buffer.push_back(c);
+		}
+		else break;
 	}
+	auto base = 10;
+	auto itr = begin(buffer);
+	if (buffer[1] == 'x')
+	{
+		base = 16;
+		itr += 2;
+	}
+	else if (buffer[1] == 'o')
+	{
+		base = 8;
+		itr += 2;
+	}
+	else if (buffer[1] == 'b')
+	{
+		base = 2;
+		itr += 2;
+	}
+	auto frac = 0ll;
+	for (; itr != end(buffer); ++itr)
+	{
+		auto c = (int)*itr;
+		if (c == '.')
+		{
+			frac = 1;
+			continue;
+		}
+		if (c >= 'a') c -= 'a' - 10;
+		else if (c >= 'A') c -= 'a' - 10;
+		else c -= '0';
+		obj->m_value = obj->m_value * base + c;
+		frac *= base;
+	}
+	if (frac) obj->m_value = (obj->m_value << 16) / frac;		
 	obj->m_value *= sign;
 	return obj;
 }
