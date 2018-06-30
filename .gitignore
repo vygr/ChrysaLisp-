@@ -1,3 +1,4 @@
 .vscode
-./chrisalisp
-./obj/*
+obj/*.d
+obj/*.o
+chrysalisp
