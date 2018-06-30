@@ -69,6 +69,10 @@ int main(int argc, char *argv[])
 
 	//repl
 	auto lisp = Lisp();
+	std::ifstream boot_file;
+	boot_file.open("src/boot.inc", std::ifstream::in);
+	lisp.repl(boot_file);
+	std::cout << "\n;;;;;;;;;;;;;;;;;;\n; C++ ChrysaLisp ;\n;;;;;;;;;;;;;;;;;;\n" << std::endl;
 	lisp.repl(in);
 	return 0;
 }

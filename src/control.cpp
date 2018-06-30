@@ -33,7 +33,7 @@ std::shared_ptr<Lisp_Obj> Lisp::quote(const std::shared_ptr<Lisp_List> &args)
 	return std::make_shared<Lisp_Obj>();
 }
 
-void qquote1(Lisp *lisp, std::shared_ptr<Lisp_Obj> &o, std::shared_ptr<Lisp_List> &cat_list)
+void qquote1(Lisp *lisp, const std::shared_ptr<Lisp_Obj> &o, std::shared_ptr<Lisp_List> &cat_list)
 {
 	if (o->type() == lisp_type_list
 		&& std::static_pointer_cast<Lisp_List>(o)->length())
@@ -102,8 +102,9 @@ std::shared_ptr<Lisp_Obj> Lisp::apply(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::cond(const std::shared_ptr<Lisp_List> &args)
 {
 	auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
-	for (auto &cnd : args->m_v)
+	for (auto itrc = begin(args->m_v) + 1; itrc != end(args->m_v); ++itrc)
 	{
+		auto &&cnd = *itrc;
 		if (!cnd->is_type(lisp_type_list)) return std::make_shared<Lisp_Obj>();
 		auto lst = std::static_pointer_cast<Lisp_List>(cnd);
 		if (!lst->length()) return std::make_shared<Lisp_Obj>();

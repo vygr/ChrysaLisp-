@@ -34,6 +34,7 @@ int Lisp::read_whitespace(std::istream &in)
 	for (;;)
 	{
 		p = in.peek();
+		if (p == -1) break;
 		if (!std::isspace(((unsigned char)p))) break;
 		char w;
 		in >> w;
@@ -127,7 +128,15 @@ std::shared_ptr<Lisp_Obj> Lisp::read_rmacro(std::istream &in,  const std::shared
 std::shared_ptr<Lisp_Obj> Lisp::read(std::istream &in)
 {
 	in >> std::noskipws;
-	auto c = read_whitespace(in);
+	int c;
+	for (;;)
+	{
+		c = read_whitespace(in);
+		if (c != ';') break;
+		std::string str;
+		std::getline(in, str, '\n');
+	}
+	if (c == -1) return nullptr;
 	if (c == ')' || c == '}')
 	{
 		char c;
@@ -150,9 +159,13 @@ std::shared_ptr<Lisp_Obj> Lisp::repl(std::istream &in)
 	for (;;)
 	{
 		auto obj = read(in);
-		std::cout << "--INPUT--\n";
-		obj->print();
-		std::cout << "\n--EVAL-\n";
+		if (obj == nullptr) return obj;
+		// std::cout << "--INPUT--\n";
+		// obj->print();
+		while (repl_expand(obj, 0));
+		// std::cout << "\n--EXPAND-\n";
+		// obj->print();
+		// std::cout << "\n--EVAL-\n";
 		obj = repl_eval(obj);
 		obj->print();
 		std::cout << "\n";
@@ -236,6 +249,34 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_eval(const std::shared_ptr<Lisp_Obj> &obj)
 		default:
 			return obj;
 	}
+}
+
+int Lisp::repl_expand(std::shared_ptr<Lisp_Obj> &o, int cnt)
+{
+	if (o->is_type(lisp_type_list)
+		&& std::static_pointer_cast<Lisp_List>(o)->length())
+	{
+		auto lst = std::static_pointer_cast<Lisp_List>(o);
+		auto &obj = lst->m_v[0];
+		if (obj == m_sym_quote) return cnt;
+		if (obj->is_type(lisp_type_symbol))
+		{
+			auto sym = std::static_pointer_cast<Lisp_Symbol>(obj);
+			auto itr = m_env->find(sym);
+			if (itr == end(m_env->m_map)) goto decend;
+			if (!itr->second->is_type(lisp_type_list)) goto decend;
+			auto macro = std::static_pointer_cast<Lisp_List>(itr->second);
+			if (macro->m_v[0] != m_sym_macro) goto decend;
+			o = repl_apply(macro, std::static_pointer_cast<Lisp_List>(lst->slice(1, lst->length())));
+			cnt++;
+		}
+		else
+		{
+		decend:
+			for (auto &&o : lst->m_v) cnt = repl_expand(o, cnt);
+		}
+	}
+	return cnt;
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::eval(const std::shared_ptr<Lisp_List> &args)

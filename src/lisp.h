@@ -140,11 +140,11 @@ public:
 	const Lisp_Type type() const override { return lisp_type_env; }
 	Lisp_Type is_type(Lisp_Type t) const override;
 	void print() override;
-	void set_parent(std::shared_ptr<Lisp_Env> &env);
-	std::shared_ptr<Lisp_Env> get_parent();
-	Lisp_Env_Map::iterator find(std::shared_ptr<Lisp_Symbol> &sym);
-	Lisp_Env_Map::iterator set(std::shared_ptr<Lisp_Symbol> &sym, std::shared_ptr<Lisp_Obj> &obj);
-	std::shared_ptr<Lisp_Obj> get(std::shared_ptr<Lisp_Symbol> &sym);
+	void set_parent(const std::shared_ptr<Lisp_Env> &env);
+	std::shared_ptr<Lisp_Env> get_parent() const;
+	Lisp_Env_Map::iterator find(const std::shared_ptr<Lisp_Symbol> &sym);
+	Lisp_Env_Map::iterator set(const std::shared_ptr<Lisp_Symbol> &sym, const std::shared_ptr<Lisp_Obj> &obj);
+	std::shared_ptr<Lisp_Obj> get(const std::shared_ptr<Lisp_Symbol> &sym);
 	Lisp_Env_Map m_map;
 	std::shared_ptr<Lisp_Env> m_parent;
 };
@@ -182,6 +182,7 @@ public:
 	std::shared_ptr<Lisp_Obj> repl(std::istream &in);
 	std::shared_ptr<Lisp_Obj> repl_apply(const std::shared_ptr<Lisp_Obj> &func, const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> repl_eval(const std::shared_ptr<Lisp_Obj> &obj);
+	int repl_expand(std::shared_ptr<Lisp_Obj> &obj, int cnt);
 
 	std::shared_ptr<Lisp_Obj> prin(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> print(const std::shared_ptr<Lisp_List> &args);
@@ -263,7 +264,7 @@ private:
 	std::shared_ptr<Lisp_Symbol> m_sym_qquote;
 	std::shared_ptr<Lisp_Symbol> m_sym_splicing;
 	unsigned long m_next_sym = 0;
-	friend void qquote1(Lisp *lisp, std::shared_ptr<Lisp_Obj> &o, std::shared_ptr<Lisp_List> &cat_list);
+	friend void qquote1(Lisp *lisp, const std::shared_ptr<Lisp_Obj> &o, std::shared_ptr<Lisp_List> &cat_list);
 };
 
 #endif

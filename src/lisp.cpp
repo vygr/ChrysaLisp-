@@ -248,17 +248,17 @@ void Lisp_Env::print()
 	std::cout << '}';
 }
 
-void Lisp_Env::set_parent(std::shared_ptr<Lisp_Env> &env)
+void Lisp_Env::set_parent(const std::shared_ptr<Lisp_Env> &env)
 {
 	m_parent = env;
 }
 
-std::shared_ptr<Lisp_Env> Lisp_Env::get_parent()
+std::shared_ptr<Lisp_Env> Lisp_Env::get_parent() const
 {
 	return m_parent;
 }
 
-Lisp_Env_Map::iterator Lisp_Env::find(std::shared_ptr<Lisp_Symbol> &sym)
+Lisp_Env_Map::iterator Lisp_Env::find(const std::shared_ptr<Lisp_Symbol> &sym)
 {
 	auto env = this;
 	for (;;)
@@ -270,14 +270,14 @@ Lisp_Env_Map::iterator Lisp_Env::find(std::shared_ptr<Lisp_Symbol> &sym)
 	}
 }
 
-Lisp_Env_Map::iterator Lisp_Env::set(std::shared_ptr<Lisp_Symbol> &sym, std::shared_ptr<Lisp_Obj> &obj)
+Lisp_Env_Map::iterator Lisp_Env::set(const std::shared_ptr<Lisp_Symbol> &sym, const std::shared_ptr<Lisp_Obj> &obj)
 {
 	auto itr = find(sym);
 	if (itr != end(m_map)) itr->second = obj;
 	return itr;
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_Env::get(std::shared_ptr<Lisp_Symbol> &sym)
+std::shared_ptr<Lisp_Obj> Lisp_Env::get(const std::shared_ptr<Lisp_Symbol> &sym)
 {
 	auto itr = find(sym);
 	if (itr != end(m_map)) return itr->second;
@@ -324,8 +324,6 @@ Lisp::Lisp()
 	m_sym_splicing = intern(std::make_shared<Lisp_Symbol>("unquote-splicing"));
 	m_sym_nil = intern(std::make_shared<Lisp_Symbol>("nil"));
 	m_sym_t = intern(std::make_shared<Lisp_Symbol>("t"));
-	m_env->m_map[m_sym_nil] = m_sym_nil;
-	m_env->m_map[m_sym_t] = m_sym_t;
 
 	//prebound functions
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("add"))] = std::make_shared<Lisp_Func>(&Lisp::add);
