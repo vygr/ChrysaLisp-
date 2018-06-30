@@ -4,7 +4,7 @@ C++ ChrysaLisp !
 
 A version of ChrysaLisp Lisp written in C++.
 
-Needs better error handling plus macros, but worth being on Github now.
+Needs better error handling and some missing built in functions from ChrysaLisp.
 
 
 Make with:
