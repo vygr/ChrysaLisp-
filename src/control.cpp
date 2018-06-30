@@ -33,6 +33,62 @@ std::shared_ptr<Lisp_Obj> Lisp::quote(const std::shared_ptr<Lisp_List> &args)
 	return std::make_shared<Lisp_Obj>();
 }
 
+void qquote1(Lisp *lisp, std::shared_ptr<Lisp_Obj> &o, std::shared_ptr<Lisp_List> &cat_list)
+{
+	if (o->type() == lisp_type_list
+		&& std::static_pointer_cast<Lisp_List>(o)->length())
+	{
+		auto olst = std::static_pointer_cast<Lisp_List>(o);
+		if (olst->m_v[0] == lisp->m_sym_unquote)
+		{
+			auto lst = std::make_shared<Lisp_List>();
+			lst->m_v.push_back(lisp->m_sym_list);
+			lst->m_v.push_back(olst->m_v[1]);
+			cat_list->m_v.push_back(lst);
+		}
+		else if (olst->m_v[0] == lisp->m_sym_splicing)
+		{
+			cat_list->m_v.push_back(olst->m_v[1]);
+		}
+		else
+		{
+			auto i_cat_list = std::make_shared<Lisp_List>();
+			i_cat_list->m_v.push_back(lisp->m_sym_cat);
+			for (auto &&i : olst->m_v) qquote1(lisp, i, i_cat_list);
+			auto lst = std::make_shared<Lisp_List>();
+			lst->m_v.push_back(lisp->m_sym_list);
+			auto qlst = std::make_shared<Lisp_List>();
+			qlst->m_v.push_back(lisp->m_sym_quote);
+			qlst->m_v.push_back(lisp->repl_eval(i_cat_list));
+			lst->m_v.push_back(qlst);
+			cat_list->m_v.push_back(lst);
+		}
+	}
+	else
+	{
+		auto lst = std::make_shared<Lisp_List>();
+		lst->m_v.push_back(lisp->m_sym_list);
+		auto qlst = std::make_shared<Lisp_List>();
+		qlst->m_v.push_back(lisp->m_sym_quote);
+		qlst->m_v.push_back(o);
+		lst->m_v.push_back(qlst);
+		cat_list->m_v.push_back(lst);
+	}
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::qquote(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 2)
+	{
+		if (!args->m_v[1]->is_type(lisp_type_list)) return args->m_v[1];
+		auto cat_list = std::make_shared<Lisp_List>();
+		cat_list->m_v.push_back(m_sym_cat);
+		for (auto &&i : std::static_pointer_cast<Lisp_List>(args->m_v[1])->m_v) qquote1(this, i, cat_list);
+		return repl_eval(cat_list);
+	}
+	return std::make_shared<Lisp_Obj>();
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::apply(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 2

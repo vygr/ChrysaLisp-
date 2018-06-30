@@ -228,6 +228,7 @@ public:
 	std::shared_ptr<Lisp_Obj> lchar(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> quote(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> qquote(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> progn(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> apply(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> cond(const std::shared_ptr<Lisp_List> &args);
@@ -262,6 +263,7 @@ private:
 	std::shared_ptr<Lisp_Symbol> m_sym_qquote;
 	std::shared_ptr<Lisp_Symbol> m_sym_splicing;
 	unsigned long m_next_sym = 0;
+	friend void qquote1(Lisp *lisp, std::shared_ptr<Lisp_Obj> &o, std::shared_ptr<Lisp_List> &cat_list);
 };
 
 #endif

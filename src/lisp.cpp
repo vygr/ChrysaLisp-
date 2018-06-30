@@ -373,6 +373,7 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("lambda"))] = std::make_shared<Lisp_Func>(&Lisp::list, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("macro"))] = std::make_shared<Lisp_Func>(&Lisp::list, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("quote"))] = std::make_shared<Lisp_Func>(&Lisp::quote, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("quasi-quote"))] = std::make_shared<Lisp_Func>(&Lisp::qquote, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cond"))] = std::make_shared<Lisp_Func>(&Lisp::cond, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("while"))] = std::make_shared<Lisp_Func>(&Lisp::lwhile, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("progn"))] = std::make_shared<Lisp_Func>(&Lisp::progn);
