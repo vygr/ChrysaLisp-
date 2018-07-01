@@ -315,7 +315,7 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 		for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
 		{
 			if (!o->is_type(lisp_type_seq)) goto error;
-			max_len = std::min(max_len, std::static_pointer_cast<Lisp_List>(o)->length());
+			max_len = std::min(max_len, std::static_pointer_cast<Lisp_Seq>(o)->length());
 		}
 
 		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
@@ -375,7 +375,7 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 		for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
 		{
 			if (!o->is_type(lisp_type_seq)) goto error;
-			max_len = std::min(max_len, std::static_pointer_cast<Lisp_List>(o)->length());
+			max_len = std::min(max_len, std::static_pointer_cast<Lisp_Seq>(o)->length());
 		}
 
 		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
