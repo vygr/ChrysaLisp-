@@ -145,6 +145,12 @@ std::shared_ptr<Lisp_Obj> Lisp::read_list(std::istream &in)
 	{
 		c = read_whitespace(in);
 		if (c == ')') break;
+		if (c == ';')
+		{
+			std::string str;
+			std::getline(in, str, '\n');
+			continue;
+		}
 		auto obj = read(in);
 		lst->m_v.push_back(obj);
 	}
@@ -167,7 +173,6 @@ std::shared_ptr<Lisp_Obj> Lisp::read_rmacro(std::istream &in,  const std::shared
 
 std::shared_ptr<Lisp_Obj> Lisp::read(std::istream &in)
 {
-	in >> std::noskipws;
 	int c;
 	for (;;)
 	{
@@ -196,6 +201,7 @@ std::shared_ptr<Lisp_Obj> Lisp::read(std::istream &in)
 
 std::shared_ptr<Lisp_Obj> Lisp::repl(std::istream &in)
 {
+	in >> std::noskipws;
 	for (;;)
 	{
 		auto obj = read(in);
