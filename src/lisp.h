@@ -228,6 +228,7 @@ public:
 	std::shared_ptr<Lisp_Obj> match(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> some(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> each(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> part(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> cmp(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> code(const std::shared_ptr<Lisp_List> &args);

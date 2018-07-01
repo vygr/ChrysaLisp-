@@ -366,6 +366,7 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("match?"))] = std::make_shared<Lisp_Func>(&Lisp::match);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("some!"))] = std::make_shared<Lisp_Func>(&Lisp::some);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("each!"))] = std::make_shared<Lisp_Func>(&Lisp::each);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("partition"))] = std::make_shared<Lisp_Func>(&Lisp::part);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cmp"))] = std::make_shared<Lisp_Func>(&Lisp::cmp);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("code"))] = std::make_shared<Lisp_Func>(&Lisp::code);

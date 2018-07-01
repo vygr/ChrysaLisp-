@@ -105,6 +105,41 @@ std::shared_ptr<Lisp_Obj> Lisp::elemset(const std::shared_ptr<Lisp_List> &args)
 	return std::make_shared<Lisp_Obj>();
 }
 
+std::shared_ptr<Lisp_Obj> Lisp::part(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 4
+		&& args->m_v[1]->is_type(lisp_type_list)
+		&& args->m_v[2]->is_type(lisp_type_number)
+		&& args->m_v[3]->is_type(lisp_type_number))
+	{
+		auto lst = std::static_pointer_cast<Lisp_List>(args->m_v[1]);
+		auto start = std::static_pointer_cast<Lisp_Number>(args->m_v[2])->m_value;
+		auto end = std::static_pointer_cast<Lisp_Number>(args->m_v[3])->m_value;
+		auto len = lst->length();
+		if (start >= 0 && start < end && end <= len)
+		{
+			auto params = std::make_shared<Lisp_List>();
+			auto lower = begin(lst->m_v) + start;
+			auto upper = begin(lst->m_v) + end;
+			auto pivot = lower;
+			for (auto itr = lower + 1; itr != upper; ++itr)
+			{
+				params->m_v.clear();
+				params->m_v.push_back(*itr);
+				params->m_v.push_back(*lower);
+				auto value = repl_apply(args->m_v[0], params);
+				auto result = 0ll;
+				if (value->is_type(lisp_type_number)) result = std::static_pointer_cast<Lisp_Number>(value)->m_value;
+				if (result >= 0) continue;
+				if (++pivot != itr) std::iter_swap(itr, pivot);
+			}
+			if (pivot != lower) std::iter_swap(lower, pivot);
+			return std::make_shared<Lisp_Number>(pivot - begin(lst->m_v));
+		}
+	}
+	return std::make_shared<Lisp_Obj>();
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::slice(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 3
