@@ -130,8 +130,7 @@ std::shared_ptr<Lisp_Obj> Lisp::part(const std::shared_ptr<Lisp_List> &args)
 				auto value = repl_apply(args->m_v[0], params);
 				auto result = 0ll;
 				if (value->is_type(lisp_type_number)) result = std::static_pointer_cast<Lisp_Number>(value)->m_value;
-				if (result >= 0) continue;
-				if (++pivot != itr) std::iter_swap(itr, pivot);
+				if (result < 0 && ++pivot != itr) std::iter_swap(itr, pivot);
 			}
 			if (pivot != lower) std::iter_swap(lower, pivot);
 			return std::make_shared<Lisp_Number>(pivot - begin(lst->m_v));
