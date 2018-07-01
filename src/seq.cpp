@@ -303,3 +303,128 @@ std::shared_ptr<Lisp_Obj> Lisp::eql(const std::shared_ptr<Lisp_List> &args)
 	}
 	return std::make_shared<Lisp_Obj>();
 }
+
+std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 5
+		&& (args->m_v[0] == m_sym_nil || args->m_v[0]->is_type(lisp_type_number))
+		&& (args->m_v[1] == m_sym_nil || args->m_v[1]->is_type(lisp_type_number))
+		&& args->m_v[4]->is_type(lisp_type_list))
+	{
+		auto max_len = 1000000;
+		for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
+		{
+			if (!o->is_type(lisp_type_seq)) goto error;
+			max_len = std::min(max_len, std::static_pointer_cast<Lisp_List>(o)->length());
+		}
+
+		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
+		if (max_len != 1000000)
+		{
+			auto start = 0;
+			if (args->m_v[0]->is_type(lisp_type_number))
+			{
+				start = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
+				if (start < 0) start = max_len + start + 1;
+			}
+			auto end = max_len;
+			if (args->m_v[1]->is_type(lisp_type_number))
+			{
+				end = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
+				if (end < 0) end = max_len + end + 1;
+			}
+			if (start < 0 || start > max_len || end < 0 || end > max_len) goto error;
+			auto dir = 1;
+			if (start > end)
+			{
+				dir = -1;
+				--start;
+				--end;
+			}
+
+			auto params = std::make_shared<Lisp_List>();
+			while (start != end)
+			{
+				m_env->m_map[m_sym_underscore] = std::make_shared<Lisp_Number>(start);
+				for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
+				{
+					params->m_v.push_back(std::static_pointer_cast<Lisp_Seq>(o)->elem(start));
+				}
+				value = repl_apply(args->m_v[3], params);
+				if (value->type() == lisp_type_obj) break;
+				if (args->m_v[2] != m_sym_nil && value != m_sym_nil) break;
+				if (args->m_v[2] == m_sym_nil && value == m_sym_nil) break;
+				params->m_v.clear();
+				start += dir;
+			}
+		}
+		return value;
+	}
+error:
+	return std::make_shared<Lisp_Obj>();
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 5
+		&& (args->m_v[0] == m_sym_nil || args->m_v[0]->is_type(lisp_type_number))
+		&& (args->m_v[1] == m_sym_nil || args->m_v[1]->is_type(lisp_type_number))
+		&& args->m_v[4]->is_type(lisp_type_list))
+	{
+		auto max_len = 1000000;
+		for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
+		{
+			if (!o->is_type(lisp_type_seq)) goto error;
+			max_len = std::min(max_len, std::static_pointer_cast<Lisp_List>(o)->length());
+		}
+
+		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
+		if (max_len != 1000000)
+		{
+			auto start = 0;
+			if (args->m_v[0]->is_type(lisp_type_number))
+			{
+				start = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
+				if (start < 0) start = max_len + start + 1;
+			}
+			auto end = max_len;
+			if (args->m_v[1]->is_type(lisp_type_number))
+			{
+				end = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
+				if (end < 0) end = max_len + end + 1;
+			}
+			if (start < 0 || start > max_len || end < 0 || end > max_len) goto error;
+			auto dir = 1;
+			if (start > end)
+			{
+				dir = -1;
+				--start;
+				--end;
+			}
+
+			auto params = std::make_shared<Lisp_List>();
+			while (start != end)
+			{
+				m_env->m_map[m_sym_underscore] = std::make_shared<Lisp_Number>(start);
+				for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
+				{
+					params->m_v.push_back(std::static_pointer_cast<Lisp_Seq>(o)->elem(start));
+				}
+				value = repl_apply(args->m_v[3], params);
+				if (value->type() == lisp_type_obj) break;
+				if (args->m_v[2] != m_sym_nil)
+				{
+					params->m_v.clear();
+					params->m_v.push_back(value);
+					value = repl_apply(args->m_v[2], params);
+					if (value->type() == lisp_type_obj) break;
+				}
+				params->m_v.clear();
+				start += dir;
+			}
+		}
+		return value;
+	}
+error:
+	return std::make_shared<Lisp_Obj>();
+}

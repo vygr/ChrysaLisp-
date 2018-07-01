@@ -312,6 +312,7 @@ Lisp::Lisp()
 {
 	//prebound symbols
 	env_push();
+	m_sym_underscore = intern(std::make_shared<Lisp_Symbol>("_"));
 	m_sym_rest = intern(std::make_shared<Lisp_Symbol>("&rest"));
 	m_sym_optional = intern(std::make_shared<Lisp_Symbol>("&optional"));
 	m_sym_macro = intern(std::make_shared<Lisp_Symbol>("macro"));
@@ -362,6 +363,8 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("merge-sym"))] = std::make_shared<Lisp_Func>(&Lisp::merge);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("split"))] = std::make_shared<Lisp_Func>(&Lisp::split);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("match?"))] = std::make_shared<Lisp_Func>(&Lisp::match);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("some!"))] = std::make_shared<Lisp_Func>(&Lisp::some);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("each!"))] = std::make_shared<Lisp_Func>(&Lisp::each);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cmp"))] = std::make_shared<Lisp_Func>(&Lisp::cmp);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("code"))] = std::make_shared<Lisp_Func>(&Lisp::code);

@@ -223,6 +223,8 @@ public:
 	std::shared_ptr<Lisp_Obj> merge(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> split(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> match(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> some(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> each(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> cmp(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> code(const std::shared_ptr<Lisp_List> &args);
@@ -263,6 +265,7 @@ private:
 	std::shared_ptr<Lisp_Symbol> m_sym_unquote;
 	std::shared_ptr<Lisp_Symbol> m_sym_qquote;
 	std::shared_ptr<Lisp_Symbol> m_sym_splicing;
+	std::shared_ptr<Lisp_Symbol> m_sym_underscore;
 	unsigned long m_next_sym = 0;
 	friend void qquote1(Lisp *lisp, const std::shared_ptr<Lisp_Obj> &o, std::shared_ptr<Lisp_List> &cat_list);
 };
