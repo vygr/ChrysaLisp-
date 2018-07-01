@@ -355,6 +355,7 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("pop"))] = std::make_shared<Lisp_Func>(&Lisp::pop);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("length"))] = std::make_shared<Lisp_Func>(&Lisp::length);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("elem"))] = std::make_shared<Lisp_Func>(&Lisp::elem);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("elem-set"))] = std::make_shared<Lisp_Func>(&Lisp::elemset);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("slice"))] = std::make_shared<Lisp_Func>(&Lisp::slice);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cat"))] = std::make_shared<Lisp_Func>(&Lisp::cat);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("clear"))] = std::make_shared<Lisp_Func>(&Lisp::clear);
@@ -383,6 +384,7 @@ Lisp::Lisp()
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("prin"))] = std::make_shared<Lisp_Func>(&Lisp::prin);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("print"))] = std::make_shared<Lisp_Func>(&Lisp::print);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("time"))] = std::make_shared<Lisp_Func>(&Lisp::time);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("defmacro"))] = std::make_shared<Lisp_Func>(&Lisp::defmacro, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("env"))] = std::make_shared<Lisp_Func>(&Lisp::env, 1);

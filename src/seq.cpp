@@ -91,6 +91,20 @@ std::shared_ptr<Lisp_Obj> Lisp::elem(const std::shared_ptr<Lisp_List> &args)
 	return std::make_shared<Lisp_Obj>();
 }
 
+std::shared_ptr<Lisp_Obj> Lisp::elemset(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 3
+		&& args->m_v[0]->is_type(lisp_type_number)
+		&& args->m_v[1]->is_type(lisp_type_list))
+	{
+		auto i = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
+		auto lst = std::static_pointer_cast<Lisp_List>(args->m_v[1]);
+		if (i < 0) i += lst->length() + 1;
+		if (i >= 0 && i < lst->length()) return lst->m_v[i] = args->m_v[2];
+	}
+	return std::make_shared<Lisp_Obj>();
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::slice(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 3

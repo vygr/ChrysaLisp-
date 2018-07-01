@@ -30,6 +30,7 @@
 #include <vector>
 #include <numeric>
 #include <string>
+#include <chrono>
 
 enum Lisp_Type
 {
@@ -186,6 +187,7 @@ public:
 
 	std::shared_ptr<Lisp_Obj> prin(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> print(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> time(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> add(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> sub(const std::shared_ptr<Lisp_List> &args);
@@ -215,6 +217,7 @@ public:
 	std::shared_ptr<Lisp_Obj> pop(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> length(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> elem(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> elemset(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> slice(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> clear(const std::shared_ptr<Lisp_List> &args);
