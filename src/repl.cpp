@@ -28,7 +28,7 @@ std::shared_ptr<Lisp_Symbol> Lisp::intern(const std::shared_ptr<Lisp_Symbol> &ob
 	return obj;
 }
 
-int Lisp::read_whitespace(std::istream &in)
+int Lisp::read_whitespace(std::istream &in) const
 {
 	int p;
 	for (;;)
@@ -42,7 +42,7 @@ int Lisp::read_whitespace(std::istream &in)
 	return p;
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::read_string(std::istream &in, char term)
+std::shared_ptr<Lisp_Obj> Lisp::read_string(std::istream &in, char term) const
 {
 	auto obj = std::make_shared<Lisp_String>();
 	//skip '"'
@@ -72,7 +72,7 @@ std::shared_ptr<Lisp_Obj> Lisp::read_symbol(std::istream &in)
 	return intern(obj);
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::read_number(std::istream &in)
+std::shared_ptr<Lisp_Obj> Lisp::read_number(std::istream &in) const
 {
 	auto obj = std::make_shared<Lisp_Number>();
 	auto p = in.peek();

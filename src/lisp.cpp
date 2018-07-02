@@ -30,7 +30,7 @@ Lisp_Obj::Lisp_Obj()
 Lisp_Obj::~Lisp_Obj()
 {}
 
-void Lisp_Obj::print()
+void Lisp_Obj::print() const
 {
 	std::cout << "error";
 }
@@ -49,7 +49,7 @@ Lisp_Number::Lisp_Number(long long num)
 	, m_value(num)
 {}
 
-void Lisp_Number::print()
+void Lisp_Number::print() const
 {
 	std::cout << m_value;
 }
@@ -72,7 +72,7 @@ Lisp_Type Lisp_List::is_type(Lisp_Type t) const
 	return (Lisp_Type)(t & type_mask_list);
 }
 
-void Lisp_List::print()
+void Lisp_List::print() const
 {
 	std::cout << '(';
 	for (auto itr = begin(m_v); itr != end(m_v); ++itr)
@@ -83,24 +83,24 @@ void Lisp_List::print()
 	std::cout << ')';
 }
 
-int Lisp_List::length()
+int Lisp_List::length() const
 {
 	return m_v.size();
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_List::elem(int i)
+std::shared_ptr<Lisp_Obj> Lisp_List::elem(int i) const
 {
 	return m_v[i];
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_List::slice(int s, int e)
+std::shared_ptr<Lisp_Obj> Lisp_List::slice(int s, int e) const
 {
 	auto slc = std::make_shared<Lisp_List>();
 	for (auto itr = begin(m_v) + s; itr != begin(m_v) + e; ++itr) slc->m_v.push_back(*itr);
 	return slc;
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_List::cat(const std::shared_ptr<Lisp_List> &args)
+std::shared_ptr<Lisp_Obj> Lisp_List::cat(const std::shared_ptr<Lisp_List> &args) const
 {
 	auto c = std::make_shared<Lisp_List>();
 	c->m_v.reserve(std::accumulate(begin(args->m_v), end(args->m_v), 0,
@@ -143,27 +143,27 @@ Lisp_Type Lisp_String::is_type(Lisp_Type t) const
 	return (Lisp_Type)(t & type_mask_string);
 }
 
-void Lisp_String::print()
+void Lisp_String::print() const
 {
 	std::cout << m_string;
 }
 
-int Lisp_String::length()
+int Lisp_String::length() const
 {
 	return m_string.size();
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_String::elem(int i)
+std::shared_ptr<Lisp_Obj> Lisp_String::elem(int i) const
 {
 	return std::make_shared<Lisp_String>(m_string[i]);
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_String::slice(int s, int e)
+std::shared_ptr<Lisp_Obj> Lisp_String::slice(int s, int e) const
 {
 	return std::make_shared<Lisp_String>(std::string{begin(m_string) + s, begin(m_string) + e});
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_String::cat(const std::shared_ptr<Lisp_List> &args)
+std::shared_ptr<Lisp_Obj> Lisp_String::cat(const std::shared_ptr<Lisp_List> &args) const
 {
 	auto c = std::make_shared<Lisp_String>();
 	for (auto &o : args->m_v)
@@ -174,7 +174,7 @@ std::shared_ptr<Lisp_Obj> Lisp_String::cat(const std::shared_ptr<Lisp_List> &arg
 	return c;
 }
 
-int Lisp_String::cmp(const std::shared_ptr<Lisp_String> &str1, const std::shared_ptr<Lisp_String> &str2)
+int Lisp_String::cmp(const std::shared_ptr<Lisp_String> &str1, const std::shared_ptr<Lisp_String> &str2) const
 {
 	auto c = 0;
 	if (str1 != str2)
@@ -234,7 +234,7 @@ Lisp_Type Lisp_Env::is_type(Lisp_Type t) const
 	return (Lisp_Type)(t & type_mask_env);
 }
 
-void Lisp_Env::print()
+void Lisp_Env::print() const
 {
 	std::cout << '{';
 	for (auto itr = begin(m_map); itr != end(m_map); ++itr)
@@ -299,7 +299,7 @@ Lisp_Type Lisp_Func::is_type(Lisp_Type t) const
 	return (Lisp_Type)(t & type_mask_func);
 }
 
-void Lisp_Func::print()
+void Lisp_Func::print() const
 {
 	std::cout << "<function>";
 }

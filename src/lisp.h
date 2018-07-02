@@ -60,7 +60,7 @@ public:
 	virtual ~Lisp_Obj();
 	virtual const Lisp_Type type() const { return lisp_type_obj; }
 	virtual Lisp_Type is_type(Lisp_Type t) const;
-	virtual void print();
+	virtual void print() const;
 };
 
 const int type_mask_number = type_mask_obj | lisp_type_number;
@@ -70,7 +70,7 @@ public:
 	Lisp_Number(long long num = 0);
 	const Lisp_Type type() const override { return lisp_type_number; }
 	Lisp_Type is_type(Lisp_Type t) const override;
-	void print() override;
+	void print() const override;
 	long long m_value;
 };
 
@@ -81,10 +81,10 @@ public:
 	Lisp_Seq()
 		: Lisp_Obj()
 	{}
-	virtual int length() = 0;
-	virtual std::shared_ptr<Lisp_Obj> elem(int i) = 0;
-	virtual std::shared_ptr<Lisp_Obj> slice(int s, int e) = 0;
-	virtual std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) = 0;
+	virtual int length() const = 0;
+	virtual std::shared_ptr<Lisp_Obj> elem(int i) const = 0;
+	virtual std::shared_ptr<Lisp_Obj> slice(int s, int e) const = 0;
+	virtual std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) const = 0;
 };
 
 const int type_mask_list = type_mask_seq | lisp_type_list;
@@ -94,11 +94,11 @@ public:
 	Lisp_List();
 	const Lisp_Type type() const override { return lisp_type_list; }
 	Lisp_Type is_type(Lisp_Type t) const override;
-	void print() override;
-	int length() override;
-	std::shared_ptr<Lisp_Obj> elem(int i) override;
-	std::shared_ptr<Lisp_Obj> slice(int s, int e) override;
-	std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) override;
+	void print() const override;
+	int length() const override;
+	std::shared_ptr<Lisp_Obj> elem(int i) const override;
+	std::shared_ptr<Lisp_Obj> slice(int s, int e) const override;
+	std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) const override;
 	std::vector<std::shared_ptr<Lisp_Obj>> m_v;
 };
 
@@ -112,12 +112,12 @@ public:
 	Lisp_String(const char *s, int len);
 	const Lisp_Type type() const override { return lisp_type_string; }
 	Lisp_Type is_type(Lisp_Type t) const override;
-	void print() override;
-	int length() override;
-	std::shared_ptr<Lisp_Obj> elem(int i) override;
-	std::shared_ptr<Lisp_Obj> slice(int s, int e) override;
-	std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) override;
-	int cmp(const std::shared_ptr<Lisp_String> &str1, const std::shared_ptr<Lisp_String> &str2);
+	void print() const override;
+	int length() const override;
+	std::shared_ptr<Lisp_Obj> elem(int i) const override;
+	std::shared_ptr<Lisp_Obj> slice(int s, int e) const override;
+	std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) const override;
+	int cmp(const std::shared_ptr<Lisp_String> &str1, const std::shared_ptr<Lisp_String> &str2) const;
 	std::string m_string;
 };
 
@@ -140,7 +140,7 @@ public:
 	Lisp_Env();
 	const Lisp_Type type() const override { return lisp_type_env; }
 	Lisp_Type is_type(Lisp_Type t) const override;
-	void print() override;
+	void print() const override;
 	void set_parent(const std::shared_ptr<Lisp_Env> &env);
 	std::shared_ptr<Lisp_Env> get_parent() const;
 	Lisp_Env_Map::iterator find(const std::shared_ptr<Lisp_Symbol> &sym);
@@ -157,7 +157,7 @@ public:
 	Lisp_Func(lisp_func_ptr func, int t = 0);
 	const Lisp_Type type() const override { return lisp_type_func; }
 	Lisp_Type is_type(Lisp_Type t) const override;
-	void print() override;
+	void print() const override;
 	lisp_func_ptr m_func;
 	int m_ftype;
 };
@@ -168,15 +168,15 @@ class Lisp
 public:
 	Lisp();
 
-	std::shared_ptr<Lisp_Symbol> intern(const std::shared_ptr<Lisp_Symbol> &obj);
 	void env_push();
 	void env_pop();
+	std::shared_ptr<Lisp_Symbol> intern(const std::shared_ptr<Lisp_Symbol> &obj);
 	std::shared_ptr<Lisp_Obj> env_bind(const std::shared_ptr<Lisp_Obj> &lst, const std::shared_ptr<Lisp_Obj> &seq);
 
-	int read_whitespace(std::istream &in);
-	std::shared_ptr<Lisp_Obj> read_string(std::istream &in, char term);
+	int read_whitespace(std::istream &in) const;
+	std::shared_ptr<Lisp_Obj> read_string(std::istream &in, char term) const;
 	std::shared_ptr<Lisp_Obj> read_symbol(std::istream &in);
-	std::shared_ptr<Lisp_Obj> read_number(std::istream &in);
+	std::shared_ptr<Lisp_Obj> read_number(std::istream &in) const;
 	std::shared_ptr<Lisp_Obj> read_list(std::istream &in);
 	std::shared_ptr<Lisp_Obj> read_rmacro(std::istream &in, const std::shared_ptr<Lisp_Symbol> &sym);
 	std::shared_ptr<Lisp_Obj> read(std::istream &in);
