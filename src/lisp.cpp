@@ -96,6 +96,7 @@ std::shared_ptr<Lisp_Obj> Lisp_List::elem(int i) const
 std::shared_ptr<Lisp_Obj> Lisp_List::slice(int s, int e) const
 {
 	auto slc = std::make_shared<Lisp_List>();
+	slc->m_v.reserve(e - s);
 	for (auto itr = begin(m_v) + s; itr != begin(m_v) + e; ++itr) slc->m_v.push_back(*itr);
 	return slc;
 }
@@ -105,11 +106,7 @@ std::shared_ptr<Lisp_Obj> Lisp_List::cat(const std::shared_ptr<Lisp_List> &args)
 	auto c = std::make_shared<Lisp_List>();
 	c->m_v.reserve(std::accumulate(begin(args->m_v), end(args->m_v), 0,
 		[] (auto n, auto &o) { return n + std::static_pointer_cast<Lisp_List>(o)->length(); }));
-	for (auto &o : args->m_v)
-	{
-		auto lst = std::static_pointer_cast<Lisp_List>(o);
-		for (auto &o : lst->m_v) c->m_v.push_back(o);
-	}
+	for (auto &o : args->m_v) for (auto &o : std::static_pointer_cast<Lisp_List>(o)->m_v) c->m_v.push_back(o);
 	return c;
 }
 
@@ -166,11 +163,9 @@ std::shared_ptr<Lisp_Obj> Lisp_String::slice(int s, int e) const
 std::shared_ptr<Lisp_Obj> Lisp_String::cat(const std::shared_ptr<Lisp_List> &args) const
 {
 	auto c = std::make_shared<Lisp_String>();
-	for (auto &o : args->m_v)
-	{
-		auto s = std::static_pointer_cast<Lisp_String>(o);
-		c->m_string += s->m_string;
-	}
+	c->m_string.reserve(std::accumulate(begin(args->m_v), end(args->m_v), 0,
+		[] (auto n, auto &o) { return n + std::static_pointer_cast<Lisp_String>(o)->length(); }));
+	for (auto &o : args->m_v) c->m_string += std::static_pointer_cast<Lisp_String>(o)->m_string;
 	return c;
 }
 
