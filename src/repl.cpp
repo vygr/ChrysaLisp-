@@ -36,8 +36,7 @@ int Lisp::read_whitespace(std::istream &in) const
 		p = in.peek();
 		if (p == -1) break;
 		if (!std::isspace(((unsigned char)p))) break;
-		char w;
-		in >> w;
+		in.get();
 	}
 	return p;
 }
@@ -46,11 +45,10 @@ std::shared_ptr<Lisp_Obj> Lisp::read_string(std::istream &in, char term) const
 {
 	auto obj = std::make_shared<Lisp_String>();
 	//skip '"'
-	char c;
-	in >> c;
+	in.get();
 	for (;;)
 	{
-		in >> c;
+		auto c = in.get();
 		if (c == term) break;
 		obj->m_string.push_back(c);
 	}
@@ -65,9 +63,7 @@ std::shared_ptr<Lisp_Obj> Lisp::read_symbol(std::istream &in)
 		auto p = in.peek();
 		if (p == '(' || p == ')'
 			|| std::isspace(((unsigned char)p))) break;
-		char c;
-		in >> c;
-		obj->m_string.push_back(c);
+		obj->m_string.push_back(in.get());
 	}
 	return intern(obj);
 }
@@ -80,8 +76,7 @@ std::shared_ptr<Lisp_Obj> Lisp::read_number(std::istream &in) const
 	if (p == '-')
 	{
 		sign = -1;
-		char c;
-		in >> c;
+		in.get();
 	}
 	auto buffer = std::string{};
 	for (;;)
@@ -92,9 +87,7 @@ std::shared_ptr<Lisp_Obj> Lisp::read_number(std::istream &in) const
 			|| (p >= 'a' && p <= 'z')
 			|| (p >= 'A' && p <= 'Z'))
 		{
-			char c;
-			in >> c;
-			buffer.push_back(c);
+			buffer.push_back(in.get());
 		}
 		else break;
 	}
@@ -139,23 +132,20 @@ std::shared_ptr<Lisp_Obj> Lisp::read_list(std::istream &in)
 {
 	auto lst = std::make_shared<Lisp_List>();
 	//skip '('
-	char c;
-	in >> c;
+	in.get();
 	for (;;)
 	{
-		c = read_whitespace(in);
+		auto c = read_whitespace(in);
 		if (c == ')') break;
 		if (c == ';')
 		{
-			std::string str;
-			std::getline(in, str, '\n');
+			in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			continue;
 		}
-		auto obj = read(in);
-		lst->m_v.push_back(obj);
+		lst->m_v.push_back(read(in));
 	}
 	//skip ')'
-	in >> c;
+	in.get();
 	return lst;
 }
 
@@ -164,10 +154,8 @@ std::shared_ptr<Lisp_Obj> Lisp::read_rmacro(std::istream &in,  const std::shared
 	auto lst = std::make_shared<Lisp_List>();
 	lst->m_v.push_back(sym);
 	//skip '
-	char c;
-	in >> c;
-	auto obj = read(in);
-	lst->m_v.push_back(obj);
+	in.get();
+	lst->m_v.push_back(read(in));
 	return lst;
 }
 
@@ -178,14 +166,12 @@ std::shared_ptr<Lisp_Obj> Lisp::read(std::istream &in)
 	{
 		c = read_whitespace(in);
 		if (c != ';') break;
-		std::string str;
-		std::getline(in, str, '\n');
+		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	if (c == -1) return nullptr;
 	if (c == ')' || c == '}')
 	{
-		char c;
-		in >> c;
+		in.get();
 		return std::make_shared<Lisp_Obj>();
 	}
 	else if (c == '(') return read_list(in);
