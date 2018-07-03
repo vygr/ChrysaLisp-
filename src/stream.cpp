@@ -1,0 +1,77 @@
+/*
+    ChrysaLisp++
+    Copyright (C) 2018 Chris Hinsley
+	chris (dot) hinsley (at) gmail (dot) com
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+*/
+
+#include "lisp.h"
+
+std::shared_ptr<Lisp_Obj> Lisp::filestream(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 1
+		&& args->m_v[0]->is_type(lisp_type_string))
+	{
+		auto s = std::make_shared<Lisp_File_Stream>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string);
+		if (s->is_open()) return s;
+		return m_sym_nil;
+	}
+	return std::make_shared<Lisp_Obj>();
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::readchar(const std::shared_ptr<Lisp_List> &args)
+{
+	auto len = args->length();
+	if ((len == 1
+		&& args->m_v[0]->is_type(lisp_type_stream))
+		|| (len == 2
+			&& args->m_v[0]->is_type(lisp_type_stream)
+			&& args->m_v[1]->is_type(lisp_type_number)))
+	{
+		auto width = 1;
+		if (args->length() == 2
+			&& args->m_v[1]->is_type(lisp_type_number))
+		{
+			width = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
+			width = ((width - 1) & 7) + 1;
+		}
+		if (len == 2) width = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
+
+		auto value = std::make_shared<Lisp_Number>(0);
+		auto chars = (char*) &value->m_value;
+		do
+		{
+			auto c = std::static_pointer_cast<Lisp_Stream>(args->m_v[0])->read_char();
+			if (c == -1) return m_sym_nil;
+			*(chars++) = c;
+		} while (--width);
+		return value;
+	}
+	return std::make_shared<Lisp_Obj>();
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::readline(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 1
+		&& args->m_v[0]->is_type(lisp_type_stream))
+	{
+		bool state;
+		auto s = std::static_pointer_cast<Lisp_Stream>(args->m_v[0])->read_line(state);
+		if (state) return std::make_shared<Lisp_String>(s);
+		return m_sym_nil;
+	}
+	return std::make_shared<Lisp_Obj>();
+}
