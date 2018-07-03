@@ -32,6 +32,20 @@ std::shared_ptr<Lisp_Obj> Lisp::filestream(const std::shared_ptr<Lisp_List> &arg
 	return std::make_shared<Lisp_Obj>();
 }
 
+std::shared_ptr<Lisp_Obj> Lisp::read(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 2
+		&& args->m_v[0]->is_type(lisp_type_stream)
+		&& args->m_v[1]->is_type(lisp_type_number))
+	{
+		auto value = std::make_shared<Lisp_List>();
+		value->m_v.push_back(repl_read(std::static_pointer_cast<Lisp_Stream>(args->m_v[0])->get_stream()));
+		value->m_v.push_back(std::make_shared<Lisp_Number>(' '));
+		return value;
+	}
+	return std::make_shared<Lisp_Obj>();
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::readchar(const std::shared_ptr<Lisp_List> &args)
 {
 	auto len = args->length();
@@ -42,14 +56,11 @@ std::shared_ptr<Lisp_Obj> Lisp::readchar(const std::shared_ptr<Lisp_List> &args)
 			&& args->m_v[1]->is_type(lisp_type_number)))
 	{
 		auto width = 1;
-		if (args->length() == 2
-			&& args->m_v[1]->is_type(lisp_type_number))
+		if (len == 2)
 		{
 			width = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
 			width = ((width - 1) & 7) + 1;
 		}
-		if (len == 2) width = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
-
 		auto value = std::make_shared<Lisp_Number>(0);
 		auto chars = (char*) &value->m_value;
 		do

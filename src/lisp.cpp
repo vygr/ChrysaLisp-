@@ -324,6 +324,11 @@ bool Lisp_File_Stream::is_open() const
 	return m_stream.is_open();
 }
 
+std::istream &Lisp_File_Stream::get_stream()
+{
+	return m_stream;
+}
+
 int Lisp_File_Stream::read_char()
 {
 	return m_stream.get();
@@ -407,6 +412,7 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("char"))] = std::make_shared<Lisp_Func>(&Lisp::lchar);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("file-stream"))] = std::make_shared<Lisp_Func>(&Lisp::filestream);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read"))] = std::make_shared<Lisp_Func>(&Lisp::read);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read-char"))] = std::make_shared<Lisp_Func>(&Lisp::readchar);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read-line"))] = std::make_shared<Lisp_Func>(&Lisp::readline);
 

@@ -172,6 +172,7 @@ public:
 		: Lisp_Obj()
 	{}
 	virtual bool is_open() const = 0;
+	virtual std::istream &get_stream() = 0;
 	virtual int read_char() = 0;
 	virtual std::string read_line(bool &state) = 0;
 };
@@ -185,6 +186,7 @@ public:
 	Lisp_Type is_type(Lisp_Type t) const override;
 	void print() const override;
 	bool is_open() const override;
+	std::istream &get_stream() override;
 	int read_char() override;
 	std::string read_line(bool &state) override;
 	std::ifstream m_stream;
@@ -201,13 +203,13 @@ public:
 	std::shared_ptr<Lisp_Symbol> intern(const std::shared_ptr<Lisp_Symbol> &obj);
 	std::shared_ptr<Lisp_Obj> env_bind(const std::shared_ptr<Lisp_Obj> &lst, const std::shared_ptr<Lisp_Obj> &seq);
 
-	int read_whitespace(std::istream &in) const;
-	std::shared_ptr<Lisp_Obj> read_string(std::istream &in, char term) const;
-	std::shared_ptr<Lisp_Obj> read_symbol(std::istream &in);
-	std::shared_ptr<Lisp_Obj> read_number(std::istream &in) const;
-	std::shared_ptr<Lisp_Obj> read_list(std::istream &in);
-	std::shared_ptr<Lisp_Obj> read_rmacro(std::istream &in, const std::shared_ptr<Lisp_Symbol> &sym);
-	std::shared_ptr<Lisp_Obj> read(std::istream &in);
+	int repl_read_whitespace(std::istream &in) const;
+	std::shared_ptr<Lisp_Obj> repl_read_string(std::istream &in, char term) const;
+	std::shared_ptr<Lisp_Obj> repl_read_symbol(std::istream &in);
+	std::shared_ptr<Lisp_Obj> repl_read_number(std::istream &in) const;
+	std::shared_ptr<Lisp_Obj> repl_read_list(std::istream &in);
+	std::shared_ptr<Lisp_Obj> repl_read_rmacro(std::istream &in, const std::shared_ptr<Lisp_Symbol> &sym);
+	std::shared_ptr<Lisp_Obj> repl_read(std::istream &in);
 	std::shared_ptr<Lisp_Obj> repl(std::istream &in);
 	std::shared_ptr<Lisp_Obj> repl_apply(const std::shared_ptr<Lisp_Obj> &func, const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> repl_eval(const std::shared_ptr<Lisp_Obj> &obj);
@@ -263,6 +265,7 @@ public:
 	std::shared_ptr<Lisp_Obj> lchar(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> filestream(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> read(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> readchar(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> readline(const std::shared_ptr<Lisp_List> &args);
 

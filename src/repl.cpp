@@ -28,7 +28,7 @@ std::shared_ptr<Lisp_Symbol> Lisp::intern(const std::shared_ptr<Lisp_Symbol> &ob
 	return obj;
 }
 
-int Lisp::read_whitespace(std::istream &in) const
+int Lisp::repl_read_whitespace(std::istream &in) const
 {
 	int p;
 	for (;;)
@@ -41,7 +41,7 @@ int Lisp::read_whitespace(std::istream &in) const
 	return p;
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::read_string(std::istream &in, char term) const
+std::shared_ptr<Lisp_Obj> Lisp::repl_read_string(std::istream &in, char term) const
 {
 	auto obj = std::make_shared<Lisp_String>();
 	//skip '"'
@@ -55,7 +55,7 @@ std::shared_ptr<Lisp_Obj> Lisp::read_string(std::istream &in, char term) const
 	return obj;
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::read_symbol(std::istream &in)
+std::shared_ptr<Lisp_Obj> Lisp::repl_read_symbol(std::istream &in)
 {
 	auto obj = std::make_shared<Lisp_Symbol>();
 	for (;;)
@@ -68,7 +68,7 @@ std::shared_ptr<Lisp_Obj> Lisp::read_symbol(std::istream &in)
 	return intern(obj);
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::read_number(std::istream &in) const
+std::shared_ptr<Lisp_Obj> Lisp::repl_read_number(std::istream &in) const
 {
 	auto obj = std::make_shared<Lisp_Number>();
 	auto p = in.peek();
@@ -128,61 +128,61 @@ std::shared_ptr<Lisp_Obj> Lisp::read_number(std::istream &in) const
 	return obj;
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::read_list(std::istream &in)
+std::shared_ptr<Lisp_Obj> Lisp::repl_read_list(std::istream &in)
 {
 	auto lst = std::make_shared<Lisp_List>();
 	//skip '('
 	in.get();
 	for (;;)
 	{
-		auto c = read_whitespace(in);
+		auto c = repl_read_whitespace(in);
 		if (c == ')') break;
 		if (c == ';')
 		{
 			in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 			continue;
 		}
-		lst->m_v.push_back(read(in));
+		lst->m_v.push_back(repl_read(in));
 	}
 	//skip ')'
 	in.get();
 	return lst;
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::read_rmacro(std::istream &in,  const std::shared_ptr<Lisp_Symbol> &sym)
+std::shared_ptr<Lisp_Obj> Lisp::repl_read_rmacro(std::istream &in,  const std::shared_ptr<Lisp_Symbol> &sym)
 {
 	auto lst = std::make_shared<Lisp_List>();
 	lst->m_v.push_back(sym);
 	//skip '
 	in.get();
-	lst->m_v.push_back(read(in));
+	lst->m_v.push_back(repl_read(in));
 	return lst;
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::read(std::istream &in)
+std::shared_ptr<Lisp_Obj> Lisp::repl_read(std::istream &in)
 {
 	int c;
 	for (;;)
 	{
-		c = read_whitespace(in);
+		c = repl_read_whitespace(in);
 		if (c != ';') break;
 		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
-	if (c == -1) return nullptr;
+	if (c == -1) return m_sym_nil;
 	if (c == ')' || c == '}')
 	{
 		in.get();
 		return std::make_shared<Lisp_Obj>();
 	}
-	else if (c == '(') return read_list(in);
-	else if (c == '"') return read_string(in, '"');
-	else if (c == '{') return read_string(in, '}');
-	else if (c == '-' || std::isdigit(((unsigned char)c))) return read_number(in);
-	else if (c == 39) return read_rmacro(in, m_sym_quote);
-	else if (c == '`') return read_rmacro(in, m_sym_qquote);
-	else if (c == ',') return read_rmacro(in, m_sym_unquote);
-	else if (c == '~') return read_rmacro(in, m_sym_splicing);
-	return read_symbol(in);
+	else if (c == '(') return repl_read_list(in);
+	else if (c == '"') return repl_read_string(in, '"');
+	else if (c == '{') return repl_read_string(in, '}');
+	else if (c == '-' || std::isdigit(((unsigned char)c))) return repl_read_number(in);
+	else if (c == 39) return repl_read_rmacro(in, m_sym_quote);
+	else if (c == '`') return repl_read_rmacro(in, m_sym_qquote);
+	else if (c == ',') return repl_read_rmacro(in, m_sym_unquote);
+	else if (c == '~') return repl_read_rmacro(in, m_sym_splicing);
+	return repl_read_symbol(in);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::repl(std::istream &in)
@@ -190,8 +190,8 @@ std::shared_ptr<Lisp_Obj> Lisp::repl(std::istream &in)
 	in >> std::noskipws;
 	for (;;)
 	{
-		auto obj = read(in);
-		if (obj == nullptr) return obj;
+		auto obj = repl_read(in);
+		if (obj == m_sym_nil) return obj;
 		// std::cout << "--INPUT--\n";
 		// obj->print();
 		while (repl_expand(obj, 0));
