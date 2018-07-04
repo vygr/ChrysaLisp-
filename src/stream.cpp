@@ -153,3 +153,21 @@ std::shared_ptr<Lisp_Obj> Lisp::writeline(const std::shared_ptr<Lisp_List> &args
 	}
 	return std::make_shared<Lisp_Obj>();
 }
+
+std::shared_ptr<Lisp_Obj> Lisp::prin(const std::shared_ptr<Lisp_List> &args)
+{
+	auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
+	for (auto &obj : args->m_v)
+	{
+		value = obj;
+		value->print();
+	}
+	return value;
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::print(const std::shared_ptr<Lisp_List> &args)
+{
+	auto value = prin(args);
+	std::cout << std::endl;
+	return value;
+}
