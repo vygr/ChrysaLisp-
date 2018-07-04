@@ -111,7 +111,7 @@ std::shared_ptr<Lisp_Obj> Lisp_List::cat(const std::shared_ptr<Lisp_List> &args)
 }
 
 /////////////
-//Lisp_Symbol
+//Lisp_String
 /////////////
 
 Lisp_String::Lisp_String()
@@ -304,7 +304,7 @@ void Lisp_Func::print() const
 //////////////////
 
 Lisp_File_Stream::Lisp_File_Stream(const std::string &path)
-	: Lisp_Stream()
+	: Lisp_IStream()
 {
 	m_stream.open(path, std::ifstream::in);
 }
@@ -341,6 +341,46 @@ std::string Lisp_File_Stream::read_line(bool &state)
 	if (std::getline(m_stream, line, '\n')) return line;
 	state = false;
 	return line;
+}
+
+////////////////////
+//Lisp_String_Stream
+////////////////////
+
+Lisp_String_Stream::Lisp_String_Stream(const std::string &s)
+	: Lisp_OStream()
+{
+	m_stream.str(s);
+}
+
+Lisp_Type Lisp_String_Stream::is_type(Lisp_Type t) const
+{
+	return (Lisp_Type)(t & type_mask_string_stream);
+}
+
+void Lisp_String_Stream::print() const
+{
+	std::cout << "<string stream>";
+}
+
+bool Lisp_String_Stream::is_open() const
+{
+	return true;
+}
+
+std::ostream &Lisp_String_Stream::get_stream()
+{
+	return m_stream;
+}
+
+void Lisp_String_Stream::write_char(int c)
+{
+	m_stream.put(c);
+}
+
+void Lisp_String_Stream::write_line(const std::string &s)
+{
+	m_stream.write(&s[0], s.size());
 }
 
 //////
@@ -412,9 +452,16 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("char"))] = std::make_shared<Lisp_Func>(&Lisp::lchar);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("file-stream"))] = std::make_shared<Lisp_Func>(&Lisp::filestream);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("string-stream"))] = std::make_shared<Lisp_Func>(&Lisp::strstream);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read"))] = std::make_shared<Lisp_Func>(&Lisp::read);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read-char"))] = std::make_shared<Lisp_Func>(&Lisp::readchar);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read-line"))] = std::make_shared<Lisp_Func>(&Lisp::readline);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("write"))] = std::make_shared<Lisp_Func>(&Lisp::write);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("write-char"))] = std::make_shared<Lisp_Func>(&Lisp::writechar);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("write-line"))] = std::make_shared<Lisp_Func>(&Lisp::writeline);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("prin"))] = std::make_shared<Lisp_Func>(&Lisp::prin);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("print"))] = std::make_shared<Lisp_Func>(&Lisp::print);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("time"))] = std::make_shared<Lisp_Func>(&Lisp::time);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("catch"))] = std::make_shared<Lisp_Func>(&Lisp::lcatch, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("lambda"))] = std::make_shared<Lisp_Func>(&Lisp::list, 1);
@@ -426,10 +473,6 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("progn"))] = std::make_shared<Lisp_Func>(&Lisp::progn);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("apply"))] = std::make_shared<Lisp_Func>(&Lisp::apply);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("eval"))] = std::make_shared<Lisp_Func>(&Lisp::eval);
-
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("prin"))] = std::make_shared<Lisp_Func>(&Lisp::prin);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("print"))] = std::make_shared<Lisp_Func>(&Lisp::print);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("time"))] = std::make_shared<Lisp_Func>(&Lisp::time);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("defmacro"))] = std::make_shared<Lisp_Func>(&Lisp::defmacro, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("env"))] = std::make_shared<Lisp_Func>(&Lisp::env, 1);

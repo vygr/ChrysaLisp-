@@ -42,8 +42,10 @@ enum Lisp_Type
 	lisp_type_env = 1 << 5,
 	lisp_type_func = 1 << 6,
 	lisp_type_list = 1 << 7,
-	lisp_type_stream = 1 << 8,
-	lisp_type_file_stream = 1 << 9,
+	lisp_type_istream = 1 << 8,
+	lisp_type_ostream = 1 << 9,
+	lisp_type_file_stream = 1 << 10,
+	lisp_type_string_stream = 1 << 11,
 };
 
 class Lisp;
@@ -164,11 +166,11 @@ public:
 	int m_ftype;
 };
 
-const int type_mask_stream = type_mask_obj | lisp_type_stream;
-class Lisp_Stream : public Lisp_Obj
+const int type_mask_istream = type_mask_obj | lisp_type_istream;
+class Lisp_IStream : public Lisp_Obj
 {
 public:
-	Lisp_Stream()
+	Lisp_IStream()
 		: Lisp_Obj()
 	{}
 	virtual bool is_open() const = 0;
@@ -177,8 +179,21 @@ public:
 	virtual std::string read_line(bool &state) = 0;
 };
 
-const int type_mask_file_stream = type_mask_stream | lisp_type_file_stream;
-class Lisp_File_Stream : public Lisp_Stream
+const int type_mask_ostream = type_mask_obj | lisp_type_ostream;
+class Lisp_OStream : public Lisp_Obj
+{
+public:
+	Lisp_OStream()
+		: Lisp_Obj()
+	{}
+	virtual bool is_open() const = 0;
+	virtual std::ostream &get_stream() = 0;
+	virtual void write_char(int c) = 0;
+	virtual void write_line(const std::string &s) = 0;
+};
+
+const int type_mask_file_stream = type_mask_istream | lisp_type_file_stream;
+class Lisp_File_Stream : public Lisp_IStream
 {
 public:
 	Lisp_File_Stream(const std::string &path);
@@ -190,6 +205,21 @@ public:
 	int read_char() override;
 	std::string read_line(bool &state) override;
 	std::ifstream m_stream;
+};
+
+const int type_mask_string_stream = type_mask_ostream | lisp_type_string_stream;
+class Lisp_String_Stream : public Lisp_OStream
+{
+public:
+	Lisp_String_Stream(const std::string &s);
+	const Lisp_Type type() const override { return lisp_type_string_stream; }
+	Lisp_Type is_type(Lisp_Type t) const override;
+	void print() const override;
+	bool is_open() const override;
+	std::ostream &get_stream() override;
+	void write_char(int c) override;
+	void write_line(const std::string &s) override;
+	std::ostringstream m_stream;
 };
 
 //lisp class
@@ -214,10 +244,6 @@ public:
 	std::shared_ptr<Lisp_Obj> repl_apply(const std::shared_ptr<Lisp_Obj> &func, const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> repl_eval(const std::shared_ptr<Lisp_Obj> &obj);
 	int repl_expand(std::shared_ptr<Lisp_Obj> &obj, int cnt);
-
-	std::shared_ptr<Lisp_Obj> prin(const std::shared_ptr<Lisp_List> &args);
-	std::shared_ptr<Lisp_Obj> print(const std::shared_ptr<Lisp_List> &args);
-	std::shared_ptr<Lisp_Obj> time(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> add(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> sub(const std::shared_ptr<Lisp_List> &args);
@@ -265,9 +291,16 @@ public:
 	std::shared_ptr<Lisp_Obj> lchar(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> filestream(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> strstream(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> read(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> readchar(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> readline(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> write(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> writechar(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> writeline(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> prin(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> print(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> time(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> quote(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> qquote(const std::shared_ptr<Lisp_List> &args);
