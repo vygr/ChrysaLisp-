@@ -123,7 +123,7 @@ std::shared_ptr<Lisp_Obj> Lisp::writechar(const std::shared_ptr<Lisp_List> &args
 			&& args->m_v[2]->is_type(lisp_type_number)))
 	{
 		auto width = 1;
-		if (len == 2)
+		if (len == 3)
 		{
 			width = std::static_pointer_cast<Lisp_Number>(args->m_v[2])->m_value;
 			width = ((width - 1) & 7) + 1;
