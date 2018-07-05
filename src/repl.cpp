@@ -199,7 +199,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl(std::istream &in)
 		// obj->print();
 		// std::cout << "\n--EVAL-\n";
 		obj = repl_eval(obj);
-		obj->print();
+		obj->print(std::cout);
 		std::cout << "\n";
 		std::cout << std::endl;
 	}

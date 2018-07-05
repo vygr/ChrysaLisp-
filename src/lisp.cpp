@@ -30,14 +30,9 @@ Lisp_Obj::Lisp_Obj()
 Lisp_Obj::~Lisp_Obj()
 {}
 
-void Lisp_Obj::print() const
+void Lisp_Obj::print(std::ostream &out) const
 {
-	std::cout << "error";
-}
-
-Lisp_Type Lisp_Obj::is_type(Lisp_Type t) const
-{
-	return (Lisp_Type)(t & type_mask_obj);
+	out << "error";
 }
 
 /////////////
@@ -49,14 +44,9 @@ Lisp_Number::Lisp_Number(long long num)
 	, m_value(num)
 {}
 
-void Lisp_Number::print() const
+void Lisp_Number::print(std::ostream &out) const
 {
-	std::cout << m_value;
-}
-
-Lisp_Type Lisp_Number::is_type(Lisp_Type t) const
-{
-	return (Lisp_Type)(t & type_mask_number);
+	out << m_value;
 }
 
 ///////////
@@ -67,20 +57,15 @@ Lisp_List::Lisp_List()
 	: Lisp_Seq()
 {}
 
-Lisp_Type Lisp_List::is_type(Lisp_Type t) const
+void Lisp_List::print(std::ostream &out) const
 {
-	return (Lisp_Type)(t & type_mask_list);
-}
-
-void Lisp_List::print() const
-{
-	std::cout << '(';
+	out << '(';
 	for (auto itr = begin(m_v); itr != end(m_v); ++itr)
 	{
-		(*itr)->print();
-		if (itr != end(m_v) - 1) std::cout << ' ';
+		(*itr)->print(out);
+		if (itr != end(m_v) - 1) out << ' ';
 	}
-	std::cout << ')';
+	out << ')';
 }
 
 int Lisp_List::length() const
@@ -135,14 +120,9 @@ Lisp_String::Lisp_String(const char *s, int len)
 	for (auto i = 0; i < len; ++i) m_string.push_back(*(s + i));
 }
 
-Lisp_Type Lisp_String::is_type(Lisp_Type t) const
+void Lisp_String::print(std::ostream &out) const
 {
-	return (Lisp_Type)(t & type_mask_string);
-}
-
-void Lisp_String::print() const
-{
-	std::cout << m_string;
+	out << '"' << m_string << '"';
 }
 
 int Lisp_String::length() const
@@ -211,11 +191,6 @@ Lisp_Symbol::Lisp_Symbol(const char *s, int len)
 	: Lisp_String(s, len)
 {}
 
-Lisp_Type Lisp_Symbol::is_type(Lisp_Type t) const
-{
-	return (Lisp_Type)(t & type_mask_symbol);
-}
-
 //////////
 //Lisp_Env
 //////////
@@ -224,23 +199,18 @@ Lisp_Env::Lisp_Env()
 	: Lisp_Obj()
 {}
 
-Lisp_Type Lisp_Env::is_type(Lisp_Type t) const
+void Lisp_Env::print(std::ostream &out) const
 {
-	return (Lisp_Type)(t & type_mask_env);
-}
-
-void Lisp_Env::print() const
-{
-	std::cout << '{';
+	out << '{';
 	for (auto itr = begin(m_map); itr != end(m_map); ++itr)
 	{
-		std::cout << "[";
-		itr->first->print();
-		std::cout << " : ";
-		itr->second->print();
-		std::cout << "]";
+		out << "[";
+		itr->first->print(out);
+		out << " : ";
+		itr->second->print(out);
+		out << "]";
 	}
-	std::cout << '}';
+	out << '}';
 }
 
 void Lisp_Env::set_parent(const std::shared_ptr<Lisp_Env> &env)
@@ -289,14 +259,9 @@ Lisp_Func::Lisp_Func(lisp_func_ptr func, int t)
 	, m_ftype(t)
 {}
 
-Lisp_Type Lisp_Func::is_type(Lisp_Type t) const
+void Lisp_Func::print(std::ostream &out) const
 {
-	return (Lisp_Type)(t & type_mask_func);
-}
-
-void Lisp_Func::print() const
-{
-	std::cout << "<function>";
+	out << "<function>";
 }
 
 //////////////////
@@ -309,14 +274,9 @@ Lisp_File_Stream::Lisp_File_Stream(const std::string &path)
 	m_stream.open(path, std::ifstream::in);
 }
 
-Lisp_Type Lisp_File_Stream::is_type(Lisp_Type t) const
+void Lisp_File_Stream::print(std::ostream &out) const
 {
-	return (Lisp_Type)(t & type_mask_file_stream);
-}
-
-void Lisp_File_Stream::print() const
-{
-	std::cout << "<file stream>";
+	out << "<file stream>";
 }
 
 bool Lisp_File_Stream::is_open() const
@@ -353,14 +313,9 @@ Lisp_String_Stream::Lisp_String_Stream(const std::string &s)
 	m_stream.str(s);
 }
 
-Lisp_Type Lisp_String_Stream::is_type(Lisp_Type t) const
+void Lisp_String_Stream::print(std::ostream &out) const
 {
-	return (Lisp_Type)(t & type_mask_string_stream);
-}
-
-void Lisp_String_Stream::print() const
-{
-	std::cout << "<string stream>";
+	out << "<string stream>";
 }
 
 bool Lisp_String_Stream::is_open() const
@@ -450,6 +405,7 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cmp"))] = std::make_shared<Lisp_Func>(&Lisp::cmp);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("code"))] = std::make_shared<Lisp_Func>(&Lisp::code);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("char"))] = std::make_shared<Lisp_Func>(&Lisp::lchar);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("str"))] = std::make_shared<Lisp_Func>(&Lisp::str);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("file-stream"))] = std::make_shared<Lisp_Func>(&Lisp::filestream);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("string-stream"))] = std::make_shared<Lisp_Func>(&Lisp::strstream);

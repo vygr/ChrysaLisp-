@@ -160,7 +160,8 @@ std::shared_ptr<Lisp_Obj> Lisp::prin(const std::shared_ptr<Lisp_List> &args)
 	for (auto &obj : args->m_v)
 	{
 		value = obj;
-		value->print();
+		if (value->type() == lisp_type_string) std::cout << std::static_pointer_cast<Lisp_String>(value)->m_string;
+		else value->print(std::cout);
 	}
 	return value;
 }
