@@ -191,6 +191,11 @@ Lisp_Symbol::Lisp_Symbol(const char *s, int len)
 	: Lisp_String(s, len)
 {}
 
+void Lisp_Symbol::print(std::ostream &out) const
+{
+	out << m_string;
+}
+
 //////////
 //Lisp_Env
 //////////

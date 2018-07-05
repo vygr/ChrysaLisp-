@@ -135,6 +135,7 @@ public:
 	Lisp_Symbol(const char *s, int len);
 	const Lisp_Type type() const override { return lisp_type_symbol; }
 	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_symbol); }
+	void print(std::ostream &out) const override;
 };
 
 const int type_mask_env = type_mask_obj | lisp_type_env;
