@@ -272,29 +272,32 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_error(const std::string &msg, int type, con
 
 std::shared_ptr<Lisp_Obj> Lisp::eval(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() == 1)
+	if (args->length() == 1) return repl_eval(args->m_v[0]);
+	if (args->length() == 2)
 	{
-		return repl_eval(args->m_v[0]);
+		if (args->m_v[1]->is_type(lisp_type_env))
+		{
+			auto old_env = m_env;
+			m_env = std::static_pointer_cast<Lisp_Env>(args->m_v[1]);
+			auto value = repl_eval(args->m_v[0]);
+			m_env = old_env;
+			return value;
+		}
+		return repl_error("(eval form [env])", error_msg_not_an_environment, args);
 	}
-	else if (args->length() == 2
-		&& args->m_v[1]->is_type(lisp_type_env))
-	{
-		auto old_env = m_env;
-		m_env = std::static_pointer_cast<Lisp_Env>(args->m_v[1]);
-		auto value = repl_eval(args->m_v[0]);
-		m_env = old_env;
-		return value;
-	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(eval form [env])", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::sym(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() == 1
-		&& args->m_v[0]->is_type(lisp_type_string))
+	if (args->length() == 1)
 	{
-		if (args->m_v[0]->type() == lisp_type_symbol) return args->m_v[0];
-		return intern(std::make_shared<Lisp_Symbol>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string));
+		if (args->m_v[0]->is_type(lisp_type_string))
+		{
+			if (args->m_v[0]->type() == lisp_type_symbol) return args->m_v[0];
+			return intern(std::make_shared<Lisp_Symbol>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string));
+		}
+		return repl_error("(sym form)", error_msg_not_a_string, args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(sym form)", error_msg_wrong_num_of_args, args);
 }

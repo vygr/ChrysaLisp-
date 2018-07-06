@@ -31,7 +31,7 @@ std::shared_ptr<Lisp_Obj> Lisp::lcatch(const std::shared_ptr<Lisp_List> &args)
 			|| value1 != m_sym_nil) return value1;
 		return value;
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(catch form eform)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::progn(const std::shared_ptr<Lisp_List> &args)
@@ -44,7 +44,7 @@ std::shared_ptr<Lisp_Obj> Lisp::progn(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::quote(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 2) return args->m_v[1];
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(quote form)", error_msg_wrong_num_of_args, args);
 }
 
 void qquote1(Lisp *lisp, const std::shared_ptr<Lisp_Obj> &o, std::shared_ptr<Lisp_List> &cat_list)
@@ -100,7 +100,7 @@ std::shared_ptr<Lisp_Obj> Lisp::qquote(const std::shared_ptr<Lisp_List> &args)
 		for (auto &&i : std::static_pointer_cast<Lisp_List>(args->m_v[1])->m_v) qquote1(this, i, cat_list);
 		return repl_eval(cat_list);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(quasi-quote form)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::apply(const std::shared_ptr<Lisp_List> &args)
@@ -110,7 +110,7 @@ std::shared_ptr<Lisp_Obj> Lisp::apply(const std::shared_ptr<Lisp_List> &args)
 	{
 		return repl_apply(args->m_v[0], std::static_pointer_cast<Lisp_List>(args->m_v[1]));
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(apply lambda list)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::cond(const std::shared_ptr<Lisp_List> &args)
@@ -119,9 +119,11 @@ std::shared_ptr<Lisp_Obj> Lisp::cond(const std::shared_ptr<Lisp_List> &args)
 	for (auto itrc = begin(args->m_v) + 1; itrc != end(args->m_v); ++itrc)
 	{
 		auto &&cnd = *itrc;
-		if (!cnd->is_type(lisp_type_list)) return repl_error("(func ?)", error_msg_wrong_types, args);
+		if (!cnd->is_type(lisp_type_list))
+			return repl_error("(cond (tst body) ...)", error_msg_not_a_list, args);
 		auto lst = std::static_pointer_cast<Lisp_List>(cnd);
-		if (!lst->length()) return repl_error("(func ?)", error_msg_wrong_types, args);
+		if (!lst->length())
+			return repl_error("(cond (tst body) ...)", error_msg_wrong_num_of_args, args);
 		auto tst = repl_eval(lst->m_v[0]);
 		if (tst->type() == lisp_type_error) return tst;
 		if (tst != m_sym_nil)
@@ -139,27 +141,33 @@ std::shared_ptr<Lisp_Obj> Lisp::cond(const std::shared_ptr<Lisp_List> &args)
 
 std::shared_ptr<Lisp_Obj> Lisp::lwhile(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() < 2) return repl_error("(func ?)", error_msg_wrong_types, args);
-	for (;;)
+	if (args->length() > 1)
 	{
-		auto value = repl_eval(args->m_v[1]);
-		if (value->type() == lisp_type_obj
-			|| value == m_sym_nil) return value;
-		for (auto itr = begin(args->m_v) + 2; itr != end(args->m_v); ++itr)
+		for (;;)
 		{
-			value = repl_eval(*itr);
-			if (value->type() == lisp_type_error) return value;
+			auto value = repl_eval(args->m_v[1]);
+			if (value->type() == lisp_type_obj
+				|| value == m_sym_nil) return value;
+			for (auto itr = begin(args->m_v) + 2; itr != end(args->m_v); ++itr)
+			{
+				value = repl_eval(*itr);
+				if (value->type() == lisp_type_error) return value;
+			}
 		}
 	}
+	return repl_error("(while tst body)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::time(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length()) return repl_error("(func ?)", error_msg_wrong_types, args);
-	auto now = std::chrono::high_resolution_clock::now();
-	auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
-	auto value = now_ns.time_since_epoch().count();
-	return std::make_shared<Lisp_Number>(value);
+	if (!args->length())
+	{
+		auto now = std::chrono::high_resolution_clock::now();
+		auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
+		auto value = now_ns.time_since_epoch().count();
+		return std::make_shared<Lisp_Number>(value);
+	}
+	return repl_error("(time)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::repl_apply(const std::shared_ptr<Lisp_Obj> &func, const std::shared_ptr<Lisp_List> &args)
@@ -191,10 +199,10 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_apply(const std::shared_ptr<Lisp_Obj> &func
 				env_pop();
 				return value;
 			}
-			//fall through
+			return repl_error("(lambda ([arg ...]) body)", error_msg_wrong_num_of_args, func);
 		}
 		default:
-			return repl_error("(func ?)", error_msg_wrong_types, args);
+			return repl_error("(lambda ([arg ...]) body)", error_msg_not_a_lambda, func);
 	}
 }
 

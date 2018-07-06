@@ -113,7 +113,8 @@ std::shared_ptr<Lisp_Obj> Lisp::defq(const std::shared_ptr<Lisp_List> &args)
 		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
 		for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
 		{
-			if (!(*itr)->is_type(lisp_type_symbol)) return repl_error("(func ?)", error_msg_wrong_types, args);
+			if (!(*itr)->is_type(lisp_type_symbol))
+				return repl_error("(defq var val [var val] ...)", error_msg_not_a_symbol, args);
 			auto sym = std::static_pointer_cast<Lisp_Symbol>(*itr);
 			value = repl_eval(*(++itr));
 			if (value->type() == lisp_type_error) break;
@@ -121,7 +122,7 @@ std::shared_ptr<Lisp_Obj> Lisp::defq(const std::shared_ptr<Lisp_List> &args)
 		}
 		return value;
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(defq var val [var val] ...)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::setq(const std::shared_ptr<Lisp_List> &args)
@@ -132,55 +133,66 @@ std::shared_ptr<Lisp_Obj> Lisp::setq(const std::shared_ptr<Lisp_List> &args)
 		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
 		for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
 		{
-			if (!(*itr)->is_type(lisp_type_symbol)) return repl_error("(func ?)", error_msg_wrong_types, args);
+			if (!(*itr)->is_type(lisp_type_symbol))
+				return repl_error("(setq var val [var val] ...)", error_msg_not_a_symbol, args);
 			auto sym = std::static_pointer_cast<Lisp_Symbol>(*itr);
 			value = repl_eval(*(++itr));
 			if (value->type() == lisp_type_error) break;
-			if (m_env->set(sym, value) == end(m_env->m_map)) return repl_error("(func ?)", error_msg_wrong_types, args);
+			if (m_env->set(sym, value) == end(m_env->m_map))
+				return repl_error("(setq var val [var val] ...)", error_msg_symbol_not_bound, args);
 		}
 		return value;
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(setq var val [var val] ...)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::def(const std::shared_ptr<Lisp_List> &args)
 {
 	auto len = args->length();
-	if (len >= 3 && (len & 1)
-		&& args->m_v[0]->is_type(lisp_type_env))
+	if (len >= 3 && (len & 1))
 	{
-		auto env = std::static_pointer_cast<Lisp_Env>(args->m_v[0]);
-		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
-		for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
+		if (args->m_v[0]->is_type(lisp_type_env))
 		{
-			if (!(*itr)->is_type(lisp_type_symbol)) return repl_error("(func ?)", error_msg_wrong_types, args);
-			auto sym = std::static_pointer_cast<Lisp_Symbol>(*itr);
-			value = (*(++itr));
-			env->m_map[sym] = value;
+			auto env = std::static_pointer_cast<Lisp_Env>(args->m_v[0]);
+			auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
+			for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
+			{
+				if (!(*itr)->is_type(lisp_type_symbol))
+					return repl_error("(def env var val [var val] ...)", error_msg_not_a_symbol, args);
+				auto sym = std::static_pointer_cast<Lisp_Symbol>(*itr);
+				value = (*(++itr));
+				env->m_map[sym] = value;
+			}
+			return value;
 		}
-		return value;
+		return repl_error("(def env var val [var val] ...)", error_msg_not_an_environment, args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(def env var val [var val] ...)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::set(const std::shared_ptr<Lisp_List> &args)
 {
 	auto len = args->length();
-	if (len >= 3 && (len & 1)
-		&& args->m_v[0]->is_type(lisp_type_env))
+	if (len >= 3 && (len & 1))
 	{
-		auto env = std::static_pointer_cast<Lisp_Env>(args->m_v[0]);
-		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
-		for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
+		if (args->m_v[0]->is_type(lisp_type_env))
 		{
-			if (!(*itr)->is_type(lisp_type_symbol)) return repl_error("(func ?)", error_msg_wrong_types, args);
-			auto sym = std::static_pointer_cast<Lisp_Symbol>(*itr);
-			value = (*(++itr));
-			if (env->set(sym, value) == end(env->m_map)) return repl_error("(func ?)", error_msg_wrong_types, args);
+			auto env = std::static_pointer_cast<Lisp_Env>(args->m_v[0]);
+			auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
+			for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
+			{
+				if (!(*itr)->is_type(lisp_type_symbol))
+					return repl_error("(set env var val [var val] ...)", error_msg_not_a_symbol, args);
+				auto sym = std::static_pointer_cast<Lisp_Symbol>(*itr);
+				value = (*(++itr));
+				if (env->set(sym, value) == end(env->m_map))
+					return repl_error("(set env var val [var val] ...)", error_msg_symbol_not_bound, args);
+			}
+			return value;
 		}
-		return value;
+		return repl_error("(set env var val [var val] ...)", error_msg_not_an_environment, args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(set env var val [var val] ...)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::defined(const std::shared_ptr<Lisp_List> &args)
@@ -193,22 +205,28 @@ std::shared_ptr<Lisp_Obj> Lisp::defined(const std::shared_ptr<Lisp_List> &args)
 		if (itr != end(m_env->m_map)) return itr->second;
 		return m_sym_nil;
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(def? var)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::defmacro(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() > 3
-		&& args->m_v[1]->is_type(lisp_type_symbol)
-		&& args->m_v[2]->is_type(lisp_type_list))
+	if (args->length() > 3)
 	{
-		auto body = args->slice(1, args->length());
-		auto sym = std::static_pointer_cast<Lisp_Symbol>(args->m_v[1]);
-		std::static_pointer_cast<Lisp_List>(body)->m_v[0] = m_sym_macro;
-		m_env->m_map[sym] = body;
-		return sym;
+		if (args->m_v[1]->is_type(lisp_type_symbol))
+		{
+			if (args->m_v[2]->is_type(lisp_type_list))
+			{
+				auto body = args->slice(1, args->length());
+				auto sym = std::static_pointer_cast<Lisp_Symbol>(args->m_v[1]);
+				std::static_pointer_cast<Lisp_List>(body)->m_v[0] = m_sym_macro;
+				m_env->m_map[sym] = body;
+				return sym;
+			}
+			return repl_error("(defmacro name ([arg ...]) body)", error_msg_not_a_list, args);
+		}
+		return repl_error("(defmacro name ([arg ...]) body)", error_msg_not_a_symbol, args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(defmacro name ([arg ...]) body)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::gensym(const std::shared_ptr<Lisp_List> &args)
@@ -217,7 +235,7 @@ std::shared_ptr<Lisp_Obj> Lisp::gensym(const std::shared_ptr<Lisp_List> &args)
 	{
 		return intern(std::make_shared<Lisp_Symbol>(std::string{'G'} + std::to_string(m_next_sym++)));
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(gensym)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::bind(const std::shared_ptr<Lisp_List> &args)
@@ -226,5 +244,5 @@ std::shared_ptr<Lisp_Obj> Lisp::bind(const std::shared_ptr<Lisp_List> &args)
 	{
 		return env_bind(args->m_v[0], args->m_v[1]);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(bind (param ...) seq)", error_msg_wrong_num_of_args, args);
 }
