@@ -20,19 +20,23 @@
 
 #include "lisp.h"
 
-//////////
-//Lisp_Obj
-//////////
+////////////
+//Lisp_Error
+////////////
 
-Lisp_Obj::Lisp_Obj()
+Lisp_Error::Lisp_Error(const std::string &msg, const std::string &file, int line_num, const std::shared_ptr<Lisp_Obj> &o)
+	: Lisp_Obj()
+	, m_msg(msg)
+	, m_file(file)
+	, m_line_num(line_num)
+	, m_obj(o)
 {}
 
-Lisp_Obj::~Lisp_Obj()
-{}
-
-void Lisp_Obj::print(std::ostream &out) const
+void Lisp_Error::print(std::ostream &out) const
 {
-	out << "error";
+	out << "Error: " << m_msg << " ! < ";
+	m_obj->print(out);
+	out << " > File: " << m_file << "(" << m_line_num << ")";
 }
 
 /////////////
@@ -364,6 +368,10 @@ Lisp::Lisp()
 	m_sym_splicing = intern(std::make_shared<Lisp_Symbol>("unquote-splicing"));
 	m_sym_nil = intern(std::make_shared<Lisp_Symbol>("nil"));
 	m_sym_t = intern(std::make_shared<Lisp_Symbol>("t"));
+	m_sym_stream_name = intern(std::make_shared<Lisp_Symbol>("*stream-name*"));
+	m_sym_stream_line = intern(std::make_shared<Lisp_Symbol>("*stream-line*"));
+	m_env->m_map[m_sym_stream_name] = std::make_shared<Lisp_String>("ChrysaLisp");
+	m_env->m_map[m_sym_stream_line] = std::make_shared<Lisp_Number>(0);
 
 	//prebound functions
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("add"))] = std::make_shared<Lisp_Func>(&Lisp::add);

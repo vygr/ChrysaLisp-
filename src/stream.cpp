@@ -29,7 +29,7 @@ std::shared_ptr<Lisp_Obj> Lisp::filestream(const std::shared_ptr<Lisp_List> &arg
 		if (s->is_open()) return s;
 		return m_sym_nil;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::strstream(const std::shared_ptr<Lisp_List> &args)
@@ -39,7 +39,7 @@ std::shared_ptr<Lisp_Obj> Lisp::strstream(const std::shared_ptr<Lisp_List> &args
 	{
 		return std::make_shared<Lisp_String_Stream>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string);
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::read(const std::shared_ptr<Lisp_List> &args)
@@ -53,7 +53,7 @@ std::shared_ptr<Lisp_Obj> Lisp::read(const std::shared_ptr<Lisp_List> &args)
 		value->m_v.push_back(std::make_shared<Lisp_Number>(' '));
 		return value;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::readchar(const std::shared_ptr<Lisp_List> &args)
@@ -81,7 +81,7 @@ std::shared_ptr<Lisp_Obj> Lisp::readchar(const std::shared_ptr<Lisp_List> &args)
 		} while (--width);
 		return value;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::readline(const std::shared_ptr<Lisp_List> &args)
@@ -94,7 +94,7 @@ std::shared_ptr<Lisp_Obj> Lisp::readline(const std::shared_ptr<Lisp_List> &args)
 		if (state) return std::make_shared<Lisp_String>(s);
 		return m_sym_nil;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::write(const std::shared_ptr<Lisp_List> &args)
@@ -108,7 +108,7 @@ std::shared_ptr<Lisp_Obj> Lisp::write(const std::shared_ptr<Lisp_List> &args)
 		stream->write_line(value->m_string);
 		return value;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::writechar(const std::shared_ptr<Lisp_List> &args)
@@ -136,7 +136,7 @@ std::shared_ptr<Lisp_Obj> Lisp::writechar(const std::shared_ptr<Lisp_List> &args
 		} while (--width);
 		return value;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::writeline(const std::shared_ptr<Lisp_List> &args)
@@ -151,7 +151,7 @@ std::shared_ptr<Lisp_Obj> Lisp::writeline(const std::shared_ptr<Lisp_List> &args
 		stream->write_char('\n');
 		return value;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::prin(const std::shared_ptr<Lisp_List> &args)

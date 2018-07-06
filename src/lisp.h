@@ -46,6 +46,31 @@ enum Lisp_Type
 	lisp_type_ostream = 1 << 9,
 	lisp_type_file_stream = 1 << 10,
 	lisp_type_string_stream = 1 << 11,
+	lisp_type_error = 1 << 12,
+};
+
+enum Lisp_Error_Num
+{
+	error_msg_not_a_canvas,
+	error_msg_not_a_class,
+	error_msg_not_a_filename,
+	error_msg_not_a_lambda,
+	error_msg_not_a_list,
+	error_msg_not_a_number,
+	error_msg_not_a_pipe,
+	error_msg_not_a_sequence,
+	error_msg_not_a_stream,
+	error_msg_not_a_string,
+	error_msg_not_a_symbol,
+	error_msg_not_all_lists,
+	error_msg_not_all_nums,
+	error_msg_not_all_strings,
+	error_msg_not_an_environment,
+	error_msg_not_valid_index,
+	error_msg_open_error,
+	error_msg_symbol_not_bound,
+	error_msg_wrong_num_of_args,
+	error_msg_wrong_types
 };
 
 class Lisp;
@@ -60,11 +85,25 @@ const int type_mask_obj = lisp_type_obj;
 class Lisp_Obj
 {
 public:
-	Lisp_Obj();
-	virtual ~Lisp_Obj();
+	Lisp_Obj() {};
+	virtual ~Lisp_Obj() {};
 	virtual const Lisp_Type type() const { return lisp_type_obj; }
 	virtual Lisp_Type is_type(Lisp_Type t) const { return (Lisp_Type)(t & type_mask_obj); }
-	virtual void print(std::ostream &out) const;
+	virtual void print(std::ostream &out) const = 0;
+};
+
+const int type_mask_error = type_mask_obj | lisp_type_error;
+class Lisp_Error : public Lisp_Obj
+{
+public:
+	Lisp_Error(const std::string &msg, const std::string &file, int line_num, const std::shared_ptr<Lisp_Obj> &o);
+	const Lisp_Type type() const override { return lisp_type_error; }
+	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_error); }
+	void print(std::ostream &out) const override;
+	std::string m_msg;
+	std::string m_file;
+	int m_line_num;
+	std::shared_ptr<Lisp_Obj> m_obj;
 };
 
 const int type_mask_number = type_mask_obj | lisp_type_number;
@@ -244,6 +283,7 @@ public:
 	std::shared_ptr<Lisp_Obj> repl(std::istream &in);
 	std::shared_ptr<Lisp_Obj> repl_apply(const std::shared_ptr<Lisp_Obj> &func, const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> repl_eval(const std::shared_ptr<Lisp_Obj> &obj);
+	std::shared_ptr<Lisp_Obj> repl_error(const std::string &msg, int type, const std::shared_ptr<Lisp_Obj> &o);
 	int repl_expand(std::shared_ptr<Lisp_Obj> &obj, int cnt);
 
 	std::shared_ptr<Lisp_Obj> add(const std::shared_ptr<Lisp_List> &args);
@@ -340,6 +380,8 @@ private:
 	std::shared_ptr<Lisp_Symbol> m_sym_qquote;
 	std::shared_ptr<Lisp_Symbol> m_sym_splicing;
 	std::shared_ptr<Lisp_Symbol> m_sym_underscore;
+	std::shared_ptr<Lisp_Symbol> m_sym_stream_name;
+	std::shared_ptr<Lisp_Symbol> m_sym_stream_line;
 	unsigned long m_next_sym = 0;
 	friend void qquote1(Lisp *lisp, const std::shared_ptr<Lisp_Obj> &o, std::shared_ptr<Lisp_List> &cat_list);
 };

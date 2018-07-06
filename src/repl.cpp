@@ -169,10 +169,15 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_read(std::istream &in)
 		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	}
 	if (c == -1) return m_sym_nil;
-	if (c == ')' || c == '}')
+	if (c == ')')
 	{
 		in.get();
-		return std::make_shared<Lisp_Obj>();
+		return repl_error("unexpected )", 0, m_sym_nil);
+	}
+	if (c == '}')
+	{
+		in.get();
+		return repl_error("unexpected }", 0, m_sym_nil);
 	}
 	else if (c == '(') return repl_read_list(in);
 	else if (c == '"') return repl_read_string(in, '"');
@@ -233,6 +238,37 @@ int Lisp::repl_expand(std::shared_ptr<Lisp_Obj> &o, int cnt)
 	return cnt;
 }
 
+std::shared_ptr<Lisp_Obj> Lisp::repl_error(const std::string &msg, int type, const std::shared_ptr<Lisp_Obj> &o)
+{
+	static const std::vector<std::string> errors =
+	{
+		{"not_a_canvas"},
+		{"not_a_class"},
+		{"not_a_filename"},
+		{"not_a_lambda"},
+		{"not_a_list"},
+		{"not_a_number"},
+		{"not_a_pipe"},
+		{"not_a_sequence"},
+		{"not_a_stream"},
+		{"not_a_string"},
+		{"not_a_symbol"},
+		{"not_all_lists"},
+		{"not_all_nums"},
+		{"not_all_strings"},
+		{"not_an_environment"},
+		{"not_valid_index"},
+		{"open_error"},
+		{"symbol_not_bound"},
+		{"wrong_num_of_args"},
+		{"wrong_types"}
+	};
+
+	auto file = std::static_pointer_cast<Lisp_String>(m_env->get(m_sym_stream_name));
+	auto line = std::static_pointer_cast<Lisp_Number>(m_env->get(m_sym_stream_line));
+	return std::make_shared<Lisp_Error>(msg + " " + errors[type], file->m_string, line->m_value, o);
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::eval(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 1)
@@ -248,21 +284,7 @@ std::shared_ptr<Lisp_Obj> Lisp::eval(const std::shared_ptr<Lisp_List> &args)
 		m_env = old_env;
 		return value;
 	}
-	return std::make_shared<Lisp_Obj>();
-}
-
-std::shared_ptr<Lisp_Obj> Lisp::lcatch(const std::shared_ptr<Lisp_List> &args)
-{
-	if (args->length() == 3)
-	{
-		auto value = repl_eval(args->m_v[1]);
-		if (value->type() != lisp_type_obj) return value; 
-		auto value1 = repl_eval(args->m_v[2]);
-		if (value1->type() == lisp_type_obj
-			|| value1 != m_sym_nil) return value1;
-		return value;
-	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::sym(const std::shared_ptr<Lisp_List> &args)
@@ -273,5 +295,5 @@ std::shared_ptr<Lisp_Obj> Lisp::sym(const std::shared_ptr<Lisp_List> &args)
 		if (args->m_v[0]->type() == lisp_type_symbol) return args->m_v[0];
 		return intern(std::make_shared<Lisp_Symbol>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string));
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }

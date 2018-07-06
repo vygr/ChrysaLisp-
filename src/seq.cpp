@@ -36,7 +36,7 @@ std::shared_ptr<Lisp_Obj> Lisp::push(const std::shared_ptr<Lisp_List> &args)
 		for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr) l->m_v.push_back(*itr);
 		return l;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(push array form ...)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::pop(const std::shared_ptr<Lisp_List> &args)
@@ -50,14 +50,14 @@ std::shared_ptr<Lisp_Obj> Lisp::pop(const std::shared_ptr<Lisp_List> &args)
 		l->m_v.pop_back();
 		return o;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(pop array)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::clear(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() < 1
 		|| std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o)
-			{ return !o->is_type(lisp_type_list); })) return std::make_shared<Lisp_Obj>();
+			{ return !o->is_type(lisp_type_list); })) return repl_error("(func ?)", error_msg_wrong_types, args);
 	for (auto &&l : args->m_v)
 	{
 		auto lst = std::static_pointer_cast<Lisp_List>(l);
@@ -74,7 +74,7 @@ std::shared_ptr<Lisp_Obj> Lisp::length(const std::shared_ptr<Lisp_List> &args)
 		auto seq = std::static_pointer_cast<Lisp_Seq>(args->m_v[0]);
 		return std::make_shared<Lisp_Number>(seq->length());
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::elem(const std::shared_ptr<Lisp_List> &args)
@@ -88,7 +88,7 @@ std::shared_ptr<Lisp_Obj> Lisp::elem(const std::shared_ptr<Lisp_List> &args)
 		if (i < 0) i += seq->length() + 1;
 		if (i >= 0 && i < seq->length()) return seq->elem(i);
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::elemset(const std::shared_ptr<Lisp_List> &args)
@@ -102,7 +102,7 @@ std::shared_ptr<Lisp_Obj> Lisp::elemset(const std::shared_ptr<Lisp_List> &args)
 		if (i < 0) i += lst->length() + 1;
 		if (i >= 0 && i < lst->length()) return lst->m_v[i] = args->m_v[2];
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::part(const std::shared_ptr<Lisp_List> &args)
@@ -136,7 +136,7 @@ std::shared_ptr<Lisp_Obj> Lisp::part(const std::shared_ptr<Lisp_List> &args)
 			return std::make_shared<Lisp_Number>(pivot - begin(lst->m_v));
 		}
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::slice(const std::shared_ptr<Lisp_List> &args)
@@ -153,7 +153,7 @@ std::shared_ptr<Lisp_Obj> Lisp::slice(const std::shared_ptr<Lisp_List> &args)
 		if (e < 0) e += seq->length() + 1;
 		if (s <= e && s >= 0 && e <= seq->length()) return seq->slice(s, e);
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::cat(const std::shared_ptr<Lisp_List> &args)
@@ -166,7 +166,7 @@ std::shared_ptr<Lisp_Obj> Lisp::cat(const std::shared_ptr<Lisp_List> &args)
 		auto seq = std::static_pointer_cast<Lisp_Seq>(args->m_v[0]);
 		return seq->cat(args);
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::find(const std::shared_ptr<Lisp_List> &args)
@@ -190,7 +190,7 @@ std::shared_ptr<Lisp_Obj> Lisp::find(const std::shared_ptr<Lisp_List> &args)
 			return std::make_shared<Lisp_Number>((crend(lst->m_v)) - itr - 1);
 		}
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::merge(const std::shared_ptr<Lisp_List> &args)
@@ -211,7 +211,7 @@ std::shared_ptr<Lisp_Obj> Lisp::merge(const std::shared_ptr<Lisp_List> &args)
 			return lst1;
 		}
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::split(const std::shared_ptr<Lisp_List> &args)
@@ -231,7 +231,7 @@ std::shared_ptr<Lisp_Obj> Lisp::split(const std::shared_ptr<Lisp_List> &args)
 		}
 		return value;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::match(const std::shared_ptr<Lisp_List> &args)
@@ -258,7 +258,7 @@ std::shared_ptr<Lisp_Obj> Lisp::match(const std::shared_ptr<Lisp_List> &args)
 	nomatch:
 		return m_sym_nil;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 void copy1(std::shared_ptr<Lisp_Obj> &o)
@@ -279,7 +279,7 @@ std::shared_ptr<Lisp_Obj> Lisp::copy(const std::shared_ptr<Lisp_List> &args)
 		for (auto &&i : std::static_pointer_cast<Lisp_List>(value)->m_v) copy1(i);
 		return value;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::cmp(const std::shared_ptr<Lisp_List> &args)
@@ -292,7 +292,7 @@ std::shared_ptr<Lisp_Obj> Lisp::cmp(const std::shared_ptr<Lisp_List> &args)
 		auto str2 = std::static_pointer_cast<Lisp_String>(args->m_v[1]);
 		return std::make_shared<Lisp_Number>(str1->cmp(str1, str2));
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::code(const std::shared_ptr<Lisp_List> &args)
@@ -303,7 +303,7 @@ std::shared_ptr<Lisp_Obj> Lisp::code(const std::shared_ptr<Lisp_List> &args)
 		auto str = std::static_pointer_cast<Lisp_String>(args->m_v[0]);
 		return std::make_shared<Lisp_Number>(str->m_string[0]);
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::lchar(const std::shared_ptr<Lisp_List> &args)
@@ -321,7 +321,7 @@ std::shared_ptr<Lisp_Obj> Lisp::lchar(const std::shared_ptr<Lisp_List> &args)
 		auto tmp = (char*)&std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_String>(tmp, width);
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::eql(const std::shared_ptr<Lisp_List> &args)
@@ -349,7 +349,7 @@ std::shared_ptr<Lisp_Obj> Lisp::eql(const std::shared_ptr<Lisp_List> &args)
 	same:
 		return m_sym_t;
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
@@ -409,7 +409,7 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 		return value;
 	}
 error:
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
@@ -474,7 +474,7 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 		return value;
 	}
 error:
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::str(const std::shared_ptr<Lisp_List> &args)
@@ -496,5 +496,5 @@ std::shared_ptr<Lisp_Obj> Lisp::str(const std::shared_ptr<Lisp_List> &args)
 			return std::make_shared<Lisp_String>(ss.str());
 		}
 	}
-	return std::make_shared<Lisp_Obj>();
+	return repl_error("(func ?)", error_msg_wrong_types, args);
 }
