@@ -34,8 +34,8 @@ void Lisp::env_pop()
 
 std::shared_ptr<Lisp_Obj> Lisp::env_bind(const std::shared_ptr<Lisp_Obj> &lst, const std::shared_ptr<Lisp_Obj> &seq)
 {
-	if (!lst->is_type(lisp_type_list)) repl_error("(bind (param ...) seq)", error_msg_not_a_list, lst);
-	if (!seq->is_type(lisp_type_seq)) repl_error("(bind (param ...) seq)", error_msg_not_a_sequence, seq);
+	if (!lst->is_type(lisp_type_list)) return repl_error("(bind (param ...) seq)", error_msg_not_a_list, lst);
+	if (!seq->is_type(lisp_type_seq)) return repl_error("(bind (param ...) seq)", error_msg_not_a_sequence, seq);
 
 	auto index_vars = 0;
 	auto index_vals = 0;
