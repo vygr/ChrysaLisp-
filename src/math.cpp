@@ -23,7 +23,7 @@
 std::shared_ptr<Lisp_Obj> Lisp::add(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto init = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_Number>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
@@ -37,7 +37,7 @@ std::shared_ptr<Lisp_Obj> Lisp::add(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::sub(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto init = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_Number>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
@@ -51,7 +51,7 @@ std::shared_ptr<Lisp_Obj> Lisp::sub(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::mul(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto init = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_Number>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
@@ -65,7 +65,7 @@ std::shared_ptr<Lisp_Obj> Lisp::mul(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::div(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto init = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_Number>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
@@ -79,7 +79,7 @@ std::shared_ptr<Lisp_Obj> Lisp::div(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::mod(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto init = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_Number>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
@@ -93,7 +93,7 @@ std::shared_ptr<Lisp_Obj> Lisp::mod(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::max(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto init = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_Number>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
@@ -107,7 +107,7 @@ std::shared_ptr<Lisp_Obj> Lisp::max(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::min(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto init = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_Number>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
@@ -121,8 +121,7 @@ std::shared_ptr<Lisp_Obj> Lisp::min(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::eq(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o)
-			{ return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto val = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
@@ -137,8 +136,7 @@ std::shared_ptr<Lisp_Obj> Lisp::eq(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::ne(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o)
-			{ return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		for (auto itr = begin(args->m_v); itr != end(args->m_v); ++itr)
 		{
@@ -156,8 +154,7 @@ std::shared_ptr<Lisp_Obj> Lisp::ne(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::lt(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o)
-			{ return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto val = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
@@ -174,8 +171,7 @@ std::shared_ptr<Lisp_Obj> Lisp::lt(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::gt(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o)
-			{ return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto val = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
@@ -192,8 +188,7 @@ std::shared_ptr<Lisp_Obj> Lisp::gt(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::le(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o)
-			{ return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto val = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
@@ -210,8 +205,7 @@ std::shared_ptr<Lisp_Obj> Lisp::le(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::ge(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o)
-			{ return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto val = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		for (auto itr = begin(args->m_v) + 1; itr != end(args->m_v); ++itr)
@@ -228,7 +222,7 @@ std::shared_ptr<Lisp_Obj> Lisp::ge(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::band(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto init = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_Number>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
@@ -242,7 +236,7 @@ std::shared_ptr<Lisp_Obj> Lisp::band(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::bor(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto init = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_Number>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
@@ -256,7 +250,7 @@ std::shared_ptr<Lisp_Obj> Lisp::bor(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::bxor(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
-		&& std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_number); }))
 	{
 		auto init = std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
 		return std::make_shared<Lisp_Number>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
