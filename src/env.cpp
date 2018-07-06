@@ -116,7 +116,7 @@ std::shared_ptr<Lisp_Obj> Lisp::defq(const std::shared_ptr<Lisp_List> &args)
 			if (!(*itr)->is_type(lisp_type_symbol)) return repl_error("(func ?)", error_msg_wrong_types, args);
 			auto sym = std::static_pointer_cast<Lisp_Symbol>(*itr);
 			value = repl_eval(*(++itr));
-			if (value->type() == lisp_type_obj) break;
+			if (value->type() == lisp_type_error) break;
 			m_env->m_map[sym] = value;
 		}
 		return value;
@@ -135,7 +135,7 @@ std::shared_ptr<Lisp_Obj> Lisp::setq(const std::shared_ptr<Lisp_List> &args)
 			if (!(*itr)->is_type(lisp_type_symbol)) return repl_error("(func ?)", error_msg_wrong_types, args);
 			auto sym = std::static_pointer_cast<Lisp_Symbol>(*itr);
 			value = repl_eval(*(++itr));
-			if (value->type() == lisp_type_obj) break;
+			if (value->type() == lisp_type_error) break;
 			if (m_env->set(sym, value) == end(m_env->m_map)) return repl_error("(func ?)", error_msg_wrong_types, args);
 		}
 		return value;

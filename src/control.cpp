@@ -129,7 +129,7 @@ std::shared_ptr<Lisp_Obj> Lisp::cond(const std::shared_ptr<Lisp_List> &args)
 			for (auto itr = begin(lst->m_v) + 1; itr != end(lst->m_v); ++itr)
 			{
 				value = repl_eval(*itr);
-				if (value->type() == lisp_type_obj) break;
+				if (value->type() == lisp_type_error) break;
 			}
 			break;
 		}
@@ -185,7 +185,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_apply(const std::shared_ptr<Lisp_Obj> &func
 					for (auto itr = begin(f->m_v) + 2; itr != end(f->m_v); ++itr)
 					{
 						value = repl_eval(*itr);
-						if (value->type() == lisp_type_obj) break;
+						if (value->type() == lisp_type_error) break;
 					}
 				}
 				env_pop();

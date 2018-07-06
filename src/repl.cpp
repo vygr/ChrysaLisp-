@@ -172,12 +172,12 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_read(std::istream &in)
 	if (c == ')')
 	{
 		in.get();
-		return repl_error("unexpected )", 0, m_sym_nil);
+		return repl_error("unexpected )", error_msg, m_sym_nil);
 	}
 	if (c == '}')
 	{
 		in.get();
-		return repl_error("unexpected }", 0, m_sym_nil);
+		return repl_error("unexpected }", error_msg, m_sym_nil);
 	}
 	else if (c == '(') return repl_read_list(in);
 	else if (c == '"') return repl_read_string(in, '"');
@@ -242,6 +242,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_error(const std::string &msg, int type, con
 {
 	static const std::vector<std::string> errors =
 	{
+		{"error"},
 		{"not_a_canvas"},
 		{"not_a_class"},
 		{"not_a_filename"},

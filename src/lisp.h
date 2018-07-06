@@ -51,6 +51,7 @@ enum Lisp_Type
 
 enum Lisp_Error_Num
 {
+	error_msg,
 	error_msg_not_a_canvas,
 	error_msg_not_a_class,
 	error_msg_not_a_filename,

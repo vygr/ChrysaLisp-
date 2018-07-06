@@ -55,15 +55,17 @@ std::shared_ptr<Lisp_Obj> Lisp::pop(const std::shared_ptr<Lisp_List> &args)
 
 std::shared_ptr<Lisp_Obj> Lisp::clear(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() < 1
-		|| std::any_of(begin(args->m_v), end(args->m_v), [] (auto &&o)
-			{ return !o->is_type(lisp_type_list); })) return repl_error("(func ?)", error_msg_wrong_types, args);
-	for (auto &&l : args->m_v)
+	if (args->length()
+		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_list); }))
 	{
-		auto lst = std::static_pointer_cast<Lisp_List>(l);
-		lst->m_v.clear();
+		for (auto &&l : args->m_v)
+		{
+			auto lst = std::static_pointer_cast<Lisp_List>(l);
+			lst->m_v.clear();
+		}
+		return args->m_v[args->length() - 1];
 	}
-	return args->m_v[args->length() - 1];
+	return repl_error("(clear array ...)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::length(const std::shared_ptr<Lisp_List> &args)
@@ -74,7 +76,7 @@ std::shared_ptr<Lisp_Obj> Lisp::length(const std::shared_ptr<Lisp_List> &args)
 		auto seq = std::static_pointer_cast<Lisp_Seq>(args->m_v[0]);
 		return std::make_shared<Lisp_Number>(seq->length());
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(length seq)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::elem(const std::shared_ptr<Lisp_List> &args)
@@ -87,8 +89,9 @@ std::shared_ptr<Lisp_Obj> Lisp::elem(const std::shared_ptr<Lisp_List> &args)
 		auto seq = std::static_pointer_cast<Lisp_Seq>(args->m_v[1]);
 		if (i < 0) i += seq->length() + 1;
 		if (i >= 0 && i < seq->length()) return seq->elem(i);
+		return repl_error("(elem index seq)", error_msg_not_valid_index, args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(elem index seq)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::elemset(const std::shared_ptr<Lisp_List> &args)
@@ -101,8 +104,9 @@ std::shared_ptr<Lisp_Obj> Lisp::elemset(const std::shared_ptr<Lisp_List> &args)
 		auto lst = std::static_pointer_cast<Lisp_List>(args->m_v[1]);
 		if (i < 0) i += lst->length() + 1;
 		if (i >= 0 && i < lst->length()) return lst->m_v[i] = args->m_v[2];
+		return repl_error("(elem-set index list val)", error_msg_not_valid_index, args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(elem-set index list val)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::part(const std::shared_ptr<Lisp_List> &args)
@@ -135,8 +139,9 @@ std::shared_ptr<Lisp_Obj> Lisp::part(const std::shared_ptr<Lisp_List> &args)
 			if (pivot != lower) std::iter_swap(lower, pivot);
 			return std::make_shared<Lisp_Number>(pivot - begin(lst->m_v));
 		}
+		return repl_error("(partition lambda list start end)", error_msg_not_valid_index, args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(partition lambda list start end)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::slice(const std::shared_ptr<Lisp_List> &args)
@@ -152,21 +157,21 @@ std::shared_ptr<Lisp_Obj> Lisp::slice(const std::shared_ptr<Lisp_List> &args)
 		if (s < 0) s += seq->length() + 1;
 		if (e < 0) e += seq->length() + 1;
 		if (s <= e && s >= 0 && e <= seq->length()) return seq->slice(s, e);
+		return repl_error("(slice start end seq)", error_msg_not_valid_index, args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(slice start end seq)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::cat(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length()
 		&& args->m_v[0]->is_type(lisp_type_seq)
-		&& std::all_of(begin(args->m_v) + 1, end(args->m_v), [&] (auto &&o)
-			{ return o->type() == args->m_v[0]->type(); }))
+		&& std::all_of(begin(args->m_v) + 1, end(args->m_v), [&] (auto &&o) { return o->type() == args->m_v[0]->type(); }))
 	{
 		auto seq = std::static_pointer_cast<Lisp_Seq>(args->m_v[0]);
 		return seq->cat(args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(cat seq ...)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::find(const std::shared_ptr<Lisp_List> &args)
@@ -189,8 +194,9 @@ std::shared_ptr<Lisp_Obj> Lisp::find(const std::shared_ptr<Lisp_List> &args)
 			if (itr == crend(lst->m_v)) return m_sym_nil;
 			return std::make_shared<Lisp_Number>((crend(lst->m_v)) - itr - 1);
 		}
+		return repl_error("(find elem seq)", error_msg_not_a_sequence, args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(find elem seq)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::merge(const std::shared_ptr<Lisp_List> &args)
@@ -211,7 +217,7 @@ std::shared_ptr<Lisp_Obj> Lisp::merge(const std::shared_ptr<Lisp_List> &args)
 			return lst1;
 		}
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(merge-sym list list)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::split(const std::shared_ptr<Lisp_List> &args)
@@ -231,7 +237,7 @@ std::shared_ptr<Lisp_Obj> Lisp::split(const std::shared_ptr<Lisp_List> &args)
 		}
 		return value;
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(split str char)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::match(const std::shared_ptr<Lisp_List> &args)
@@ -258,7 +264,7 @@ std::shared_ptr<Lisp_Obj> Lisp::match(const std::shared_ptr<Lisp_List> &args)
 	nomatch:
 		return m_sym_nil;
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(match? list list)", error_msg_wrong_types, args);
 }
 
 void copy1(std::shared_ptr<Lisp_Obj> &o)
@@ -279,7 +285,7 @@ std::shared_ptr<Lisp_Obj> Lisp::copy(const std::shared_ptr<Lisp_List> &args)
 		for (auto &&i : std::static_pointer_cast<Lisp_List>(value)->m_v) copy1(i);
 		return value;
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(copy form)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::cmp(const std::shared_ptr<Lisp_List> &args)
@@ -292,7 +298,7 @@ std::shared_ptr<Lisp_Obj> Lisp::cmp(const std::shared_ptr<Lisp_List> &args)
 		auto str2 = std::static_pointer_cast<Lisp_String>(args->m_v[1]);
 		return std::make_shared<Lisp_Number>(str1->cmp(str1, str2));
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(cmp str str)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::code(const std::shared_ptr<Lisp_List> &args)
@@ -303,25 +309,29 @@ std::shared_ptr<Lisp_Obj> Lisp::code(const std::shared_ptr<Lisp_List> &args)
 		auto str = std::static_pointer_cast<Lisp_String>(args->m_v[0]);
 		return std::make_shared<Lisp_Number>(str->m_string[0]);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(code str)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::lchar(const std::shared_ptr<Lisp_List> &args)
 {
-	if ((args->length() == 1 || args->length() == 2)
-		&& args->m_v[0]->is_type(lisp_type_number))
+	if (args->length() == 1 || args->length() == 2)
 	{
-		auto width = 1;
-		if (args->length() == 2
-			&& args->m_v[1]->is_type(lisp_type_number))
+		if (args->m_v[0]->is_type(lisp_type_number))
 		{
-			width = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
-			width = ((width - 1) & 7) + 1;
+			auto width = 1;
+			if (args->length() == 2)
+			{
+				if (!args->m_v[1]->is_type(lisp_type_number)) goto error;
+				width = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
+				width = ((width - 1) & 7) + 1;
+			}
+			auto tmp = (char*)&std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
+			return std::make_shared<Lisp_String>(tmp, width);
 		}
-		auto tmp = (char*)&std::static_pointer_cast<Lisp_Number>(args->m_v[0])->m_value;
-		return std::make_shared<Lisp_String>(tmp, width);
+	error:
+		return repl_error("(char num [width])", error_msg_not_a_number, args);
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(char num [width])", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::eql(const std::shared_ptr<Lisp_List> &args)
@@ -349,20 +359,23 @@ std::shared_ptr<Lisp_Obj> Lisp::eql(const std::shared_ptr<Lisp_List> &args)
 	same:
 		return m_sym_t;
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(eql form form)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() == 5
-		&& (args->m_v[0] == m_sym_nil || args->m_v[0]->is_type(lisp_type_number))
-		&& (args->m_v[1] == m_sym_nil || args->m_v[1]->is_type(lisp_type_number))
-		&& args->m_v[4]->is_type(lisp_type_list))
+	if (args->length() != 5)
+		return repl_error("(some! start|nil end|nil mode lambda (seq ...))", error_msg_wrong_num_of_args, args);
+	if (!args->m_v[4]->is_type(lisp_type_list))
+		return repl_error("(some! start|nil end|nil mode lambda (seq ...))", error_msg_not_a_list, args);
+	if ((args->m_v[0] == m_sym_nil || args->m_v[0]->is_type(lisp_type_number))
+		&& (args->m_v[1] == m_sym_nil || args->m_v[1]->is_type(lisp_type_number)))
 	{
 		auto max_len = 1000000;
 		for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
 		{
-			if (!o->is_type(lisp_type_seq)) goto error;
+			if (!o->is_type(lisp_type_seq))
+				return repl_error("(some! start|nil end|nil mode lambda (seq ...))", error_msg_not_a_sequence, args);
 			max_len = std::min(max_len, std::static_pointer_cast<Lisp_Seq>(o)->length());
 		}
 
@@ -381,7 +394,8 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 				end = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
 				if (end < 0) end = max_len + end + 1;
 			}
-			if (start < 0 || start > max_len || end < 0 || end > max_len) goto error;
+			if (start < 0 || start > max_len || end < 0 || end > max_len)
+				return repl_error("(some! start|nil end|nil mode lambda (seq ...))", error_msg_not_valid_index, args);
 			auto dir = 1;
 			if (start > end)
 			{
@@ -399,7 +413,7 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 					params->m_v.push_back(std::static_pointer_cast<Lisp_Seq>(o)->elem(start));
 				}
 				value = repl_apply(args->m_v[3], params);
-				if (value->type() == lisp_type_obj) break;
+				if (value->type() == lisp_type_error) break;
 				if (args->m_v[2] != m_sym_nil && value != m_sym_nil) break;
 				if (args->m_v[2] == m_sym_nil && value == m_sym_nil) break;
 				params->m_v.clear();
@@ -408,21 +422,23 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 		}
 		return value;
 	}
-error:
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(some! start|nil end|nil mode lambda (seq ...))", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() == 5
-		&& (args->m_v[0] == m_sym_nil || args->m_v[0]->is_type(lisp_type_number))
-		&& (args->m_v[1] == m_sym_nil || args->m_v[1]->is_type(lisp_type_number))
-		&& args->m_v[4]->is_type(lisp_type_list))
+	if (args->length() != 5)
+		return repl_error("(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_wrong_num_of_args, args);
+	if (!args->m_v[4]->is_type(lisp_type_list))
+		return repl_error("(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_not_a_list, args);
+	if ((args->m_v[0] == m_sym_nil || args->m_v[0]->is_type(lisp_type_number))
+		&& (args->m_v[1] == m_sym_nil || args->m_v[1]->is_type(lisp_type_number)))
 	{
 		auto max_len = 1000000;
 		for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
 		{
-			if (!o->is_type(lisp_type_seq)) goto error;
+			if (!o->is_type(lisp_type_seq))
+				return repl_error("(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_not_a_sequence, args);
 			max_len = std::min(max_len, std::static_pointer_cast<Lisp_Seq>(o)->length());
 		}
 
@@ -441,7 +457,8 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 				end = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
 				if (end < 0) end = max_len + end + 1;
 			}
-			if (start < 0 || start > max_len || end < 0 || end > max_len) goto error;
+			if (start < 0 || start > max_len || end < 0 || end > max_len)
+				return repl_error("(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_not_valid_index, args);
 			auto dir = 1;
 			if (start > end)
 			{
@@ -459,13 +476,13 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 					params->m_v.push_back(std::static_pointer_cast<Lisp_Seq>(o)->elem(start));
 				}
 				value = repl_apply(args->m_v[3], params);
-				if (value->type() == lisp_type_obj) break;
+				if (value->type() == lisp_type_error) break;
 				if (args->m_v[2] != m_sym_nil)
 				{
 					params->m_v.clear();
 					params->m_v.push_back(value);
 					value = repl_apply(args->m_v[2], params);
-					if (value->type() == lisp_type_obj) break;
+					if (value->type() == lisp_type_error) break;
 				}
 				params->m_v.clear();
 				start += dir;
@@ -473,8 +490,7 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 		}
 		return value;
 	}
-error:
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(each! start|nil end|nil lambda|nil lambda (seq ...))", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::str(const std::shared_ptr<Lisp_List> &args)
@@ -496,5 +512,5 @@ std::shared_ptr<Lisp_Obj> Lisp::str(const std::shared_ptr<Lisp_List> &args)
 			return std::make_shared<Lisp_String>(ss.str());
 		}
 	}
-	return repl_error("(func ?)", error_msg_wrong_types, args);
+	return repl_error("(str form)", error_msg_wrong_num_of_args, args);
 }
