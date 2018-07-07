@@ -176,3 +176,40 @@ std::shared_ptr<Lisp_Obj> Lisp::print(const std::shared_ptr<Lisp_List> &args)
 	std::cout << std::endl;
 	return value;
 }
+
+std::shared_ptr<Lisp_Obj> Lisp::save(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 2
+		&& args->m_v[0]->is_type(lisp_type_string)
+		&& args->m_v[1]->is_type(lisp_type_string))
+	{
+		std::ofstream f;
+		f.open(std::static_pointer_cast<Lisp_String>(args->m_v[1])->m_string,
+			std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+		if (f.is_open())
+		{
+			f << std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string;
+			return args->m_v[0];
+		}
+		return repl_error("(save str path)", error_msg_open_error, args);
+	}
+	return repl_error("(save str path)", error_msg_wrong_types, args);
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::load(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 1
+		&& args->m_v[0]->is_type(lisp_type_string))
+	{
+		std::ifstream f;
+		f.open(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string,
+			std::ifstream::in | std::ifstream::binary);
+		if (f.is_open())
+		{
+			return std::make_shared<Lisp_String>(std::string((std::istreambuf_iterator<char>(f)),
+												(std::istreambuf_iterator<char>())));
+		}
+		return m_sym_nil;
+	}
+	return repl_error("(load path)", error_msg_wrong_types, args);
+}

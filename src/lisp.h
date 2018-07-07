@@ -361,6 +361,8 @@ public:
 	std::shared_ptr<Lisp_Obj> print(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> time(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> repl(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> save(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> load(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> quote(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> qquote(const std::shared_ptr<Lisp_List> &args);
