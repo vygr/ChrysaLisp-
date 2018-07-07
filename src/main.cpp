@@ -76,7 +76,7 @@ int main(int argc, char *argv[])
 	lisp.repl(args);
 	std::cout << "\n;;;;;;;;;;;;;;;;;;\n; C++ ChrysaLisp ;\n;;;;;;;;;;;;;;;;;;\n" << std::endl;
 	args->m_v.clear();
-	args->m_v.push_back(std::make_shared<Lisp_Sys_Stream>(std::cin));
+	args->m_v.push_back(std::make_shared<Lisp_Sys_Stream>(in));
 	args->m_v.push_back(std::make_shared<Lisp_String>("stdin"));
 	lisp.repl(args);
 	return 0;
