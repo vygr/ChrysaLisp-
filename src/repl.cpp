@@ -28,17 +28,32 @@ std::shared_ptr<Lisp_Symbol> Lisp::intern(const std::shared_ptr<Lisp_Symbol> &ob
 	return obj;
 }
 
+int Lisp::repl_read_char(std::istream &in) const
+{
+	auto c = in.get();
+	if (c == '\n')
+	{
+		auto obj = m_env->get(m_sym_stream_line);
+		if (obj)
+		{
+			auto num = std::static_pointer_cast<Lisp_Number>(obj);
+			num->m_value++;
+		}
+	}
+	return c;
+}
+
 int Lisp::repl_read_whitespace(std::istream &in) const
 {
-	int p;
+	int c;
 	for (;;)
 	{
-		p = in.peek();
-		if (p == -1) break;
-		if (!std::isspace(((unsigned char)p))) break;
-		in.get();
+		c = in.peek();
+		if (c == -1) break;
+		if (!std::isspace(((unsigned char)c))) break;
+		repl_read_char(in);
 	}
-	return p;
+	return c;
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::repl_read_string(std::istream &in, char term) const
@@ -48,7 +63,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_read_string(std::istream &in, char term) co
 	in.get();
 	for (;;)
 	{
-		auto c = in.get();
+		auto c = repl_read_char(in);
 		if (c == term) break;
 		obj->m_string.push_back(c);
 	}
@@ -139,7 +154,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_read_list(std::istream &in)
 		if (c == ')') break;
 		if (c == ';')
 		{
-			in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+			while (repl_read_char(in) != '\n') {}
 			continue;
 		}
 		lst->m_v.push_back(repl_read(in));
@@ -166,7 +181,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_read(std::istream &in)
 	{
 		c = repl_read_whitespace(in);
 		if (c != ';') break;
-		in.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+		while (repl_read_char(in) != '\n') {}
 	}
 	if (c == -1) return m_sym_nil;
 	if (c == ')')
@@ -188,26 +203,6 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_read(std::istream &in)
 	else if (c == ',') return repl_read_rmacro(in, m_sym_unquote);
 	else if (c == '~') return repl_read_rmacro(in, m_sym_splicing);
 	return repl_read_symbol(in);
-}
-
-std::shared_ptr<Lisp_Obj> Lisp::repl(std::istream &in)
-{
-	in >> std::noskipws;
-	for (;;)
-	{
-		auto obj = repl_read(in);
-		if (obj == m_sym_nil) return obj;
-		// std::cout << "--INPUT--\n";
-		// obj->print();
-		while (repl_expand(obj, 0));
-		// std::cout << "\n--EXPAND-\n";
-		// obj->print();
-		// std::cout << "\n--EVAL-\n";
-		obj = repl_eval(obj);
-		obj->print(std::cout);
-		std::cout << "\n";
-		std::cout << std::endl;
-	}
 }
 
 int Lisp::repl_expand(std::shared_ptr<Lisp_Obj> &o, int cnt)
@@ -268,6 +263,44 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_error(const std::string &msg, int type, con
 	auto file = std::static_pointer_cast<Lisp_String>(m_env->get(m_sym_stream_name));
 	auto line = std::static_pointer_cast<Lisp_Number>(m_env->get(m_sym_stream_line));
 	return std::make_shared<Lisp_Error>(msg + " " + errors[type], file->m_string, line->m_value, o);
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::repl(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 2)
+	{
+		if (args->m_v[0]->is_type(lisp_type_istream))
+		{
+			if (args->m_v[1]->is_type(lisp_type_string))
+			{
+				auto old_file = m_env->get(m_sym_stream_name);
+				auto old_line = m_env->get(m_sym_stream_line);
+				m_env->set(m_sym_stream_name, args->m_v[1]);
+				m_env->set(m_sym_stream_line, std::make_shared<Lisp_Number>(1));
+				auto in = std::static_pointer_cast<Lisp_IStream>(args->m_v[0]);
+				auto obj = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
+				do
+				{
+					obj = repl_read(in->get_stream());
+					if (obj == m_sym_nil) break;
+					while (repl_expand(obj, 0));
+					obj = repl_eval(obj);
+					if (in->type() == lisp_type_sys_stream)
+					{
+						obj->print(std::cout);
+						std::cout << "\n";
+						std::cout << std::endl;
+					}
+				} while (obj->type() != lisp_type_error);
+				m_env->set(m_sym_stream_name, old_file);
+				m_env->set(m_sym_stream_line, old_line);
+				return obj;
+			}
+			return repl_error("(repl stream path)", error_msg_not_a_string, args);
+		}
+		return repl_error("(repl stream path)", error_msg_not_a_stream, args);
+	}
+	return repl_error("(repl stream path)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::eval(const std::shared_ptr<Lisp_List> &args)

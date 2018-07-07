@@ -273,6 +273,46 @@ void Lisp_Func::print(std::ostream &out) const
 	out << "<function>";
 }
 
+/////////////////
+//Lisp_Sys_Stream
+/////////////////
+
+Lisp_Sys_Stream::Lisp_Sys_Stream(std::istream &in)
+	: Lisp_IStream()
+	, m_stream(in)
+{
+	m_stream >> std::noskipws;
+}
+
+void Lisp_Sys_Stream::print(std::ostream &out) const
+{
+	out << "<stdin stream>";
+}
+
+bool Lisp_Sys_Stream::is_open() const
+{
+	return true;
+}
+
+std::istream &Lisp_Sys_Stream::get_stream()
+{
+	return m_stream;
+}
+
+int Lisp_Sys_Stream::read_char()
+{
+	return m_stream.get();
+}
+
+std::string Lisp_Sys_Stream::read_line(bool &state)
+{
+	std::string line;
+	state = true;
+	if (std::getline(m_stream, line, '\n')) return line;
+	state = false;
+	return line;
+}
+
 //////////////////
 //Lisp_File_Stream
 //////////////////
@@ -281,6 +321,7 @@ Lisp_File_Stream::Lisp_File_Stream(const std::string &path)
 	: Lisp_IStream()
 {
 	m_stream.open(path, std::ifstream::in);
+	m_stream >> std::noskipws;
 }
 
 void Lisp_File_Stream::print(std::ostream &out) const

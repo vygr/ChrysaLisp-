@@ -69,10 +69,15 @@ int main(int argc, char *argv[])
 
 	//repl
 	auto lisp = Lisp();
-	std::ifstream boot_file;
-	boot_file.open("src/boot.inc", std::ifstream::in);
-	lisp.repl(boot_file);
+	auto boot_file = "src/boot.inc";
+	auto args = std::make_shared<Lisp_List>();
+	args->m_v.push_back(std::make_shared<Lisp_File_Stream>(boot_file));
+	args->m_v.push_back(std::make_shared<Lisp_String>(boot_file));
+	lisp.repl(args);
 	std::cout << "\n;;;;;;;;;;;;;;;;;;\n; C++ ChrysaLisp ;\n;;;;;;;;;;;;;;;;;;\n" << std::endl;
-	lisp.repl(in);
+	args->m_v.clear();
+	args->m_v.push_back(std::make_shared<Lisp_Sys_Stream>(std::cin));
+	args->m_v.push_back(std::make_shared<Lisp_String>("stdin"));
+	lisp.repl(args);
 	return 0;
 }

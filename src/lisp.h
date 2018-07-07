@@ -46,7 +46,8 @@ enum Lisp_Type
 	lisp_type_ostream = 1 << 9,
 	lisp_type_file_stream = 1 << 10,
 	lisp_type_string_stream = 1 << 11,
-	lisp_type_error = 1 << 12,
+	lisp_type_sys_stream = 1 << 12,
+	lisp_type_error = 1 << 13,
 };
 
 enum Lisp_Error_Num
@@ -233,6 +234,21 @@ public:
 	virtual void write_line(const std::string &s) = 0;
 };
 
+const int type_mask_sys_stream = type_mask_istream | lisp_type_sys_stream;
+class Lisp_Sys_Stream : public Lisp_IStream
+{
+public:
+	Lisp_Sys_Stream(std::istream &in);
+	const Lisp_Type type() const override { return lisp_type_sys_stream; }
+	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_sys_stream); }
+	void print(std::ostream &out) const override;
+	bool is_open() const override;
+	std::istream &get_stream() override;
+	int read_char() override;
+	std::string read_line(bool &state) override;
+	std::istream &m_stream;
+};
+
 const int type_mask_file_stream = type_mask_istream | lisp_type_file_stream;
 class Lisp_File_Stream : public Lisp_IStream
 {
@@ -274,6 +290,7 @@ public:
 	std::shared_ptr<Lisp_Symbol> intern(const std::shared_ptr<Lisp_Symbol> &obj);
 	std::shared_ptr<Lisp_Obj> env_bind(const std::shared_ptr<Lisp_Obj> &lst, const std::shared_ptr<Lisp_Obj> &seq);
 
+	int repl_read_char(std::istream &in) const;
 	int repl_read_whitespace(std::istream &in) const;
 	std::shared_ptr<Lisp_Obj> repl_read_string(std::istream &in, char term) const;
 	std::shared_ptr<Lisp_Obj> repl_read_symbol(std::istream &in);
@@ -281,7 +298,6 @@ public:
 	std::shared_ptr<Lisp_Obj> repl_read_list(std::istream &in);
 	std::shared_ptr<Lisp_Obj> repl_read_rmacro(std::istream &in, const std::shared_ptr<Lisp_Symbol> &sym);
 	std::shared_ptr<Lisp_Obj> repl_read(std::istream &in);
-	std::shared_ptr<Lisp_Obj> repl(std::istream &in);
 	std::shared_ptr<Lisp_Obj> repl_apply(const std::shared_ptr<Lisp_Obj> &func, const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> repl_eval(const std::shared_ptr<Lisp_Obj> &obj);
 	std::shared_ptr<Lisp_Obj> repl_error(const std::string &msg, int type, const std::shared_ptr<Lisp_Obj> &o);
@@ -344,6 +360,7 @@ public:
 	std::shared_ptr<Lisp_Obj> prin(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> print(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> time(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> repl(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> quote(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> qquote(const std::shared_ptr<Lisp_List> &args);
