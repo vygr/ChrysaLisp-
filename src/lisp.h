@@ -292,6 +292,7 @@ public:
 
 	int repl_read_char(std::istream &in) const;
 	int repl_read_whitespace(std::istream &in) const;
+	int repl_expand(std::shared_ptr<Lisp_Obj> &obj, int cnt);
 	std::shared_ptr<Lisp_Obj> repl_read_string(std::istream &in, char term) const;
 	std::shared_ptr<Lisp_Obj> repl_read_symbol(std::istream &in);
 	std::shared_ptr<Lisp_Obj> repl_read_number(std::istream &in) const;
@@ -301,7 +302,6 @@ public:
 	std::shared_ptr<Lisp_Obj> repl_apply(const std::shared_ptr<Lisp_Obj> &func, const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> repl_eval(const std::shared_ptr<Lisp_Obj> &obj);
 	std::shared_ptr<Lisp_Obj> repl_error(const std::string &msg, int type, const std::shared_ptr<Lisp_Obj> &o);
-	int repl_expand(std::shared_ptr<Lisp_Obj> &obj, int cnt);
 
 	std::shared_ptr<Lisp_Obj> add(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> sub(const std::shared_ptr<Lisp_List> &args);

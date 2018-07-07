@@ -483,6 +483,7 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("progn"))] = std::make_shared<Lisp_Func>(&Lisp::progn);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("apply"))] = std::make_shared<Lisp_Func>(&Lisp::apply);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("eval"))] = std::make_shared<Lisp_Func>(&Lisp::eval);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("repl"))] = std::make_shared<Lisp_Func>(&Lisp::repl);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("defmacro"))] = std::make_shared<Lisp_Func>(&Lisp::defmacro, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("env"))] = std::make_shared<Lisp_Func>(&Lisp::env, 1);
