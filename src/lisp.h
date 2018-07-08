@@ -34,21 +34,37 @@
 
 enum Lisp_Type
 {
-	lisp_type_obj = 1 << 0,
-	lisp_type_seq = 1 << 1,
+	lisp_type_list = 1 << 0,
+	lisp_type_integer = 1 << 1,
 	lisp_type_string = 1 << 2,
 	lisp_type_symbol = 1 << 3,
-	lisp_type_number = 1 << 4,
-	lisp_type_env = 1 << 5,
-	lisp_type_func = 1 << 6,
-	lisp_type_list = 1 << 7,
-	lisp_type_istream = 1 << 8,
-	lisp_type_ostream = 1 << 9,
-	lisp_type_file_stream = 1 << 10,
-	lisp_type_string_stream = 1 << 11,
-	lisp_type_sys_stream = 1 << 12,
-	lisp_type_error = 1 << 13,
+
+	lisp_type_env = 1 << 4,
+	lisp_type_function = 1 << 5,
+	lisp_type_file_stream = 1 << 6,
+	lisp_type_string_stream = 1 << 7,
+	lisp_type_sys_stream = 1 << 8,
+	lisp_type_error = 1 << 9,
+
+	lisp_type_seq = 1 << 10,
+	lisp_type_istream = 1 << 11,
+	lisp_type_ostream = 1 << 12,
 };
+
+const int type_mask_obj = 0;
+const int type_mask_error = type_mask_obj | lisp_type_error;
+const int type_mask_integer = type_mask_obj | lisp_type_integer;
+const int type_mask_seq = type_mask_obj | lisp_type_seq;
+const int type_mask_env = type_mask_obj | lisp_type_env;
+const int type_mask_function = type_mask_obj | lisp_type_function;
+const int type_mask_istream = type_mask_obj | lisp_type_istream;
+const int type_mask_ostream = type_mask_obj | lisp_type_ostream;
+const int type_mask_list = type_mask_seq | lisp_type_list;
+const int type_mask_string = type_mask_seq | lisp_type_string;
+const int type_mask_symbol = type_mask_string | lisp_type_symbol;
+const int type_mask_sys_stream = type_mask_istream | lisp_type_sys_stream;
+const int type_mask_file_stream = type_mask_istream | lisp_type_file_stream;
+const int type_mask_string_stream = type_mask_ostream | lisp_type_string_stream;
 
 enum Lisp_Error_Num
 {
@@ -83,18 +99,16 @@ class Lisp_Symbol;
 typedef std::shared_ptr<Lisp_Obj> (Lisp::*lisp_func_ptr)(const std::shared_ptr<Lisp_List> &args);
 typedef std::map<std::shared_ptr<Lisp_Symbol>, std::shared_ptr<Lisp_Obj>> Lisp_Env_Map;
 
-const int type_mask_obj = lisp_type_obj;
 class Lisp_Obj
 {
 public:
 	Lisp_Obj() {};
 	virtual ~Lisp_Obj() {};
-	virtual const Lisp_Type type() const { return lisp_type_obj; }
-	virtual Lisp_Type is_type(Lisp_Type t) const { return (Lisp_Type)(t & type_mask_obj); }
+	virtual const Lisp_Type type() const = 0;
+	virtual Lisp_Type is_type(Lisp_Type t) const = 0;
 	virtual void print(std::ostream &out) const = 0;
 };
 
-const int type_mask_error = type_mask_obj | lisp_type_error;
 class Lisp_Error : public Lisp_Obj
 {
 public:
@@ -108,18 +122,16 @@ public:
 	std::shared_ptr<Lisp_Obj> m_obj;
 };
 
-const int type_mask_number = type_mask_obj | lisp_type_number;
-class Lisp_Number : public Lisp_Obj
+class Lisp_Integer : public Lisp_Obj
 {
 public:
-	Lisp_Number(long long num = 0);
-	const Lisp_Type type() const override { return lisp_type_number; }
-	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_number); }
+	Lisp_Integer(long long num = 0);
+	const Lisp_Type type() const override { return lisp_type_integer; }
+	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_integer); }
 	void print(std::ostream &out) const override;
 	long long m_value;
 };
 
-const int type_mask_seq = type_mask_obj | lisp_type_seq;
 class Lisp_Seq : public Lisp_Obj
 {
 public:
@@ -132,7 +144,6 @@ public:
 	virtual std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) const = 0;
 };
 
-const int type_mask_list = type_mask_seq | lisp_type_list;
 class Lisp_List : public Lisp_Seq
 {
 public:
@@ -147,7 +158,6 @@ public:
 	std::vector<std::shared_ptr<Lisp_Obj>> m_v;
 };
 
-const int type_mask_string = type_mask_seq | lisp_type_string;
 class Lisp_String : public Lisp_Seq
 {
 public:
@@ -166,7 +176,6 @@ public:
 	std::string m_string;
 };
 
-const int type_mask_symbol = type_mask_string | lisp_type_symbol;
 class Lisp_Symbol : public Lisp_String
 {
 public:
@@ -179,7 +188,6 @@ public:
 	void print(std::ostream &out) const override;
 };
 
-const int type_mask_env = type_mask_obj | lisp_type_env;
 class Lisp_Env : public Lisp_Obj
 {
 public:
@@ -196,19 +204,17 @@ public:
 	std::shared_ptr<Lisp_Env> m_parent;
 };
 
-const int type_mask_func = type_mask_obj | lisp_type_func;
-class Lisp_Func : public Lisp_Obj
+class Lisp_Function : public Lisp_Obj
 {
 public:
-	Lisp_Func(lisp_func_ptr func, int t = 0);
-	const Lisp_Type type() const override { return lisp_type_func; }
-	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_func); }
+	Lisp_Function(lisp_func_ptr func, int t = 0);
+	const Lisp_Type type() const override { return lisp_type_function; }
+	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_function); }
 	void print(std::ostream &out) const override;
 	lisp_func_ptr m_func;
 	int m_ftype;
 };
 
-const int type_mask_istream = type_mask_obj | lisp_type_istream;
 class Lisp_IStream : public Lisp_Obj
 {
 public:
@@ -221,7 +227,6 @@ public:
 	virtual std::string read_line(bool &state) = 0;
 };
 
-const int type_mask_ostream = type_mask_obj | lisp_type_ostream;
 class Lisp_OStream : public Lisp_Obj
 {
 public:
@@ -234,7 +239,6 @@ public:
 	virtual void write_line(const std::string &s) = 0;
 };
 
-const int type_mask_sys_stream = type_mask_istream | lisp_type_sys_stream;
 class Lisp_Sys_Stream : public Lisp_IStream
 {
 public:
@@ -249,7 +253,6 @@ public:
 	std::istream &m_stream;
 };
 
-const int type_mask_file_stream = type_mask_istream | lisp_type_file_stream;
 class Lisp_File_Stream : public Lisp_IStream
 {
 public:
@@ -264,7 +267,6 @@ public:
 	std::ifstream m_stream;
 };
 
-const int type_mask_string_stream = type_mask_ostream | lisp_type_string_stream;
 class Lisp_String_Stream : public Lisp_OStream
 {
 public:
@@ -372,6 +374,7 @@ public:
 	std::shared_ptr<Lisp_Obj> lwhile(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> eval(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> lcatch(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> type(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> env(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> defq(const std::shared_ptr<Lisp_List> &args);

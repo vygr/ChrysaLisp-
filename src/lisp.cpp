@@ -39,16 +39,16 @@ void Lisp_Error::print(std::ostream &out) const
 	out << " > File: " << m_file << "(" << m_line_num << ")";
 }
 
-/////////////
-//Lisp_Number
-/////////////
+//////////////
+//Lisp_Integer
+//////////////
 
-Lisp_Number::Lisp_Number(long long num)
+Lisp_Integer::Lisp_Integer(long long num)
 	: Lisp_Obj()
 	, m_value(num)
 {}
 
-void Lisp_Number::print(std::ostream &out) const
+void Lisp_Integer::print(std::ostream &out) const
 {
 	out << m_value;
 }
@@ -258,17 +258,17 @@ std::shared_ptr<Lisp_Obj> Lisp_Env::get(const std::shared_ptr<Lisp_Symbol> &sym)
 	return nullptr;
 }
 
-///////////
-//Lisp_Func
-///////////
+///////////////
+//Lisp_Function
+///////////////
 
-Lisp_Func::Lisp_Func(lisp_func_ptr func, int t)
+Lisp_Function::Lisp_Function(lisp_func_ptr func, int t)
 	: Lisp_Obj()
 	, m_func(func)
 	, m_ftype(t)
 {}
 
-void Lisp_Func::print(std::ostream &out) const
+void Lisp_Function::print(std::ostream &out) const
 {
 	out << "<function>";
 }
@@ -412,89 +412,90 @@ Lisp::Lisp()
 	m_sym_stream_name = intern(std::make_shared<Lisp_Symbol>("*stream-name*"));
 	m_sym_stream_line = intern(std::make_shared<Lisp_Symbol>("*stream-line*"));
 	m_env->m_map[m_sym_stream_name] = std::make_shared<Lisp_String>("ChrysaLisp");
-	m_env->m_map[m_sym_stream_line] = std::make_shared<Lisp_Number>(0);
+	m_env->m_map[m_sym_stream_line] = std::make_shared<Lisp_Integer>(0);
 
 	//prebound functions
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("add"))] = std::make_shared<Lisp_Func>(&Lisp::add);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("sub"))] = std::make_shared<Lisp_Func>(&Lisp::sub);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("mul"))] = std::make_shared<Lisp_Func>(&Lisp::mul);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("div"))] = std::make_shared<Lisp_Func>(&Lisp::div);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("mod"))] = std::make_shared<Lisp_Func>(&Lisp::mod);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("max"))] = std::make_shared<Lisp_Func>(&Lisp::max);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("min"))] = std::make_shared<Lisp_Func>(&Lisp::min);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("add"))] = std::make_shared<Lisp_Function>(&Lisp::add);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("sub"))] = std::make_shared<Lisp_Function>(&Lisp::sub);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("mul"))] = std::make_shared<Lisp_Function>(&Lisp::mul);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("div"))] = std::make_shared<Lisp_Function>(&Lisp::div);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("mod"))] = std::make_shared<Lisp_Function>(&Lisp::mod);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("max"))] = std::make_shared<Lisp_Function>(&Lisp::max);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("min"))] = std::make_shared<Lisp_Function>(&Lisp::min);
 
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("eq"))] = std::make_shared<Lisp_Func>(&Lisp::eq);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("ne"))] = std::make_shared<Lisp_Func>(&Lisp::ne);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("lt"))] = std::make_shared<Lisp_Func>(&Lisp::lt);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("gt"))] = std::make_shared<Lisp_Func>(&Lisp::gt);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("le"))] = std::make_shared<Lisp_Func>(&Lisp::le);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("ge"))] = std::make_shared<Lisp_Func>(&Lisp::ge);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("eql"))] = std::make_shared<Lisp_Func>(&Lisp::eql);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("eq"))] = std::make_shared<Lisp_Function>(&Lisp::eq);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("ne"))] = std::make_shared<Lisp_Function>(&Lisp::ne);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("lt"))] = std::make_shared<Lisp_Function>(&Lisp::lt);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("gt"))] = std::make_shared<Lisp_Function>(&Lisp::gt);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("le"))] = std::make_shared<Lisp_Function>(&Lisp::le);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("ge"))] = std::make_shared<Lisp_Function>(&Lisp::ge);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("eql"))] = std::make_shared<Lisp_Function>(&Lisp::eql);
 
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-and"))] = std::make_shared<Lisp_Func>(&Lisp::band);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-or"))] = std::make_shared<Lisp_Func>(&Lisp::bor);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-xor"))] = std::make_shared<Lisp_Func>(&Lisp::bxor);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-shl"))] = std::make_shared<Lisp_Func>(&Lisp::bshl);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-shr"))] = std::make_shared<Lisp_Func>(&Lisp::bshr);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-asr"))] = std::make_shared<Lisp_Func>(&Lisp::basr);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-and"))] = std::make_shared<Lisp_Function>(&Lisp::band);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-or"))] = std::make_shared<Lisp_Function>(&Lisp::bor);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-xor"))] = std::make_shared<Lisp_Function>(&Lisp::bxor);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-shl"))] = std::make_shared<Lisp_Function>(&Lisp::bshl);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-shr"))] = std::make_shared<Lisp_Function>(&Lisp::bshr);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bit-asr"))] = std::make_shared<Lisp_Function>(&Lisp::basr);
 
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("list"))] = std::make_shared<Lisp_Func>(&Lisp::list);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("push"))] = std::make_shared<Lisp_Func>(&Lisp::push);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("pop"))] = std::make_shared<Lisp_Func>(&Lisp::pop);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("length"))] = std::make_shared<Lisp_Func>(&Lisp::length);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("elem"))] = std::make_shared<Lisp_Func>(&Lisp::elem);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("elem-set"))] = std::make_shared<Lisp_Func>(&Lisp::elemset);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("slice"))] = std::make_shared<Lisp_Func>(&Lisp::slice);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cat"))] = std::make_shared<Lisp_Func>(&Lisp::cat);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("clear"))] = std::make_shared<Lisp_Func>(&Lisp::clear);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("copy"))] = std::make_shared<Lisp_Func>(&Lisp::copy);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("find"))] = std::make_shared<Lisp_Func>(&Lisp::find);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("merge-sym"))] = std::make_shared<Lisp_Func>(&Lisp::merge);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("split"))] = std::make_shared<Lisp_Func>(&Lisp::split);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("match?"))] = std::make_shared<Lisp_Func>(&Lisp::match);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("some!"))] = std::make_shared<Lisp_Func>(&Lisp::some);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("each!"))] = std::make_shared<Lisp_Func>(&Lisp::each);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("partition"))] = std::make_shared<Lisp_Func>(&Lisp::part);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("list"))] = std::make_shared<Lisp_Function>(&Lisp::list);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("push"))] = std::make_shared<Lisp_Function>(&Lisp::push);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("pop"))] = std::make_shared<Lisp_Function>(&Lisp::pop);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("length"))] = std::make_shared<Lisp_Function>(&Lisp::length);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("elem"))] = std::make_shared<Lisp_Function>(&Lisp::elem);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("elem-set"))] = std::make_shared<Lisp_Function>(&Lisp::elemset);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("slice"))] = std::make_shared<Lisp_Function>(&Lisp::slice);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cat"))] = std::make_shared<Lisp_Function>(&Lisp::cat);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("clear"))] = std::make_shared<Lisp_Function>(&Lisp::clear);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("copy"))] = std::make_shared<Lisp_Function>(&Lisp::copy);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("find"))] = std::make_shared<Lisp_Function>(&Lisp::find);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("merge-sym"))] = std::make_shared<Lisp_Function>(&Lisp::merge);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("split"))] = std::make_shared<Lisp_Function>(&Lisp::split);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("match?"))] = std::make_shared<Lisp_Function>(&Lisp::match);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("some!"))] = std::make_shared<Lisp_Function>(&Lisp::some);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("each!"))] = std::make_shared<Lisp_Function>(&Lisp::each);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("partition"))] = std::make_shared<Lisp_Function>(&Lisp::part);
 
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cmp"))] = std::make_shared<Lisp_Func>(&Lisp::cmp);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("code"))] = std::make_shared<Lisp_Func>(&Lisp::code);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("char"))] = std::make_shared<Lisp_Func>(&Lisp::lchar);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("str"))] = std::make_shared<Lisp_Func>(&Lisp::str);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cmp"))] = std::make_shared<Lisp_Function>(&Lisp::cmp);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("code"))] = std::make_shared<Lisp_Function>(&Lisp::code);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("char"))] = std::make_shared<Lisp_Function>(&Lisp::lchar);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("str"))] = std::make_shared<Lisp_Function>(&Lisp::str);
 
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("file-stream"))] = std::make_shared<Lisp_Func>(&Lisp::filestream);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("string-stream"))] = std::make_shared<Lisp_Func>(&Lisp::strstream);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read"))] = std::make_shared<Lisp_Func>(&Lisp::read);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read-char"))] = std::make_shared<Lisp_Func>(&Lisp::readchar);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read-line"))] = std::make_shared<Lisp_Func>(&Lisp::readline);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("write"))] = std::make_shared<Lisp_Func>(&Lisp::write);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("write-char"))] = std::make_shared<Lisp_Func>(&Lisp::writechar);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("write-line"))] = std::make_shared<Lisp_Func>(&Lisp::writeline);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("prin"))] = std::make_shared<Lisp_Func>(&Lisp::prin);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("print"))] = std::make_shared<Lisp_Func>(&Lisp::print);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("time"))] = std::make_shared<Lisp_Func>(&Lisp::time);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("load"))] = std::make_shared<Lisp_Func>(&Lisp::load);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("save"))] = std::make_shared<Lisp_Func>(&Lisp::save);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("file-stream"))] = std::make_shared<Lisp_Function>(&Lisp::filestream);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("string-stream"))] = std::make_shared<Lisp_Function>(&Lisp::strstream);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read"))] = std::make_shared<Lisp_Function>(&Lisp::read);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read-char"))] = std::make_shared<Lisp_Function>(&Lisp::readchar);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("read-line"))] = std::make_shared<Lisp_Function>(&Lisp::readline);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("write"))] = std::make_shared<Lisp_Function>(&Lisp::write);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("write-char"))] = std::make_shared<Lisp_Function>(&Lisp::writechar);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("write-line"))] = std::make_shared<Lisp_Function>(&Lisp::writeline);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("prin"))] = std::make_shared<Lisp_Function>(&Lisp::prin);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("print"))] = std::make_shared<Lisp_Function>(&Lisp::print);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("time"))] = std::make_shared<Lisp_Function>(&Lisp::time);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("load"))] = std::make_shared<Lisp_Function>(&Lisp::load);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("save"))] = std::make_shared<Lisp_Function>(&Lisp::save);
 
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("catch"))] = std::make_shared<Lisp_Func>(&Lisp::lcatch, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("lambda"))] = std::make_shared<Lisp_Func>(&Lisp::list, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("macro"))] = std::make_shared<Lisp_Func>(&Lisp::list, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("quote"))] = std::make_shared<Lisp_Func>(&Lisp::quote, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("quasi-quote"))] = std::make_shared<Lisp_Func>(&Lisp::qquote, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cond"))] = std::make_shared<Lisp_Func>(&Lisp::cond, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("while"))] = std::make_shared<Lisp_Func>(&Lisp::lwhile, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("progn"))] = std::make_shared<Lisp_Func>(&Lisp::progn);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("apply"))] = std::make_shared<Lisp_Func>(&Lisp::apply);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("eval"))] = std::make_shared<Lisp_Func>(&Lisp::eval);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("repl"))] = std::make_shared<Lisp_Func>(&Lisp::repl);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("catch"))] = std::make_shared<Lisp_Function>(&Lisp::lcatch, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("lambda"))] = std::make_shared<Lisp_Function>(&Lisp::list, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("macro"))] = std::make_shared<Lisp_Function>(&Lisp::list, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("quote"))] = std::make_shared<Lisp_Function>(&Lisp::quote, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("quasi-quote"))] = std::make_shared<Lisp_Function>(&Lisp::qquote, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cond"))] = std::make_shared<Lisp_Function>(&Lisp::cond, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("while"))] = std::make_shared<Lisp_Function>(&Lisp::lwhile, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("progn"))] = std::make_shared<Lisp_Function>(&Lisp::progn);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("apply"))] = std::make_shared<Lisp_Function>(&Lisp::apply);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("eval"))] = std::make_shared<Lisp_Function>(&Lisp::eval);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("repl"))] = std::make_shared<Lisp_Function>(&Lisp::repl);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("type?"))] = std::make_shared<Lisp_Function>(&Lisp::type);
 
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("defmacro"))] = std::make_shared<Lisp_Func>(&Lisp::defmacro, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("env"))] = std::make_shared<Lisp_Func>(&Lisp::env, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("defq"))] = std::make_shared<Lisp_Func>(&Lisp::defq, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("setq"))] = std::make_shared<Lisp_Func>(&Lisp::setq, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("def"))] = std::make_shared<Lisp_Func>(&Lisp::def);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("set"))] = std::make_shared<Lisp_Func>(&Lisp::set);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("def?"))] = std::make_shared<Lisp_Func>(&Lisp::defined);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("sym"))] = std::make_shared<Lisp_Func>(&Lisp::sym);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("gensym"))] = std::make_shared<Lisp_Func>(&Lisp::gensym);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bind"))] = std::make_shared<Lisp_Func>(&Lisp::bind);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("defmacro"))] = std::make_shared<Lisp_Function>(&Lisp::defmacro, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("env"))] = std::make_shared<Lisp_Function>(&Lisp::env, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("defq"))] = std::make_shared<Lisp_Function>(&Lisp::defq, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("setq"))] = std::make_shared<Lisp_Function>(&Lisp::setq, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("def"))] = std::make_shared<Lisp_Function>(&Lisp::def);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("set"))] = std::make_shared<Lisp_Function>(&Lisp::set);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("def?"))] = std::make_shared<Lisp_Function>(&Lisp::defined);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("sym"))] = std::make_shared<Lisp_Function>(&Lisp::sym);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("gensym"))] = std::make_shared<Lisp_Function>(&Lisp::gensym);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("bind"))] = std::make_shared<Lisp_Function>(&Lisp::bind);
 }

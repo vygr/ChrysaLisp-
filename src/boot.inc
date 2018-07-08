@@ -2,7 +2,11 @@
 ; Primitives
 ;;;;;;;;;;;;
 
-(defq t 't nil 'nil)
+(defq t 't nil 'nil
+	lisp_type_list (bit-shl 1 0)
+	lisp_type_integer (bit-shl 1 1)
+	lisp_type_string (bit-shl 1 2)
+	lisp_type_symbol (bit-shl 1 3))
 
 (defmacro defun (n a &rest _)
 	;(defun name ([arg ...]) body)
@@ -14,24 +18,18 @@
 	;(print [form ...])
 	`(defq ,n (lambda ,a ~_)))
 
-(defun obj? (_)
-	;(obj? form)
-	(inst-of 'class/class_obj _))
-(defun lst? (_)
+(defmacro lst? (_)
 	;(lst? form)
-	(inst-of 'class/class_vector _))
-(defun str? (_)
-	;(str? form)
-	(inst-of 'class/class_string _))
-(defun sym? (_)
-	;(sym? form)
-	(inst-of 'class/class_symbol _))
-(defun num? (_)
+	`(eq (type? ,_) ,lisp_type_list))
+(defmacro num? (_)
 	;(num? form)
-	(inst-of 'class/class_boxed_long _))
-(defun ary? (_)
-	;(ary? form)
-	(inst-of 'class/class_array _))
+	`(eq (type? ,_) ,lisp_type_integer))
+(defmacro str? (_)
+	;(str? form)
+	`(eq (type? ,_) ,lisp_type_string))
+(defmacro sym? (_)
+	;(sym? form)
+	`(eq (type? ,_) ,lisp_type_symbol))
 
 (defmacro inc (_)
 	;(inc num)

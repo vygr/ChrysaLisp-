@@ -36,7 +36,7 @@ int Lisp::repl_read_char(std::istream &in) const
 		auto obj = m_env->get(m_sym_stream_line);
 		if (obj)
 		{
-			auto num = std::static_pointer_cast<Lisp_Number>(obj);
+			auto num = std::static_pointer_cast<Lisp_Integer>(obj);
 			num->m_value++;
 		}
 	}
@@ -85,7 +85,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_read_symbol(std::istream &in)
 
 std::shared_ptr<Lisp_Obj> Lisp::repl_read_number(std::istream &in) const
 {
-	auto obj = std::make_shared<Lisp_Number>();
+	auto obj = std::make_shared<Lisp_Integer>();
 	auto p = in.peek();
 	auto sign = 1;
 	if (p == '-')
@@ -261,7 +261,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_error(const std::string &msg, int type, con
 	};
 
 	auto file = std::static_pointer_cast<Lisp_String>(m_env->get(m_sym_stream_name));
-	auto line = std::static_pointer_cast<Lisp_Number>(m_env->get(m_sym_stream_line));
+	auto line = std::static_pointer_cast<Lisp_Integer>(m_env->get(m_sym_stream_line));
 	return std::make_shared<Lisp_Error>(msg + " " + errors[type], file->m_string, line->m_value, o);
 }
 
@@ -276,7 +276,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl(const std::shared_ptr<Lisp_List> &args)
 				auto old_file = m_env->get(m_sym_stream_name);
 				auto old_line = m_env->get(m_sym_stream_line);
 				m_env->set(m_sym_stream_name, args->m_v[1]);
-				m_env->set(m_sym_stream_line, std::make_shared<Lisp_Number>(1));
+				m_env->set(m_sym_stream_line, std::make_shared<Lisp_Integer>(1));
 				auto in = std::static_pointer_cast<Lisp_IStream>(args->m_v[0]);
 				auto obj = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
 				do

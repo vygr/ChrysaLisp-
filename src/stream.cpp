@@ -46,11 +46,11 @@ std::shared_ptr<Lisp_Obj> Lisp::read(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 2
 		&& args->m_v[0]->is_type(lisp_type_istream)
-		&& args->m_v[1]->is_type(lisp_type_number))
+		&& args->m_v[1]->is_type(lisp_type_integer))
 	{
 		auto value = std::make_shared<Lisp_List>();
 		value->m_v.push_back(repl_read(std::static_pointer_cast<Lisp_IStream>(args->m_v[0])->get_stream()));
-		value->m_v.push_back(std::make_shared<Lisp_Number>(' '));
+		value->m_v.push_back(std::make_shared<Lisp_Integer>(' '));
 		return value;
 	}
 	return repl_error("(read stream last_char)", error_msg_wrong_types, args);
@@ -66,12 +66,12 @@ std::shared_ptr<Lisp_Obj> Lisp::readchar(const std::shared_ptr<Lisp_List> &args)
 			auto width = 1;
 			if (len == 2)
 			{
-				if (!args->m_v[1]->is_type(lisp_type_number))
+				if (!args->m_v[1]->is_type(lisp_type_integer))
 					return repl_error("(read-char stream [width])", error_msg_not_a_number, args);
-				width = std::static_pointer_cast<Lisp_Number>(args->m_v[1])->m_value;
+				width = std::static_pointer_cast<Lisp_Integer>(args->m_v[1])->m_value;
 				width = ((width - 1) & 7) + 1;
 			}
-			auto value = std::make_shared<Lisp_Number>(0);
+			auto value = std::make_shared<Lisp_Integer>(0);
 			auto chars = (char*) &value->m_value;
 			do
 			{
@@ -120,17 +120,17 @@ std::shared_ptr<Lisp_Obj> Lisp::writechar(const std::shared_ptr<Lisp_List> &args
 	{
 		if (args->m_v[0]->is_type(lisp_type_ostream))
 		{
-			if (!args->m_v[1]->is_type(lisp_type_number))
+			if (!args->m_v[1]->is_type(lisp_type_integer))
 				return repl_error("(write-char stream num [width])", error_msg_not_a_number, args);
 			auto width = 1;
 			if (len == 3)
 			{
-				if (!args->m_v[2]->is_type(lisp_type_number))
+				if (!args->m_v[2]->is_type(lisp_type_integer))
 					return repl_error("(write-char stream num [width])", error_msg_not_a_number, args);
-				width = std::static_pointer_cast<Lisp_Number>(args->m_v[2])->m_value;
+				width = std::static_pointer_cast<Lisp_Integer>(args->m_v[2])->m_value;
 				width = ((width - 1) & 7) + 1;
 			}
-			auto value = std::static_pointer_cast<Lisp_Number>(args->m_v[1]);
+			auto value = std::static_pointer_cast<Lisp_Integer>(args->m_v[1]);
 			auto chars = (char*) &value->m_value;
 			do
 			{
