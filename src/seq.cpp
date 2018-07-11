@@ -165,11 +165,21 @@ std::shared_ptr<Lisp_Obj> Lisp::slice(const std::shared_ptr<Lisp_List> &args)
 std::shared_ptr<Lisp_Obj> Lisp::cat(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length()
-		&& args->m_v[0]->is_type(lisp_type_seq)
-		&& std::all_of(begin(args->m_v) + 1, end(args->m_v), [&] (auto &&o) { return o->type() == args->m_v[0]->type(); }))
+		&& args->m_v[0]->is_type(lisp_type_seq))
 	{
-		auto seq = std::static_pointer_cast<Lisp_Seq>(args->m_v[0]);
-		return seq->cat(args);
+		if (args->m_v[0]->type() == lisp_type_list)
+		{
+			if (std::all_of(begin(args->m_v) + 1, end(args->m_v), [&] (auto &&o) { return o->type() == lisp_type_list; }))
+			{
+				auto seq = std::static_pointer_cast<Lisp_Seq>(args->m_v[0]);
+				return seq->cat(args);
+			}
+		}
+		else if (std::all_of(begin(args->m_v) + 1, end(args->m_v), [&] (auto &&o) { return o->is_type(lisp_type_string); }))
+		{
+			auto seq = std::static_pointer_cast<Lisp_Seq>(args->m_v[0]);
+			return seq->cat(args);
+		}
 	}
 	return repl_error("(cat seq ...)", error_msg_wrong_types, args);
 }
@@ -307,7 +317,7 @@ std::shared_ptr<Lisp_Obj> Lisp::code(const std::shared_ptr<Lisp_List> &args)
 		&& args->m_v[0]->is_type(lisp_type_string))
 	{
 		auto str = std::static_pointer_cast<Lisp_String>(args->m_v[0]);
-		return std::make_shared<Lisp_Integer>(str->m_string[0]);
+		return std::make_shared<Lisp_Integer>((unsigned char)str->m_string[0]);
 	}
 	return repl_error("(code str)", error_msg_wrong_types, args);
 }
