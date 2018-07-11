@@ -4,7 +4,9 @@ C++ ChrysaLisp !
 
 A version of ChrysaLisp Lisp written in C++.
 
-Needs better error handling and some missing built in functions from ChrysaLisp.
+Needs a few OS specific missing built in functions from ChrysaLisp yet. However
+it can now use the same compiler enviroment from ChrysaLisp OS to build a full
+OS boot image !
 
 
 Make with:
