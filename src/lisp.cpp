@@ -475,6 +475,7 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("load"))] = std::make_shared<Lisp_Function>(&Lisp::load);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("save"))] = std::make_shared<Lisp_Function>(&Lisp::save);
 
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("ffi"))] = std::make_shared<Lisp_Function>(&Lisp::list, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("catch"))] = std::make_shared<Lisp_Function>(&Lisp::lcatch, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("lambda"))] = std::make_shared<Lisp_Function>(&Lisp::list, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("macro"))] = std::make_shared<Lisp_Function>(&Lisp::list, 1);
