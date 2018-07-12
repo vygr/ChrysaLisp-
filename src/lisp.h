@@ -25,6 +25,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <set>
 #include <memory>
 #include <sstream>
 #include <vector>
@@ -283,6 +284,14 @@ public:
 	std::ostringstream m_stream;
 };
 
+struct Intern_Cmp
+{
+    bool operator() (const std::shared_ptr<Lisp_Symbol> &lhs, const std::shared_ptr<Lisp_Symbol> &rhs) const
+	{
+        return lhs->m_string < rhs->m_string;
+    }
+};
+
 //lisp class
 class Lisp
 {
@@ -392,7 +401,7 @@ public:
 	std::shared_ptr<Lisp_Obj> bind(const std::shared_ptr<Lisp_List> &args);
 
 private:
-	std::map<std::string, std::shared_ptr<Lisp_Symbol>> m_intern_sym_map;
+	std::set<std::shared_ptr<Lisp_Symbol>, Intern_Cmp> m_intern_sym_set;
 	std::shared_ptr<Lisp_Env> m_env;
 	std::shared_ptr<Lisp_Symbol> m_sym_nil;
 	std::shared_ptr<Lisp_Symbol> m_sym_t;

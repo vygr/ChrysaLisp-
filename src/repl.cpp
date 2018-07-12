@@ -22,9 +22,9 @@
 
 std::shared_ptr<Lisp_Symbol> Lisp::intern(const std::shared_ptr<Lisp_Symbol> &obj)
 {
-	auto itr = m_intern_sym_map.find(obj->m_string);
-	if (itr != end(m_intern_sym_map)) return itr->second;
-	m_intern_sym_map[obj->m_string] = obj;
+	auto itr = m_intern_sym_set.find(obj);
+	if (itr != end(m_intern_sym_set)) return *itr;
+	m_intern_sym_set.insert(obj);
 	return obj;
 }
 
