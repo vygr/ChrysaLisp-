@@ -31,6 +31,8 @@
 #include <numeric>
 #include <string>
 #include <chrono>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 enum Lisp_Type
 {
@@ -361,10 +363,12 @@ public:
 	std::shared_ptr<Lisp_Obj> writeline(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> prin(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> print(const std::shared_ptr<Lisp_List> &args);
-	std::shared_ptr<Lisp_Obj> time(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> repl(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> save(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> load(const std::shared_ptr<Lisp_List> &args);
+
+	std::shared_ptr<Lisp_Obj> time(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> age(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> quote(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> qquote(const std::shared_ptr<Lisp_List> &args);

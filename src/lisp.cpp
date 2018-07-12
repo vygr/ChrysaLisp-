@@ -471,9 +471,11 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("write-line"))] = std::make_shared<Lisp_Function>(&Lisp::writeline);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("prin"))] = std::make_shared<Lisp_Function>(&Lisp::prin);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("print"))] = std::make_shared<Lisp_Function>(&Lisp::print);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("time"))] = std::make_shared<Lisp_Function>(&Lisp::time);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("load"))] = std::make_shared<Lisp_Function>(&Lisp::load);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("save"))] = std::make_shared<Lisp_Function>(&Lisp::save);
+
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("time"))] = std::make_shared<Lisp_Function>(&Lisp::time);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("age"))] = std::make_shared<Lisp_Function>(&Lisp::age);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("ffi"))] = std::make_shared<Lisp_Function>(&Lisp::list, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("catch"))] = std::make_shared<Lisp_Function>(&Lisp::lcatch, 1);

@@ -170,6 +170,18 @@ std::shared_ptr<Lisp_Obj> Lisp::time(const std::shared_ptr<Lisp_List> &args)
 	return repl_error("(time)", error_msg_wrong_num_of_args, args);
 }
 
+std::shared_ptr<Lisp_Obj> Lisp::age(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 1
+		&& args->m_v[0]->is_type(lisp_type_string))
+	{
+		struct stat result;
+		if (stat(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string.c_str(), &result) == 0)
+			return std::make_shared<Lisp_Integer>(result.st_mtime);
+	}
+	return repl_error("(age path)", error_msg_wrong_num_of_args, args);
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::repl_apply(const std::shared_ptr<Lisp_Obj> &func, const std::shared_ptr<Lisp_List> &args)
 {
 	switch (func->type())
