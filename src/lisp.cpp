@@ -490,6 +490,7 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("eval"))] = std::make_shared<Lisp_Function>(&Lisp::eval);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("repl"))] = std::make_shared<Lisp_Function>(&Lisp::repl);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("type?"))] = std::make_shared<Lisp_Function>(&Lisp::type);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("throw"))] = std::make_shared<Lisp_Function>(&Lisp::lthrow);
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("defmacro"))] = std::make_shared<Lisp_Function>(&Lisp::defmacro, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("env"))] = std::make_shared<Lisp_Function>(&Lisp::env, 1);

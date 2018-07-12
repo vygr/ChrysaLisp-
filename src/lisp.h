@@ -388,6 +388,7 @@ public:
 	std::shared_ptr<Lisp_Obj> eval(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> lcatch(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> type(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> lthrow(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> env(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> defq(const std::shared_ptr<Lisp_List> &args);

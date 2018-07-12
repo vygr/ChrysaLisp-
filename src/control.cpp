@@ -103,16 +103,6 @@ std::shared_ptr<Lisp_Obj> Lisp::qquote(const std::shared_ptr<Lisp_List> &args)
 	return repl_error("(quasi-quote form)", error_msg_wrong_num_of_args, args);
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::apply(const std::shared_ptr<Lisp_List> &args)
-{
-	if (args->length() == 2
-		&& args->m_v[1]->is_type(lisp_type_list))
-	{
-		return repl_apply(args->m_v[0], std::static_pointer_cast<Lisp_List>(args->m_v[1]));
-	}
-	return repl_error("(apply lambda list)", error_msg_wrong_types, args);
-}
-
 std::shared_ptr<Lisp_Obj> Lisp::cond(const std::shared_ptr<Lisp_List> &args)
 {
 	auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
@@ -182,84 +172,6 @@ std::shared_ptr<Lisp_Obj> Lisp::age(const std::shared_ptr<Lisp_List> &args)
 	return repl_error("(age path)", error_msg_wrong_types, args);
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::repl_apply(const std::shared_ptr<Lisp_Obj> &func, const std::shared_ptr<Lisp_List> &args)
-{
-	switch (func->type())
-	{
-		case lisp_type_function:
-		{
-			auto f = std::static_pointer_cast<Lisp_Function>(func);
-			return (*this.*f->m_func)(args);
-		}
-		case lisp_type_list:
-		{
-			auto f = std::static_pointer_cast<Lisp_List>(func);
-			if (f->length() > 1
-				&& (f->m_v[0] == m_sym_lambda || f->m_v[0] == m_sym_macro))
-			{
-				env_push();
-				auto value = env_bind(f->m_v[1], args);
-				if (value->type() != lisp_type_error)
-				{
-					//eval the body
-					for (auto itr = begin(f->m_v) + 2; itr != end(f->m_v); ++itr)
-					{
-						value = repl_eval(*itr);
-						if (value->type() == lisp_type_error) break;
-					}
-				}
-				env_pop();
-				return value;
-			}
-			return repl_error("(lambda ([arg ...]) body)", error_msg_wrong_num_of_args, func);
-		}
-		default:
-			return repl_error("(lambda ([arg ...]) body)", error_msg_not_a_lambda, func);
-	}
-}
-
-std::shared_ptr<Lisp_Obj> Lisp::repl_eval(const std::shared_ptr<Lisp_Obj> &obj)
-{
-	switch (obj->type())
-	{
-		case lisp_type_symbol:
-		{
-			auto sym = std::static_pointer_cast<Lisp_Symbol>(obj);
-			auto obj = m_env->get(sym);
-			if (obj == nullptr) return repl_error("(eval form [env])", error_msg_symbol_not_bound, sym);
-			return obj;
-		}
-		case lisp_type_list:
-		{
-			auto lst = std::static_pointer_cast<Lisp_List>(obj);
-			if (lst->m_v.empty()) return repl_error("(lambda ([arg ...]) body)", error_msg_not_a_lambda, lst);
-			auto func = repl_eval(lst->m_v[0]);
-			if (func->type() == lisp_type_error) return func;
-			if (func->type() == lisp_type_function
-				&& std::static_pointer_cast<Lisp_Function>(func)->m_ftype != 0)
-			{
-				//give it to me raw
-				return repl_apply(func, lst);
-			}
-			else
-			{
-				//eval the args
-				auto args = std::make_shared<Lisp_List>();
-				args->m_v.reserve(lst->length() - 1);
-				for (auto itr = begin(lst->m_v) + 1; itr != end(lst->m_v); ++itr)
-				{
-					auto eo = repl_eval(*itr);
-					if (eo->type() == lisp_type_error) return eo;
-					args->m_v.push_back(eo);
-				}
-				return repl_apply(func, args);
-			}
-		}
-		default:
-			return obj;
-	}
-}
-
 std::shared_ptr<Lisp_Obj> Lisp::type(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 1)
@@ -267,4 +179,56 @@ std::shared_ptr<Lisp_Obj> Lisp::type(const std::shared_ptr<Lisp_List> &args)
 		return std::make_shared<Lisp_Integer>(args->m_v[0]->type());
 	}
 	return repl_error("(type? obj)", error_msg_wrong_num_of_args, args);
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::eval(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 1) return repl_eval(args->m_v[0]);
+	if (args->length() == 2)
+	{
+		if (args->m_v[1]->is_type(lisp_type_env))
+		{
+			auto old_env = m_env;
+			m_env = std::static_pointer_cast<Lisp_Env>(args->m_v[1]);
+			auto value = repl_eval(args->m_v[0]);
+			m_env = old_env;
+			return value;
+		}
+		return repl_error("(eval form [env])", error_msg_not_an_environment, args);
+	}
+	return repl_error("(eval form [env])", error_msg_wrong_num_of_args, args);
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::apply(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 2
+		&& args->m_v[1]->is_type(lisp_type_list))
+	{
+		return repl_apply(args->m_v[0], std::static_pointer_cast<Lisp_List>(args->m_v[1]));
+	}
+	return repl_error("(apply lambda list)", error_msg_wrong_types, args);
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::sym(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 1)
+	{
+		if (args->m_v[0]->is_type(lisp_type_string))
+		{
+			if (args->m_v[0]->type() == lisp_type_symbol) return args->m_v[0];
+			return intern(std::make_shared<Lisp_Symbol>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string));
+		}
+		return repl_error("(sym form)", error_msg_not_a_string, args);
+	}
+	return repl_error("(sym form)", error_msg_wrong_num_of_args, args);
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::lthrow(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 2
+		&& args->m_v[0]->is_type(lisp_type_string))
+	{
+		return repl_error(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string, error_msg, args->m_v[1]);
+	}
+	return repl_error("(throw str form)", error_msg_wrong_types, args);
 }
