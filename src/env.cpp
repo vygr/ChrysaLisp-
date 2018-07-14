@@ -37,8 +37,8 @@ std::shared_ptr<Lisp_Obj> Lisp::env_bind(const std::shared_ptr<Lisp_Obj> &lst, c
 	if (!lst->is_type(lisp_type_list)) return repl_error("(bind (param ...) seq)", error_msg_not_a_list, lst);
 	if (!seq->is_type(lisp_type_seq)) return repl_error("(bind (param ...) seq)", error_msg_not_a_sequence, seq);
 
-	auto index_vars = 0;
-	auto index_vals = 0;
+	auto index_vars = 0ll;
+	auto index_vals = 0ll;
 	auto state = 0;
 	auto vars = std::static_pointer_cast<Lisp_List>(lst);
 	auto vals = std::static_pointer_cast<Lisp_Seq>(seq);

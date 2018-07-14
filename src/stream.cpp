@@ -63,7 +63,7 @@ std::shared_ptr<Lisp_Obj> Lisp::readchar(const std::shared_ptr<Lisp_List> &args)
 	{
 		if (args->m_v[0]->is_type(lisp_type_istream))
 		{
-			auto width = 1;
+			auto width = 1ll;
 			if (len == 2)
 			{
 				if (!args->m_v[1]->is_type(lisp_type_integer))
@@ -122,7 +122,7 @@ std::shared_ptr<Lisp_Obj> Lisp::writechar(const std::shared_ptr<Lisp_List> &args
 		{
 			if (!args->m_v[1]->is_type(lisp_type_integer))
 				return repl_error("(write-char stream num [width])", error_msg_not_a_number, args);
-			auto width = 1;
+			auto width = 1ll;
 			if (len == 3)
 			{
 				if (!args->m_v[2]->is_type(lisp_type_integer))

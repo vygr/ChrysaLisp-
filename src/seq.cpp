@@ -328,7 +328,7 @@ std::shared_ptr<Lisp_Obj> Lisp::lchar(const std::shared_ptr<Lisp_List> &args)
 	{
 		if (args->m_v[0]->is_type(lisp_type_integer))
 		{
-			auto width = 1;
+			auto width = 1ll;
 			if (args->length() == 2)
 			{
 				if (!args->m_v[1]->is_type(lisp_type_integer)) goto error;
@@ -381,7 +381,7 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 	if ((args->m_v[0] == m_sym_nil || args->m_v[0]->is_type(lisp_type_integer))
 		&& (args->m_v[1] == m_sym_nil || args->m_v[1]->is_type(lisp_type_integer)))
 	{
-		auto max_len = 1000000;
+		auto max_len = 1000000ll;
 		for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
 		{
 			if (!o->is_type(lisp_type_seq))
@@ -392,7 +392,7 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
 		if (max_len != 1000000)
 		{
-			auto start = 0;
+			auto start = 0ll;
 			if (args->m_v[0]->is_type(lisp_type_integer))
 			{
 				start = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
@@ -446,7 +446,7 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 	if ((args->m_v[0] == m_sym_nil || args->m_v[0]->is_type(lisp_type_integer))
 		&& (args->m_v[1] == m_sym_nil || args->m_v[1]->is_type(lisp_type_integer)))
 	{
-		auto max_len = 1000000;
+		auto max_len = 1000000ll;
 		for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
 		{
 			if (!o->is_type(lisp_type_seq))
@@ -457,7 +457,7 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
 		if (max_len != 1000000)
 		{
-			auto start = 0;
+			auto start = 0ll;
 			if (args->m_v[0]->is_type(lisp_type_integer))
 			{
 				start = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;

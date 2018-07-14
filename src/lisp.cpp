@@ -72,17 +72,17 @@ void Lisp_List::print(std::ostream &out) const
 	out << ')';
 }
 
-int Lisp_List::length() const
+long long Lisp_List::length() const
 {
 	return m_v.size();
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_List::elem(int i) const
+std::shared_ptr<Lisp_Obj> Lisp_List::elem(long long i) const
 {
 	return m_v[i];
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_List::slice(int s, int e) const
+std::shared_ptr<Lisp_Obj> Lisp_List::slice(long long s, long long e) const
 {
 	auto slc = std::make_shared<Lisp_List>();
 	slc->m_v.reserve(e - s);
@@ -129,17 +129,17 @@ void Lisp_String::print(std::ostream &out) const
 	out << '"' << m_string << '"';
 }
 
-int Lisp_String::length() const
+long long Lisp_String::length() const
 {
 	return m_string.size();
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_String::elem(int i) const
+std::shared_ptr<Lisp_Obj> Lisp_String::elem(long long i) const
 {
 	return std::make_shared<Lisp_String>(m_string[i]);
 }
 
-std::shared_ptr<Lisp_Obj> Lisp_String::slice(int s, int e) const
+std::shared_ptr<Lisp_Obj> Lisp_String::slice(long long s, long long e) const
 {
 	return std::make_shared<Lisp_String>(std::string{begin(m_string) + s, begin(m_string) + e});
 }
@@ -153,9 +153,9 @@ std::shared_ptr<Lisp_Obj> Lisp_String::cat(const std::shared_ptr<Lisp_List> &arg
 	return c;
 }
 
-int Lisp_String::cmp(const std::shared_ptr<Lisp_String> &str1, const std::shared_ptr<Lisp_String> &str2) const
+long long Lisp_String::cmp(const std::shared_ptr<Lisp_String> &str1, const std::shared_ptr<Lisp_String> &str2) const
 {
-	auto c = 0;
+	auto c = 0ll;
 	if (str1 != str2)
 	{
 		auto l1 = str1->length();

@@ -121,7 +121,7 @@ public:
 	void print(std::ostream &out) const override;
 	std::string m_msg;
 	std::string m_file;
-	int m_line_num;
+	long long m_line_num;
 	std::shared_ptr<Lisp_Obj> m_obj;
 };
 
@@ -141,9 +141,9 @@ public:
 	Lisp_Seq()
 		: Lisp_Obj()
 	{}
-	virtual int length() const = 0;
-	virtual std::shared_ptr<Lisp_Obj> elem(int i) const = 0;
-	virtual std::shared_ptr<Lisp_Obj> slice(int s, int e) const = 0;
+	virtual long long length() const = 0;
+	virtual std::shared_ptr<Lisp_Obj> elem(long long i) const = 0;
+	virtual std::shared_ptr<Lisp_Obj> slice(long long s, long long e) const = 0;
 	virtual std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) const = 0;
 };
 
@@ -154,9 +154,9 @@ public:
 	const Lisp_Type type() const override { return lisp_type_list; }
 	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_list); }
 	void print(std::ostream &out) const override;
-	int length() const override;
-	std::shared_ptr<Lisp_Obj> elem(int i) const override;
-	std::shared_ptr<Lisp_Obj> slice(int s, int e) const override;
+	long long length() const override;
+	std::shared_ptr<Lisp_Obj> elem(long long i) const override;
+	std::shared_ptr<Lisp_Obj> slice(long long s, long long e) const override;
 	std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) const override;
 	std::vector<std::shared_ptr<Lisp_Obj>> m_v;
 };
@@ -171,11 +171,11 @@ public:
 	const Lisp_Type type() const override { return lisp_type_string; }
 	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_string); }
 	void print(std::ostream &out) const override;
-	int length() const override;
-	std::shared_ptr<Lisp_Obj> elem(int i) const override;
-	std::shared_ptr<Lisp_Obj> slice(int s, int e) const override;
+	long long length() const override;
+	std::shared_ptr<Lisp_Obj> elem(long long i) const override;
+	std::shared_ptr<Lisp_Obj> slice(long long s, long long e) const override;
 	std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) const override;
-	int cmp(const std::shared_ptr<Lisp_String> &str1, const std::shared_ptr<Lisp_String> &str2) const;
+	long long cmp(const std::shared_ptr<Lisp_String> &str1, const std::shared_ptr<Lisp_String> &str2) const;
 	std::string m_string;
 };
 
