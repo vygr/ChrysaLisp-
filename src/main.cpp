@@ -19,6 +19,9 @@
 */
 
 #include "lisp.h"
+#include <deque>
+
+int arg_v = 0;
 
 void ss_reset(std::stringstream &ss, std::string s)
 {
@@ -29,10 +32,8 @@ void ss_reset(std::stringstream &ss, std::string s)
 int main(int argc, char *argv[])
 {
 	//process comand args
-	auto use_file = false;
-	std::ifstream arg_infile;
-	auto arg_v = 0;
-	auto arg_s = 1;
+	auto in_files = std::deque<std::string>{};
+	auto arg_b = "src/boot.inc";
 
 	std::stringstream ss;
 	for (auto i = 1; i < argc; ++i)
@@ -45,39 +46,63 @@ int main(int argc, char *argv[])
 			if (++i >= argc) goto help;
 			ss_reset(ss, argv[i]);
 			if (opt == "v") ss >> arg_v;
-			else if (opt == "s") ss >> arg_s;
+			else if (opt == "b") arg_b = argv[i];
 			else
 			{
 			help:
-				std::cout << "chrysalisp [switches] [filename]\neg. chrysalisp -v 1 prog.lisp\n";
+				std::cout << "chrysalisp [switches] [filename ...]\neg. chrysalisp -b src/boot.inc prog.lisp\n";
 				std::cout << "reads from stdin if no filename.\n";
 				std::cout << "-v:  verbosity level 0..1, default 0\n";
-				std::cout << "-s:  number of samples, default 1\n";
+				std::cout << "-b:  boot file, default 'src/boot.inc'\n";
 				exit(0);
 			}
 		}
 		else
 		{
 			//filename
-			arg_infile.open(argv[i], std::ifstream::in);
-			use_file = true;
+			in_files.push_back(argv[i]);
 		}
 	}
 
-	//reading from stdin or file
-	std::istream &in = use_file ? arg_infile : std::cin;
-
 	//repl
 	auto lisp = Lisp();
-	auto boot_file = "src/boot.inc";
+	auto stream = std::make_shared<Lisp_File_Stream>(arg_b);
+	if (!stream->is_open())
+	{
+		std::cout << "No such boot file: " << arg_b << std::endl;
+		exit(0);
+	}
 	auto args = std::make_shared<Lisp_List>();
-	args->m_v.push_back(std::make_shared<Lisp_File_Stream>(boot_file));
-	args->m_v.push_back(std::make_shared<Lisp_String>(boot_file));
-	lisp.repl(args);
-	std::cout << "\n;;;;;;;;;;;;;;;;;;\n; C++ ChrysaLisp ;\n;;;;;;;;;;;;;;;;;;\n" << std::endl;
-	args->m_v.clear();
-	args->m_v.push_back(std::make_shared<Lisp_Sys_Stream>(in));
-	args->m_v.push_back(std::make_shared<Lisp_String>("stdin"));
-	lisp.repl(args);
-	return 0;
+	args->m_v.push_back(stream);
+	args->m_v.push_back(std::make_shared<Lisp_String>(arg_b));
+	if (lisp.repl(args) == lisp.m_sym_nil)
+	{
+		std::cout << "\n;;;;;;;;;;;;;;;;;;\n; C++ ChrysaLisp ;\n;;;;;;;;;;;;;;;;;;\n" << std::endl;
+		//from file list
+		while (!in_files.empty())
+		{
+			auto file = in_files.front();
+			in_files.pop_front();
+			auto stream = std::make_shared<Lisp_File_Stream>(file);
+			if (!stream->is_open())
+			{
+				std::cout << "No such file: " << file << std::endl;
+				exit(0);
+			}
+			args->m_v.clear();
+			args->m_v.push_back(stream);
+			args->m_v.push_back(std::make_shared<Lisp_String>(file));
+			if (lisp.repl(args) != lisp.m_sym_nil) exit(0);
+		}
+		//from stdin
+		auto stream = std::make_shared<Lisp_Sys_Stream>(std::cin);
+		auto name = std::make_shared<Lisp_String>("stdin");
+		do
+		{
+			args->m_v.clear();
+			args->m_v.push_back(stream);
+			args->m_v.push_back(name);
+		} while (lisp.repl(args) != lisp.m_sym_nil);
+	}
+	exit(0);
 }

@@ -37,7 +37,7 @@ std::shared_ptr<Lisp_Obj> Lisp::strstream(const std::shared_ptr<Lisp_List> &args
 	if (args->length() == 1
 		&& args->m_v[0]->is_type(lisp_type_string))
 	{
-		return std::make_shared<Lisp_String_Stream>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string);
+		return std::make_shared<Lisp_String_Stream>("");
 	}
 	return repl_error("(string-stream str)", error_msg_wrong_types, args);
 }

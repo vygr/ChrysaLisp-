@@ -41,6 +41,11 @@ std::shared_ptr<Lisp_Obj> Lisp::progn(const std::shared_ptr<Lisp_List> &args)
 	return m_sym_nil;
 }
 
+std::shared_ptr<Lisp_Obj> Lisp::lambda(const std::shared_ptr<Lisp_List> &args)
+{
+	return args;
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::quote(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 2) return args->m_v[1];

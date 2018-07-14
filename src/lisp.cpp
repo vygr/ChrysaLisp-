@@ -420,6 +420,8 @@ Lisp::Lisp()
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("mul"))] = std::make_shared<Lisp_Function>(&Lisp::mul);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("div"))] = std::make_shared<Lisp_Function>(&Lisp::div);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("mod"))] = std::make_shared<Lisp_Function>(&Lisp::mod);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("fmul"))] = std::make_shared<Lisp_Function>(&Lisp::fmul);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("fdiv"))] = std::make_shared<Lisp_Function>(&Lisp::fdiv);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("max"))] = std::make_shared<Lisp_Function>(&Lisp::max);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("min"))] = std::make_shared<Lisp_Function>(&Lisp::min);
 
@@ -479,8 +481,8 @@ Lisp::Lisp()
 
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("ffi"))] = std::make_shared<Lisp_Function>(&Lisp::list, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("catch"))] = std::make_shared<Lisp_Function>(&Lisp::lcatch, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("lambda"))] = std::make_shared<Lisp_Function>(&Lisp::list, 1);
-	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("macro"))] = std::make_shared<Lisp_Function>(&Lisp::list, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("lambda"))] = std::make_shared<Lisp_Function>(&Lisp::lambda, 1);
+	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("macro"))] = std::make_shared<Lisp_Function>(&Lisp::lambda, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("quote"))] = std::make_shared<Lisp_Function>(&Lisp::quote, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("quasi-quote"))] = std::make_shared<Lisp_Function>(&Lisp::qquote, 1);
 	m_env->m_map[intern(std::make_shared<Lisp_Symbol>("cond"))] = std::make_shared<Lisp_Function>(&Lisp::cond, 1);

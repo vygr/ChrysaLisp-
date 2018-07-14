@@ -22,7 +22,7 @@
 
 std::shared_ptr<Lisp_Obj> Lisp::list(const std::shared_ptr<Lisp_List> &args)
 {
-	return args;
+	return args->slice(0, args->length());
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::push(const std::shared_ptr<Lisp_List> &args)
@@ -267,7 +267,7 @@ std::shared_ptr<Lisp_Obj> Lisp::match(const std::shared_ptr<Lisp_List> &args)
 				auto &&o2 = lst2->m_v[i];
 				if (o1 == o2) continue;
 				if (!o2->is_type(lisp_type_string)) goto nomatch;
-				if (std::static_pointer_cast<Lisp_String>(o2)->m_string[0] != '_') goto nomatch;
+				if (std::static_pointer_cast<Lisp_String>(o2)->m_string != "_") goto nomatch;
 			}
 			return m_sym_t;
 		}
@@ -414,6 +414,7 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 				--end;
 			}
 
+			env_push();
 			auto params = std::make_shared<Lisp_List>();
 			while (start != end)
 			{
@@ -429,6 +430,7 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 				params->m_v.clear();
 				start += dir;
 			}
+			env_pop();
 		}
 		return value;
 	}
@@ -477,6 +479,7 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 				--end;
 			}
 
+			env_push();
 			auto params = std::make_shared<Lisp_List>();
 			while (start != end)
 			{
@@ -497,6 +500,7 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 				params->m_v.clear();
 				start += dir;
 			}
+			env_pop();
 		}
 		return value;
 	}

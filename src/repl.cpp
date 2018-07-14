@@ -19,6 +19,7 @@
 */
 
 #include "lisp.h"
+extern int arg_v;
 
 std::shared_ptr<Lisp_Symbol> Lisp::intern(const std::shared_ptr<Lisp_Symbol> &sym)
 {
@@ -133,7 +134,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_read_number(std::istream &in) const
 			continue;
 		}
 		if (c >= 'a') c -= 'a' - 10;
-		else if (c >= 'A') c -= 'a' - 10;
+		else if (c >= 'A') c -= 'A' - 10;
 		else c -= '0';
 		obj->m_value = obj->m_value * base + c;
 		frac *= base;
@@ -217,10 +218,9 @@ int Lisp::repl_expand(std::shared_ptr<Lisp_Obj> &o, int cnt)
 		{
 			auto sym = std::static_pointer_cast<Lisp_Symbol>(obj);
 			auto itr = m_env->find(sym);
-			if (itr == end(m_env->m_map)) goto decend;
-			if (!itr->second->is_type(lisp_type_list)) goto decend;
+			if (itr == end(m_env->m_map) || !itr->second->is_type(lisp_type_list)) goto decend;
 			auto macro = std::static_pointer_cast<Lisp_List>(itr->second);
-			if (macro->m_v[0] != m_sym_macro) goto decend;
+			if (!macro->length() || macro->m_v[0] != m_sym_macro) goto decend;
 			o = repl_apply(macro, std::static_pointer_cast<Lisp_List>(lst->slice(1, lst->length())));
 			cnt++;
 		}
@@ -282,8 +282,22 @@ std::shared_ptr<Lisp_Obj> Lisp::repl(const std::shared_ptr<Lisp_List> &args)
 				do
 				{
 					obj = repl_read(in->get_stream());
+					if (arg_v >= 1)
+					{
+						auto file = std::static_pointer_cast<Lisp_String>(m_env->get(m_sym_stream_name));
+						auto line = std::static_pointer_cast<Lisp_Integer>(m_env->get(m_sym_stream_line));
+						std::cout << file->m_string << "(" << line->m_value << ")" << std::endl;
+					}
 					if (obj == m_sym_nil) break;
-					while (repl_expand(obj, 0));
+					while (repl_expand(obj, 0))
+					{
+						if (arg_v >= 2)
+						{
+							std::cout << "expanded: ";
+							obj->print(std::cout);
+							std::cout << std::endl;
+						}
+					}
 					obj = repl_eval(obj);
 					if (in->type() == lisp_type_sys_stream)
 					{
@@ -318,6 +332,15 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_apply(const std::shared_ptr<Lisp_Obj> &func
 			if (f->length() > 1
 				&& (f->m_v[0] == m_sym_lambda || f->m_v[0] == m_sym_macro))
 			{
+				if (arg_v >= 3)
+				{
+					std::cout << "apply: ";
+					func->print(std::cout);
+					std::cout << "\nargs: ";
+					args->print(std::cout);
+					std::cout << std::endl;
+				}
+
 				env_push();
 				auto value = env_bind(f->m_v[1], args);
 				if (value->type() != lisp_type_error)

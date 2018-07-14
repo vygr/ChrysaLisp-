@@ -321,6 +321,9 @@ public:
 	std::shared_ptr<Lisp_Obj> mul(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> div(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> mod(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> fmul(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> fdiv(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> fmod(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> max(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> min(const std::shared_ptr<Lisp_List> &args);
 
@@ -399,9 +402,9 @@ public:
 	std::shared_ptr<Lisp_Obj> sym(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> gensym(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> defmacro(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> lambda(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> bind(const std::shared_ptr<Lisp_List> &args);
 
-private:
 	std::set<std::shared_ptr<Lisp_Symbol>, Intern_Cmp> m_intern_sym_set;
 	std::shared_ptr<Lisp_Env> m_env;
 	std::shared_ptr<Lisp_Symbol> m_sym_nil;
