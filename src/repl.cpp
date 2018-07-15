@@ -218,7 +218,7 @@ int Lisp::repl_expand(std::shared_ptr<Lisp_Obj> &o, int cnt)
 		{
 			auto sym = std::static_pointer_cast<Lisp_Symbol>(obj);
 			auto itr = m_env->find(sym);
-			if (itr == end(m_env->m_map) || !itr->second->is_type(lisp_type_list)) goto decend;
+			if (!itr || !itr->second->is_type(lisp_type_list)) goto decend;
 			auto macro = std::static_pointer_cast<Lisp_List>(itr->second);
 			if (!macro->length() || macro->m_v[0] != m_sym_macro) goto decend;
 			o = repl_apply(macro, std::static_pointer_cast<Lisp_List>(lst->slice(1, lst->length())));
@@ -370,7 +370,11 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_eval(const std::shared_ptr<Lisp_Obj> &obj)
 		{
 			auto sym = std::static_pointer_cast<Lisp_Symbol>(obj);
 			auto obj = m_env->get(sym);
-			if (obj == nullptr) return repl_error("(eval form [env])", error_msg_symbol_not_bound, sym);
+			if (obj == nullptr)
+			{
+				obj = m_env->get(sym);
+				return repl_error("(eval form [env])", error_msg_symbol_not_bound, sym);
+			}
 			return obj;
 		}
 		case lisp_type_list:

@@ -100,7 +100,6 @@ class Lisp_List;
 class Lisp_Symbol;
 
 typedef std::shared_ptr<Lisp_Obj> (Lisp::*lisp_func_ptr)(const std::shared_ptr<Lisp_List> &args);
-typedef std::map<std::shared_ptr<Lisp_Symbol>, std::shared_ptr<Lisp_Obj>> Lisp_Env_Map;
 
 class Lisp_Obj
 {
@@ -176,7 +175,9 @@ public:
 	std::shared_ptr<Lisp_Obj> slice(long long s, long long e) const override;
 	std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args) const override;
 	long long cmp(const std::shared_ptr<Lisp_String> &str1, const std::shared_ptr<Lisp_String> &str2) const;
+	unsigned int hash();
 	std::string m_string;
+	unsigned int m_hash = 0;
 };
 
 class Lisp_Symbol : public Lisp_String
@@ -189,22 +190,6 @@ public:
 	const Lisp_Type type() const override { return lisp_type_symbol; }
 	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_symbol); }
 	void print(std::ostream &out) const override;
-};
-
-class Lisp_Env : public Lisp_Obj
-{
-public:
-	Lisp_Env();
-	const Lisp_Type type() const override { return lisp_type_env; }
-	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_env); }
-	void print(std::ostream &out) const override;
-	void set_parent(const std::shared_ptr<Lisp_Env> &env);
-	std::shared_ptr<Lisp_Env> get_parent() const;
-	Lisp_Env_Map::iterator find(const std::shared_ptr<Lisp_Symbol> &sym);
-	Lisp_Env_Map::iterator set(const std::shared_ptr<Lisp_Symbol> &sym, const std::shared_ptr<Lisp_Obj> &obj);
-	std::shared_ptr<Lisp_Obj> get(const std::shared_ptr<Lisp_Symbol> &sym);
-	Lisp_Env_Map m_map;
-	std::shared_ptr<Lisp_Env> m_parent;
 };
 
 class Lisp_Function : public Lisp_Obj
@@ -282,6 +267,28 @@ public:
 	void write_char(int c) override;
 	void write_line(const std::string &s) override;
 	std::ostringstream m_stream;
+};
+
+typedef std::pair<std::shared_ptr<Lisp_Symbol>, std::shared_ptr<Lisp_Obj>> Lisp_Env_Pair;
+typedef std::vector<Lisp_Env_Pair> Lisp_Env_Bucket;
+typedef std::vector<Lisp_Env_Bucket> Lisp_Env_Buckets;
+class Lisp_Env : public Lisp_Obj
+{
+public:
+	Lisp_Env(long long num_buckets = 1);
+	const Lisp_Type type() const override { return lisp_type_env; }
+	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_env); }
+	void print(std::ostream &out) const override;
+	void set_parent(const std::shared_ptr<Lisp_Env> &env);
+	std::shared_ptr<Lisp_Env> get_parent() const;
+	Lisp_Env_Pair *find(const std::shared_ptr<Lisp_Symbol> &sym);
+	Lisp_Env_Pair *set(const std::shared_ptr<Lisp_Symbol> &sym, const std::shared_ptr<Lisp_Obj> &obj);
+	std::shared_ptr<Lisp_Obj> get(const std::shared_ptr<Lisp_Symbol> &sym);
+	void insert(const std::shared_ptr<Lisp_Symbol> &sym, const std::shared_ptr<Lisp_Obj> &obj);
+	void resize(long long num_buckets);
+	Lisp_Env_Buckets::iterator get_bucket(const std::shared_ptr<Lisp_Symbol> &sym);
+	Lisp_Env_Buckets m_buckets;
+	std::shared_ptr<Lisp_Env> m_parent;
 };
 
 struct Intern_Cmp

@@ -418,7 +418,7 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 			auto params = std::make_shared<Lisp_List>();
 			while (start != end)
 			{
-				m_env->m_map[m_sym_underscore] = std::make_shared<Lisp_Integer>(start);
+				m_env->insert(m_sym_underscore, std::make_shared<Lisp_Integer>(start));
 				for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
 				{
 					params->m_v.push_back(std::static_pointer_cast<Lisp_Seq>(o)->elem(start));
@@ -483,7 +483,7 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 			auto params = std::make_shared<Lisp_List>();
 			while (start != end)
 			{
-				m_env->m_map[m_sym_underscore] = std::make_shared<Lisp_Integer>(start);
+				m_env->insert(m_sym_underscore, std::make_shared<Lisp_Integer>(start));
 				for (auto &&o : std::static_pointer_cast<Lisp_List>(args->m_v[4])->m_v)
 				{
 					params->m_v.push_back(std::static_pointer_cast<Lisp_Seq>(o)->elem(start));

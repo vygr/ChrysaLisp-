@@ -158,8 +158,8 @@ std::shared_ptr<Lisp_Obj> Lisp::time(const std::shared_ptr<Lisp_List> &args)
 	if (!args->length())
 	{
 		auto now = std::chrono::high_resolution_clock::now();
-		auto now_ns = std::chrono::time_point_cast<std::chrono::nanoseconds>(now);
-		auto value = now_ns.time_since_epoch().count();
+		auto now_ms = std::chrono::time_point_cast<std::chrono::microseconds>(now);
+		auto value = now_ms.time_since_epoch().count();
 		return std::make_shared<Lisp_Integer>(value);
 	}
 	return repl_error("(time)", error_msg_wrong_num_of_args, args);
