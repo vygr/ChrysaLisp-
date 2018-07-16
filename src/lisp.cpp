@@ -521,7 +521,7 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("time")), std::make_shared<Lisp_Function>(&Lisp::time));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("age")), std::make_shared<Lisp_Function>(&Lisp::age));
 
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("ffi")), std::make_shared<Lisp_Function>(&Lisp::list, 1));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("ffi")), std::make_shared<Lisp_Function>(&Lisp::lambda, 1));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("catch")), std::make_shared<Lisp_Function>(&Lisp::lcatch, 1));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("lambda")), std::make_shared<Lisp_Function>(&Lisp::lambda, 1));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("macro")), std::make_shared<Lisp_Function>(&Lisp::lambda, 1));
