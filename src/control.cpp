@@ -173,6 +173,7 @@ std::shared_ptr<Lisp_Obj> Lisp::age(const std::shared_ptr<Lisp_List> &args)
 		struct stat result;
 		if (stat(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string.c_str(), &result) == 0)
 			return std::make_shared<Lisp_Integer>(result.st_mtime);
+		return std::make_shared<Lisp_Integer>(0);
 	}
 	return repl_error("(age path)", error_msg_wrong_types, args);
 }
