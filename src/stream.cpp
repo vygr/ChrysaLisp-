@@ -120,27 +120,50 @@ std::shared_ptr<Lisp_Obj> Lisp::writechar(const std::shared_ptr<Lisp_List> &args
 	{
 		if (args->m_v[0]->is_type(lisp_type_ostream))
 		{
-			if (!args->m_v[1]->is_type(lisp_type_integer))
-				return repl_error("(write-char stream num [width])", error_msg_not_a_number, args);
 			auto width = 1ll;
 			if (len == 3)
 			{
 				if (!args->m_v[2]->is_type(lisp_type_integer))
-					return repl_error("(write-char stream num [width])", error_msg_not_a_number, args);
+					return repl_error("(write-char stream list|num [width])", error_msg_not_a_number, args);
 				width = std::static_pointer_cast<Lisp_Integer>(args->m_v[2])->m_value;
 				width = ((width - 1) & 7) + 1;
 			}
-			auto value = std::static_pointer_cast<Lisp_Integer>(args->m_v[1]);
-			auto chars = (char*) &value->m_value;
-			do
+
+			if (args->m_v[1]->is_type(lisp_type_list))
 			{
-				std::static_pointer_cast<Lisp_OStream>(args->m_v[0])->write_char(*(chars++));
-			} while (--width);
-			return value;
+				auto list = std::static_pointer_cast<Lisp_List>(args->m_v[1]);
+				if (!list->m_v.empty())
+				{
+					for (auto &&value : list->m_v)
+					{
+						if (!value->is_type(lisp_type_integer))
+							return repl_error("(write-char stream list|num [width])", error_msg_not_a_number, args);
+						auto chars = (char*) &(std::static_pointer_cast<Lisp_Integer>(value))->m_value;
+						auto w = width;
+						do
+						{
+							std::static_pointer_cast<Lisp_OStream>(args->m_v[0])->write_char(*(chars++));
+						} while (--w);
+					}
+					return list->m_v[list->m_v.size() - 1];
+				}
+				return repl_error("(write-char stream list|num [width])", error_msg_wrong_num_of_args, args);
+			}
+			else if (args->m_v[1]->is_type(lisp_type_integer))
+			{
+				auto value = std::static_pointer_cast<Lisp_Integer>(args->m_v[1]);
+				auto chars = (char*) &value->m_value;
+				do
+				{
+					std::static_pointer_cast<Lisp_OStream>(args->m_v[0])->write_char(*(chars++));
+				} while (--width);
+				return value;
+			}
+			return repl_error("(write-char stream list|num [width])", error_msg_not_a_number, args);
 		}
-		return repl_error("(write-char stream num [width])", error_msg_not_a_stream, args);
+		return repl_error("(write-char stream list|num [width])", error_msg_not_a_stream, args);
 	}
-	return repl_error("(write-char stream num [width])", error_msg_wrong_num_of_args, args);
+	return repl_error("(write-char stream list|num [width])", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::writeline(const std::shared_ptr<Lisp_List> &args)
