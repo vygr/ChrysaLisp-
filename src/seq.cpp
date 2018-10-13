@@ -313,13 +313,26 @@ std::shared_ptr<Lisp_Obj> Lisp::cmp(const std::shared_ptr<Lisp_List> &args)
 
 std::shared_ptr<Lisp_Obj> Lisp::code(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() == 1
+	if ((args->length() == 1
 		&& args->m_v[0]->is_type(lisp_type_string))
+	|| (args->length() == 2
+		&& args->m_v[0]->is_type(lisp_type_string)
+		&& args->m_v[1]->is_type(lisp_type_integer))
+	|| (args->length() == 3
+		&& args->m_v[0]->is_type(lisp_type_string)
+		&& args->m_v[1]->is_type(lisp_type_integer)
+		&& args->m_v[2]->is_type(lisp_type_integer)))
 	{
-		auto str = std::static_pointer_cast<Lisp_String>(args->m_v[0]);
-		return std::make_shared<Lisp_Integer>((unsigned char)str->m_string[0]);
+		auto str = std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string;
+		auto width = 1;
+		auto index = 0;
+		if (args->length() > 1) width = std::static_pointer_cast<Lisp_Integer>(args->m_v[1])->m_value;
+		if (args->length() > 2) index = std::static_pointer_cast<Lisp_Integer>(args->m_v[2])->m_value;
+		auto code = 0ll;
+		std::copy(&str[index], &str[index + width], (char*)&code);
+		return std::make_shared<Lisp_Integer>(code);
 	}
-	return repl_error("(code str)", error_msg_wrong_types, args);
+	return repl_error("(code str [width index])", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::lchar(const std::shared_ptr<Lisp_List> &args)
