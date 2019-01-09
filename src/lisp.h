@@ -35,6 +35,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#ifdef WIN32
+#include <algorithm>
+#include <cctype>
+#endif
+
 enum Lisp_Type
 {
 	lisp_type_list = 1 << 0,
