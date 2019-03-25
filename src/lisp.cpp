@@ -299,6 +299,13 @@ void Lisp_Env::insert(const std::shared_ptr<Lisp_Symbol> &sym, const std::shared
 	else itr->second = obj;
 }
 
+void Lisp_Env::erase(const std::shared_ptr<Lisp_Symbol> &sym)
+{
+	auto bucket = get_bucket(sym);
+	bucket->erase(std::remove_if(begin(*bucket), end(*bucket),
+		[&] (auto &e) { return e.first == sym; }), end(*bucket));
+}
+
 ///////////////
 //Lisp_Function
 ///////////////
@@ -541,6 +548,7 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("defq")), std::make_shared<Lisp_Function>(&Lisp::defq, 1));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("setq")), std::make_shared<Lisp_Function>(&Lisp::setq, 1));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("def")), std::make_shared<Lisp_Function>(&Lisp::def));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("undef")), std::make_shared<Lisp_Function>(&Lisp::undef));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("set")), std::make_shared<Lisp_Function>(&Lisp::set));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("def?")), std::make_shared<Lisp_Function>(&Lisp::defined));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("sym")), std::make_shared<Lisp_Function>(&Lisp::sym));

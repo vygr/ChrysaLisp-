@@ -290,6 +290,7 @@ public:
 	Lisp_Env_Pair *set(const std::shared_ptr<Lisp_Symbol> &sym, const std::shared_ptr<Lisp_Obj> &obj);
 	std::shared_ptr<Lisp_Obj> get(const std::shared_ptr<Lisp_Symbol> &sym);
 	void insert(const std::shared_ptr<Lisp_Symbol> &sym, const std::shared_ptr<Lisp_Obj> &obj);
+	void erase(const std::shared_ptr<Lisp_Symbol> &sym);
 	void resize(long long num_buckets);
 	Lisp_Env_Buckets::iterator get_bucket(const std::shared_ptr<Lisp_Symbol> &sym);
 	Lisp_Env_Buckets m_buckets;
@@ -409,6 +410,7 @@ public:
 	std::shared_ptr<Lisp_Obj> defq(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> setq(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> def(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> undef(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> set(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> defined(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> sym(const std::shared_ptr<Lisp_List> &args);
