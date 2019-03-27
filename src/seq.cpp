@@ -328,6 +328,7 @@ std::shared_ptr<Lisp_Obj> Lisp::code(const std::shared_ptr<Lisp_List> &args)
 		auto index = 0;
 		if (args->length() > 1) width = std::static_pointer_cast<Lisp_Integer>(args->m_v[1])->m_value;
 		if (args->length() > 2) index = std::static_pointer_cast<Lisp_Integer>(args->m_v[2])->m_value;
+		if (index < 0) index += str.size() + 1;
 		auto code = 0ll;
 		std::copy(&str[index], &str[index + width], (char*)&code);
 		return std::make_shared<Lisp_Integer>(code);
