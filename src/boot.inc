@@ -95,7 +95,6 @@
 (ffi eval "class/lisp/func_eval" 0)
 (ffi lambda "class/lisp/func_lambda" 1)
 (ffi macro "class/lisp/func_lambda" 1)
-(ffi call "class/lisp/func_call" 0)
 (ffi progn "class/lisp/func_progn" 0)
 (ffi apply "class/lisp/func_apply" 0)
 (ffi repl "class/lisp/func_repl" 0)
@@ -106,11 +105,17 @@
 (ffi prin "class/lisp/func_prin" 0)
 (ffi print "class/lisp/func_print" 0)
 
+(ffi kernel-debug "sys/kernel/lisp_debug" 0)
+
 (defq t 't nil 'nil
 	lisp_type_list (bit-shl 1 0)
 	lisp_type_integer (bit-shl 1 1)
 	lisp_type_string (bit-shl 1 2)
 	lisp_type_symbol (bit-shl 1 3))
+
+(defmacro const (_)
+	;(const form)
+	(eval _))
 
 (defmacro defun (n a &rest _)
 	;(defun name ([arg ...]) body)
@@ -151,9 +156,9 @@
 	(while (lt (setq i (add i 2)) (length _))
 		(push l (elem i _) `(opt ,(elem i _) ,(elem (inc i) _)))) l)
 
-(defmacro run (_)
-	;(run path)
-	`(repl (file-stream ,_) ,_))
+(defmacro debug (&rest _)
+	;(debug [form ...])
+	`(kernel-debug (apply cat (map str (list ~_ (char 10))))))
 
 ;;;;;;;;
 ; Scopes
@@ -377,6 +382,12 @@
 			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
 				_v (every _f (split _l (char 10)))))))
 
+(defmacro import (_)
+	;(import path)
+	`(unless (find ,_ *file-includes*)
+		(push *file-includes* ,_)
+		(repl (file-stream ,_) ,_)))
+
 ;;;;;;;;;;;
 ; Utilities
 ;;;;;;;;;;;
@@ -425,19 +436,25 @@
 
 (defun trim-start (s &optional c)
 	;(trim-start str [str])
-	(setd c " ")
-	(while (and (ne 0 (length s)) (eql (elem 0 s) c))
-		(setq s (slice 1 -1 s))) s)
+	(defq c (if c (code c) (ascii " ")) i -1)
+	(while (and (ne (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
+	(slice i -1 s))
 
 (defun trim-end (s &optional c)
 	;(trim-end str [str])
-	(setd c " ")
-	(while (and (ne 0 (length s)) (eql (elem -2 s) c))
-		(setq s (slice 0 -2 s))) s)
+	(defq c (if c (code c) (ascii " ")) i -1 l (sub -2 (length s)))
+	(while (and (ne (setq i (dec i)) l) (eql (code s 1 i) c)))
+	(slice 0 (inc i) s))
 
 (defun trim (s &optional c)
 	;(trim str [str])
 	(trim-start (trim-end s c) c))
+
+(defun pad (v c &optional f)
+	;(pad form width [str])
+	(defq f (opt f " ") v (str v) l (length v) c (sub (max c l) l))
+	(while (gt c (length f)) (setq f (cat f f)))
+	(cat (slice 0 c f) v))
 
 (defun log2 (_)
 	;(log2 num)
@@ -500,10 +517,10 @@
 	(defq _s (time))
 	(defun get-next ()
 		(setq _s (abs (bit-xor 0xa5a5a5a5a5a5a5a5 (mul _s 0x1574937f)))))
-	(defun get-int (_)
+	(defun get-val (_)
 		(if (gt _ 0) (mod (get-next) _) 0))
 	(each! _h _l nil (lambda (x)
-		(swap _a _ (get-int (inc _)))) (list _a)) _a)
+		(swap _a _ (get-val (inc _)))) (list _a)) _a)
 
 (defun sorted (_f _a &optional _l _h)
 	;(sorted list [start end])
@@ -526,24 +543,24 @@
 		(elem-set _1 _ (elem _2 _))
 		(elem-set _2 _ _t)))
 
-(defun read-byte (o s)
-	;(read-byte index seq)
-	(code (elem o s)))
-(defun read-short (o s)
-	;(read-short index seq)
-	(add (read-byte o s) (bit-shl (read-byte (inc o) s) 8)))
-(defun read-int (o s)
-	;(read-int index seq)
-	(add (read-short o s) (bit-shl (read-short (add o 2) s) 16)))
-(defun read-long (o s)
-	;(read-long index seq)
-	(add (read-int o s) (bit-shl (read-int (add o 4) s) 32)))
-(defun read-cstr (o s)
-	;(read-cstr index seq)
+(defmacro get-byte (s o)
+	;(get-byte str index) -> num
+	(list 'code s 1 o))
+(defmacro get-short (s o)
+	;(get-short str index) -> num
+	(list 'code s 2 o))
+(defmacro get-int (s o)
+	;(get-int str index) -> num
+	(list 'code s 4 o))
+(defmacro get-long (s o)
+	;(get-long str index) -> num
+	(list 'code s 8 o))
+(defun get-cstr (s o)
+	;(get-cstr str index) -> str
 	(defq k o)
-	(while (ne 0 (read-byte o s))
+	(while (ne 0 (get-byte s o))
 		(setq o (inc o)))
-	(sym (slice k o s)))
+	(slice k o s))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
@@ -563,9 +580,22 @@
 
 (defun within-compile-env (_)
 	;(within-compile-env lambda)
-	(defq *compile-env* (env 307) *imports* (list))
-	(defmacro defcvar (&rest b) `(def *compile-env* ~b))
-	(defmacro defcfun (n a &rest b) `(def *compile-env* ',n (lambda ,a ~b)))
-	(defmacro defcmacro (n a &rest b) `(def *compile-env* ',n (macro ,a ~b)))
-	(defun import (_) (unless (find _ *imports*) (push *imports* _) (run _)))
+	(defq *compile-env* (env 307) *compile-includes* (list))
+	(defmacro defcvar (&rest b)
+		`(def *compile-env* ~b))
+	(defmacro defcfun (n a &rest b)
+		`(def *compile-env* ',n (lambda ,a ~b)))
+	(defmacro defcmacro (n a &rest b)
+		`(def *compile-env* ',n (macro ,a ~b)))
+	(defun include (_)
+		(unless (find _ *compile-includes*)
+			(push *compile-includes* _)
+			(repl (file-stream _) _)))
 	(catch (progn (setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))
+
+;; (defq *cond-cnt* (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) *cond-cnt-i* -1)
+;; (defmacro do-cond-cnt ()
+;; 	(setq *cond-cnt-i* (inc *cond-cnt-i*))
+;; 	`(elem-set ,*cond-cnt-i* *cond-cnt* (inc (elem ,*cond-cnt-i* *cond-cnt*))))
+;; (defun print-cond-cnt ()
+;; 	(print (slice 0 (inc *cond-cnt-i*) *cond-cnt*)))
