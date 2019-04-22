@@ -233,6 +233,17 @@ int Lisp::repl_expand(std::shared_ptr<Lisp_Obj> &o, int cnt)
 	return cnt;
 }
 
+std::shared_ptr<Lisp_Obj> Lisp::macroexpand(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 1)
+	{
+		auto obj = copy(args);
+		while (repl_expand(obj, 0));
+		return obj;
+	}
+	return repl_error("(macroexpand form)", error_msg_wrong_types, args);
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::repl_error(const std::string &msg, int type, const std::shared_ptr<Lisp_Obj> &o)
 {
 	static const std::vector<std::string> errors =

@@ -166,21 +166,6 @@ std::shared_ptr<Lisp_Obj> Lisp::writechar(const std::shared_ptr<Lisp_List> &args
 	return repl_error("(write-char stream list|num [width])", error_msg_wrong_num_of_args, args);
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::writeline(const std::shared_ptr<Lisp_List> &args)
-{
-	if (args->length() == 2
-		&& args->m_v[0]->is_type(lisp_type_ostream)
-		&& args->m_v[1]->is_type(lisp_type_string))
-	{
-		auto stream = std::static_pointer_cast<Lisp_OStream>(args->m_v[0]);
-		auto value = std::static_pointer_cast<Lisp_String>(args->m_v[1]);
-		stream->write_line(value->m_string);
-		stream->write_char('\n');
-		return value;
-	}
-	return repl_error("(write-line stream str)", error_msg_wrong_types, args);
-}
-
 std::shared_ptr<Lisp_Obj> Lisp::prin(const std::shared_ptr<Lisp_List> &args)
 {
 	auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);

@@ -385,7 +385,6 @@ public:
 	std::shared_ptr<Lisp_Obj> readline(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> write(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> writechar(const std::shared_ptr<Lisp_List> &args);
-	std::shared_ptr<Lisp_Obj> writeline(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> prin(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> print(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> repl(const std::shared_ptr<Lisp_List> &args);
@@ -405,6 +404,7 @@ public:
 	std::shared_ptr<Lisp_Obj> lcatch(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> type(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> lthrow(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> macroexpand(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> env(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> defq(const std::shared_ptr<Lisp_List> &args);

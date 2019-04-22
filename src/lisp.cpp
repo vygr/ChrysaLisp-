@@ -519,7 +519,6 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("read-line")), std::make_shared<Lisp_Function>(&Lisp::readline));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("write")), std::make_shared<Lisp_Function>(&Lisp::write));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("write-char")), std::make_shared<Lisp_Function>(&Lisp::writechar));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("write-line")), std::make_shared<Lisp_Function>(&Lisp::writeline));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("prin")), std::make_shared<Lisp_Function>(&Lisp::prin));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("print")), std::make_shared<Lisp_Function>(&Lisp::print));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("load")), std::make_shared<Lisp_Function>(&Lisp::load));
@@ -542,6 +541,7 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("repl")), std::make_shared<Lisp_Function>(&Lisp::repl));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("type?")), std::make_shared<Lisp_Function>(&Lisp::type));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("throw")), std::make_shared<Lisp_Function>(&Lisp::lthrow));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("macroexpand")), std::make_shared<Lisp_Function>(&Lisp::macroexpand));
 
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("defmacro")), std::make_shared<Lisp_Function>(&Lisp::defmacro, 1));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("env")), std::make_shared<Lisp_Function>(&Lisp::env, 0));
