@@ -249,44 +249,38 @@ std::shared_ptr<Lisp_Obj> Lisp::ge(const std::shared_ptr<Lisp_List> &args)
 
 std::shared_ptr<Lisp_Obj> Lisp::band(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() > 1
-		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_integer); }))
+	if (std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_integer); }))
 	{
-		auto init = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
-		return std::make_shared<Lisp_Integer>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
+		return std::make_shared<Lisp_Integer>(std::accumulate(begin(args->m_v), end(args->m_v), -1, [] (auto n, auto &o)
 		{
 			return n & std::static_pointer_cast<Lisp_Integer>(o)->m_value;
 		}));
 	}
-	return repl_error("(logand num num ...)", error_msg_wrong_types, args);
+	return repl_error("(logand [num] ...)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::bor(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() > 1
-		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_integer); }))
+	if (std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_integer); }))
 	{
-		auto init = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
-		return std::make_shared<Lisp_Integer>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
+		return std::make_shared<Lisp_Integer>(std::accumulate(begin(args->m_v), end(args->m_v), 0, [] (auto n, auto &o)
 		{
 			return n | std::static_pointer_cast<Lisp_Integer>(o)->m_value;
 		}));
 	}
-	return repl_error("(logior num num ...)", error_msg_wrong_types, args);
+	return repl_error("(logior [num] ...)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::bxor(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() > 1
-		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_integer); }))
+	if (std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_integer); }))
 	{
-		auto init = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
-		return std::make_shared<Lisp_Integer>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
+		return std::make_shared<Lisp_Integer>(std::accumulate(begin(args->m_v), end(args->m_v), 0, [] (auto n, auto &o)
 		{
 			return n ^ std::static_pointer_cast<Lisp_Integer>(o)->m_value;
 		}));
 	}
-	return repl_error("(logxor num num ...)", error_msg_wrong_types, args);
+	return repl_error("(logxor [num] ...)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::bshl(const std::shared_ptr<Lisp_List> &args)
