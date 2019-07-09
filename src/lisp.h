@@ -175,6 +175,7 @@ public:
 	const Lisp_Type type() const override { return lisp_type_string; }
 	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_string); }
 	void print(std::ostream &out) const override;
+	void print1(std::ostream &out) const;
 	long long length() const override;
 	std::shared_ptr<Lisp_Obj> elem(long long i) const override;
 	std::shared_ptr<Lisp_Obj> slice(long long s, long long e) const override;
@@ -267,6 +268,7 @@ public:
 	const Lisp_Type type() const override { return lisp_type_string_stream; }
 	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_string_stream); }
 	void print(std::ostream &out) const override;
+	void print1(std::ostream &out) const;
 	bool is_open() const override;
 	std::ostream &get_stream() override;
 	void write_char(int c) override;

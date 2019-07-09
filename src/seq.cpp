@@ -523,22 +523,25 @@ std::shared_ptr<Lisp_Obj> Lisp::each(const std::shared_ptr<Lisp_List> &args)
 
 std::shared_ptr<Lisp_Obj> Lisp::str(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() == 1)
+	if (args->length() >= 1)
 	{
-		auto t = args->m_v[0]->type();
-		switch (t)
+		std::ostringstream ss;
+		for (auto &&o : args->m_v)
 		{
-		case lisp_type_string:
-			return args->m_v[0];
-		case lisp_type_symbol:
-			return std::make_shared<Lisp_String>(std::static_pointer_cast<Lisp_Symbol>(args->m_v[0])->m_string);
-		case lisp_type_string_stream:
-			return std::make_shared<Lisp_String>(std::static_pointer_cast<Lisp_String_Stream>(args->m_v[0])->m_stream.str());
-		default:
-			std::ostringstream ss;
-			args->m_v[0]->print(ss);
-			return std::make_shared<Lisp_String>(ss.str());
+			switch (o->type())
+			{
+			case lisp_type_string:
+				std::static_pointer_cast<Lisp_String>(o)->print1(ss);
+				break;
+			case lisp_type_string_stream:
+				std::static_pointer_cast<Lisp_String_Stream>(o)->print1(ss);
+				break;
+			case lisp_type_symbol:
+			default:
+				o->print(ss);
+			}
 		}
+		return std::make_shared<Lisp_String>(ss.str());
 	}
-	return repl_error("(str form)", error_msg_wrong_num_of_args, args);
+	return repl_error("(str form ...)", error_msg_wrong_num_of_args, args);
 }

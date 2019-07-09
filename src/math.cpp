@@ -258,7 +258,7 @@ std::shared_ptr<Lisp_Obj> Lisp::band(const std::shared_ptr<Lisp_List> &args)
 			return n & std::static_pointer_cast<Lisp_Integer>(o)->m_value;
 		}));
 	}
-	return repl_error("(bit-and num num ...)", error_msg_wrong_types, args);
+	return repl_error("(logand num num ...)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::bor(const std::shared_ptr<Lisp_List> &args)
@@ -272,7 +272,7 @@ std::shared_ptr<Lisp_Obj> Lisp::bor(const std::shared_ptr<Lisp_List> &args)
 			return n | std::static_pointer_cast<Lisp_Integer>(o)->m_value;
 		}));
 	}
-	return repl_error("(bit-or num num ...)", error_msg_wrong_types, args);
+	return repl_error("(logior num num ...)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::bxor(const std::shared_ptr<Lisp_List> &args)
@@ -286,7 +286,7 @@ std::shared_ptr<Lisp_Obj> Lisp::bxor(const std::shared_ptr<Lisp_List> &args)
 			return n ^ std::static_pointer_cast<Lisp_Integer>(o)->m_value;
 		}));
 	}
-	return repl_error("(bit-xor num num ...)", error_msg_wrong_types, args);
+	return repl_error("(logxor num num ...)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::bshl(const std::shared_ptr<Lisp_List> &args)
@@ -299,7 +299,7 @@ std::shared_ptr<Lisp_Obj> Lisp::bshl(const std::shared_ptr<Lisp_List> &args)
 		auto c = std::static_pointer_cast<Lisp_Integer>(args->m_v[1])->m_value;
 		return std::make_shared<Lisp_Integer>(n << c);
 	}
-	return repl_error("(bit-shl num cnt)", error_msg_wrong_types, args);
+	return repl_error("(shl num cnt)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::bshr(const std::shared_ptr<Lisp_List> &args)
@@ -312,7 +312,7 @@ std::shared_ptr<Lisp_Obj> Lisp::bshr(const std::shared_ptr<Lisp_List> &args)
 		auto c = std::static_pointer_cast<Lisp_Integer>(args->m_v[1])->m_value;
 		return std::make_shared<Lisp_Integer>(n >> c);
 	}
-	return repl_error("(bit-shr num cnt)", error_msg_wrong_types, args);
+	return repl_error("(shr num cnt)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::basr(const std::shared_ptr<Lisp_List> &args)
@@ -325,5 +325,5 @@ std::shared_ptr<Lisp_Obj> Lisp::basr(const std::shared_ptr<Lisp_List> &args)
 		auto c = std::static_pointer_cast<Lisp_Integer>(args->m_v[1])->m_value;
 		return std::make_shared<Lisp_Integer>(n >> c);
 	}
-	return repl_error("(bit-asr num cnt)", error_msg_wrong_types, args);
+	return repl_error("(asr num cnt)", error_msg_wrong_types, args);
 }

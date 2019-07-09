@@ -2,92 +2,93 @@
 ; Primitives
 ;;;;;;;;;;;;
 
-(ffi add "class/lisp/func_add" 0)
-(ffi sub "class/lisp/func_sub" 0)
-(ffi mul "class/lisp/func_mul" 0)
-(ffi div "class/lisp/func_div" 0)
-(ffi mod "class/lisp/func_mod" 0)
-(ffi min "class/lisp/func_min" 0)
-(ffi max "class/lisp/func_max" 0)
+(ffi add "class/num/lisp_add" 0)
+(ffi sub "class/num/lisp_sub" 0)
+(ffi mul "class/num/lisp_mul" 0)
+(ffi div "class/num/lisp_div" 0)
+(ffi mod "class/num/lisp_mod" 0)
+(ffi min "class/num/lisp_min" 0)
+(ffi max "class/num/lisp_max" 0)
 
-(ffi fmul "class/lisp/func_fmul" 0)
-(ffi fdiv "class/lisp/func_fdiv" 0)
-(ffi fmod "class/lisp/func_fmod" 0)
-(ffi frac "class/lisp/func_frac" 0)
-(ffi floor "class/lisp/func_floor" 0)
-(ffi fsin "class/lisp/func_fsin" 0)
-(ffi fcos "class/lisp/func_fcos" 0)
-(ffi fsqrt "class/lisp/func_fsqrt" 0)
+(ffi fmul "class/num/lisp_fmul" 0)
+(ffi fdiv "class/num/lisp_fdiv" 0)
+(ffi fmod "class/num/lisp_fmod" 0)
 
-(ffi eq "class/lisp/func_eq" 0)
-(ffi ne "class/lisp/func_ne" 0)
-(ffi lt "class/lisp/func_lt" 0)
-(ffi gt "class/lisp/func_gt" 0)
-(ffi le "class/lisp/func_le" 0)
-(ffi ge "class/lisp/func_ge" 0)
+(ffi shr "class/num/lisp_bshr" 0)
+(ffi asr "class/num/lisp_basr" 0)
+(ffi shl "class/num/lisp_bshl" 0)
+(ffi logand "class/num/lisp_band" 0)
+(ffi logior "class/num/lisp_bor" 0)
+(ffi logxor "class/num/lisp_bxor" 0)
 
-(ffi bit-shr "class/lisp/func_bshr" 0)
-(ffi bit-asr "class/lisp/func_basr" 0)
-(ffi bit-shl "class/lisp/func_bshl" 0)
-(ffi bit-and "class/lisp/func_band" 0)
-(ffi bit-or "class/lisp/func_bor" 0)
-(ffi bit-xor "class/lisp/func_bxor" 0)
+(ffi eq "class/num/lisp_eq" 0)
+(ffi ne "class/num/lisp_ne" 0)
+(ffi lt "class/num/lisp_lt" 0)
+(ffi gt "class/num/lisp_gt" 0)
+(ffi le "class/num/lisp_le" 0)
+(ffi ge "class/num/lisp_ge" 0)
 
-(ffi list "class/lisp/func_list" 0)
-(ffi array "class/lisp/func_array" 0)
-(ffi points "class/lisp/func_points" 0)
-(ffi copy "class/lisp/func_copy" 0)
-(ffi clear "class/lisp/func_clear" 0)
-(ffi slice "class/lisp/func_slice" 0)
-(ffi cat "class/lisp/func_cat" 0)
-(ffi elem "class/lisp/func_elem" 0)
-(ffi elem-set "class/lisp/func_elemset" 0)
-(ffi length "class/lisp/func_length" 0)
-(ffi push "class/lisp/func_push" 0)
-(ffi pop "class/lisp/func_pop" 0)
-(ffi each! "class/lisp/func_each" 0)
-(ffi some! "class/lisp/func_some" 0)
-(ffi merge-sym "class/lisp/func_merge" 0)
-(ffi partition "class/lisp/func_part" 0)
+(ffi length "class/seq/lisp_length" 0)
+(ffi elem "class/seq/lisp_elem" 0)
+(ffi find "class/seq/lisp_find" 0)
+(ffi slice "class/seq/lisp_slice" 0)
+(ffi cat "class/seq/lisp_cat" 0)
+(ffi each! "class/seq/lisp_each" 0)
+(ffi some! "class/seq/lisp_some" 0)
 
-(ffi str "class/lisp/func_str" 0)
-(ffi sym "class/lisp/func_sym" 0)
-(ffi char "class/lisp/func_char" 0)
-(ffi code "class/lisp/func_code" 0)
-(ffi find "class/lisp/func_find" 0)
-(ffi cmp "class/lisp/func_cmp" 0)
-(ffi split "class/lisp/func_split" 0)
+(ffi clear "class/array/lisp_clear" 0)
+(ffi push "class/array/lisp_push" 0)
+(ffi pop "class/array/lisp_pop" 0)
+
+(ffi elem-set "class/vector/lisp_elemset" 0)
+(ffi merge "class/vector/lisp_merge" 0)
+(ffi partition "class/vector/lisp_part" 0)
+(ffi match? "class/vector/lisp_match" 0)
+
+(ffi str "class/str/lisp_str" 0)
+(ffi split "class/str/lisp_split" 0)
+(ffi char "class/str/lisp_char" 0)
+(ffi code "class/str/lisp_code" 0)
+(ffi cmp "class/str/lisp_cmp" 0)
+(ffi save "class/str/lisp_save" 0)
+(ffi load "class/str/lisp_load" 0)
+
+(ffi sym "class/sym/lisp_sym" 0)
+(ffi gensym "class/sym/lisp_gensym" 0)
+
+(ffi defq "class/hmap/lisp_defq" 1)
+(ffi setq "class/hmap/lisp_setq" 1)
+(ffi def "class/hmap/lisp_def" 0)
+(ffi set "class/hmap/lisp_set" 0)
+(ffi def? "class/hmap/lisp_defined" 0)
+(ffi undef "class/hmap/lisp_undef" 0)
+(ffi env "class/hmap/lisp_env" 0)
+
+(ffi pipe "class/pipe/lisp_create" 0)
+(ffi pipe-read "class/pipe/lisp_read" 0)
+(ffi pipe-write "class/pipe/lisp_write" 0)
+
+(ffi file-stream "class/stream/lisp_filestream" 0)
+(ffi string-stream "class/stream/lisp_strstream" 0)
+(ffi read-char "class/stream/lisp_readchar" 0)
+(ffi read-line "class/stream/lisp_readline" 0)
+(ffi write-char "class/stream/lisp_writechar" 0)
+(ffi write "class/stream/lisp_write" 0)
+
+(ffi list "class/vector/lisp_list" 0)
+(ffi array "class/array/lisp_array" 0)
+(ffi points "class/array/lisp_points" 0)
+
+(ffi type-of "class/lisp/func_type" 0)
 (ffi eql "class/lisp/func_eql" 0)
-(ffi match? "class/lisp/func_match" 0)
-(ffi save "class/lisp/func_save" 0)
-(ffi load "class/lisp/func_load" 0)
+(ffi copy "class/lisp/func_copy" 0)
 
-(ffi defq "class/lisp/func_defq" 1)
-(ffi setq "class/lisp/func_setq" 1)
 (ffi defmacro "class/lisp/func_defmacro" 1)
-(ffi gensym "class/lisp/func_gensym" 0)
 (ffi macroexpand "class/lisp/func_macroexpand" 0)
 (ffi macroexpand-1 "class/lisp/func_macroexpand_1" 0)
-(ffi def "class/lisp/func_def" 0)
-(ffi undef "class/lisp/func_undef" 0)
-(ffi set "class/lisp/func_set" 0)
-(ffi def? "class/lisp/func_defined" 0)
+
+(ffi throw "class/lisp/func_throw" 0)
 (ffi bind "class/lisp/func_bind" 0)
-(ffi env "class/lisp/func_env" 0)
-(ffi type? "class/lisp/func_type" 0)
-
-(ffi file-stream "class/lisp/func_filestream" 0)
-(ffi string-stream "class/lisp/func_strstream" 0)
-(ffi read-char "class/lisp/func_readchar" 0)
-(ffi read-line "class/lisp/func_readline" 0)
-(ffi write-char "class/lisp/func_writechar" 0)
-(ffi write "class/lisp/func_write" 0)
-(ffi pipe "class/lisp/func_pipe" 0)
-(ffi pipe-read "class/lisp/func_rpipe" 0)
-(ffi pipe-write "class/lisp/func_wpipe" 0)
-(ffi age "class/lisp/func_age" 0)
-(ffi time "class/lisp/func_time" 0)
-
 (ffi read "class/lisp/func_read" 0)
 (ffi quote "class/lisp/func_quote" 1)
 (ffi quasi-quote "class/lisp/func_qquote" 1)
@@ -98,19 +99,20 @@
 (ffi apply "class/lisp/func_apply" 0)
 (ffi repl "class/lisp/func_repl" 0)
 (ffi catch "class/lisp/func_catch" 1)
-(ffi throw "class/lisp/func_error" 0)
 (ffi cond "class/lisp/func_cond" 1)
 (ffi while "class/lisp/func_while" 1)
 (ffi prin "class/lisp/func_prin" 0)
 (ffi print "class/lisp/func_print" 0)
 
+(ffi time "class/lisp/func_time" 0)
+(ffi age "class/lisp/func_age" 0)
 (ffi kernel-debug "sys/kernel/lisp_debug" 0)
 
 (defq t 't nil 'nil
-	lisp_type_list (bit-shl 1 0)
-	lisp_type_integer (bit-shl 1 1)
-	lisp_type_string (bit-shl 1 2)
-	lisp_type_symbol (bit-shl 1 3))
+	lisp_type_lst (shl 1 0)
+	lisp_type_int (shl 1 1)
+	lisp_type_str (shl 1 2)
+	lisp_type_sym (shl 1 3))
 
 (defmacro const (_)
 	;(const form)
@@ -128,20 +130,21 @@
 	;(points [form ...])
 	;(prin [form ...])
 	;(print [form ...])
+	;(str [form ...])
 	`(defq ,n (lambda ,a ~_)))
 
 (defmacro lst? (_)
 	;(lst? form)
-	`(eq (type? ,_) ,lisp_type_list))
+	`(eq (type-of ,_) ,lisp_type_lst))
 (defmacro num? (_)
 	;(num? form)
-	`(eq (type? ,_) ,lisp_type_integer))
+	`(eq (type-of ,_) ,lisp_type_int))
 (defmacro str? (_)
 	;(str? form)
-	`(eq (type? ,_) ,lisp_type_string))
-(defmacro sym? (_)
+	`(eq (type-of ,_) ,lisp_type_str))
+(defun sym? (_)
 	;(sym? form)
-	`(eq (type? ,_) ,lisp_type_symbol))
+	(eq (type-of _) (const lisp_type_sym)))
 
 (defmacro inc (_)
 	;(inc num) -> num
@@ -159,10 +162,6 @@
 	(while (lt (setq i (add i 2)) (length _))
 		(push l (elem i _) `(opt ,(elem i _) ,(elem (inc i) _)))) l)
 
-(defmacro debug (&rest _)
-	;(debug [form ...])
-	`(kernel-debug (apply cat (map str (list ~_ ,(char 10))))))
-
 ;;;;;;;;
 ; Scopes
 ;;;;;;;;
@@ -176,35 +175,53 @@
 ;;;;;;;;;;;;;;
 
 (defmacro if (x y &rest _)
-	;(if tst form [form])
+	;(if form form [form])
 	(cond ((eq 0 (length _)) `(cond (,x ,y)))
 		(t `(cond (,x ,y) (t ~_)))))
 
-(defmacro not (x)
+(defmacro not (_)
 	;(not form)
-	`(cond (,x nil) (t t)))
+	`(cond (,_ nil) (t)))
 
 (defmacro when (x &rest _)
-	;(when tst body)
+	;(when form body)
 	`(cond (,x ~_)))
 
 (defmacro unless (x &rest _)
-	;(unless tst body)
+	;(unless form body)
 	`(cond (,x nil) (t ~_)))
 
 (defmacro until (x &rest _)
-	;(until tst body)
+	;(until form body)
 	`(while (not ,x) ~_))
 
-(defmacro or (x &rest _)
-	;(or tst ...)
-	(if (eq 0 (length _)) x
-		`(if (defq ,(defq _x (gensym)) ,x) ,_x (or ~_))))
+(defmacro or (&rest _)
+	;(or [form] ...)
+	(cond
+		((eq (length _) 0) nil)
+		((eq (length _) 1) (elem 0 _))
+		(t `(if (defq ,(defq _x (gensym)) ,(elem 0 _)) ,_x (or ~(slice 1 -1 _))))))
 
-(defmacro and (x &rest _)
-	;(and tst ...)
-	(if (eq 0 (length _)) x
-		`(if ,x (and ~_) nil)))
+(defmacro and (&rest _)
+	;(and [form] ...)
+	(cond
+		((eq (length _) 0))
+		((eq (length _) 1) (elem 0 _))
+		(t `(if ,(elem 0 _) (and ~(slice 1 -1 _))))))
+
+(defmacro case (k &rest _)
+	;(case form [(key body)] ...)
+	(defq _ (reduce-rev (lambda (x (_ &rest y))
+		(unless (lst? _) (setq _ (list _)))
+		(if (notevery sym? _)
+			(throw "Key not symbol !" _))
+		(each! nil nil nil (lambda (_)
+			(push (elem 0 x) _)
+			(push (elem 1 x) (macroexpand (cat '(progn) y)))) (list _)) x) _ (list (list) (list)))
+		d (find 'otherwise (elem 0 _)))
+	(if d
+		`(eval (elem (or (find ,k ',(elem 0 _)) ,d) ',(elem 1 _)))
+		`(if (defq ,(defq i (gensym)) (find ,k ',(elem 0 _))) (eval (elem ,i ',(elem 1 _))))))
 
 (defmacro times (c &rest _)
 	;(times num body)
@@ -277,17 +294,21 @@
 
 (defun reduce (_f _l &optional _a)
 	;(reduce lambda seq [accum])
-	(if _a (defq _ -1)
-		(defq _ 0 _a (elem 0 _l)))
-	(while (lt (setq _ (inc _)) (length _l))
-		(setq _a (_f _a (elem _ _l)))) _a)
+	(cond
+		(_a (each! nil nil nil (lambda (_p)
+				(setq _a (_f _a _p))) (list _l)))
+		(t (setq _a (elem 0 _l))
+			(each! 1 nil nil (lambda (_p)
+				(setq _a (_f _a _p))) (list _l)))) _a)
 
 (defun reduce-rev (_f _l &optional _a)
 	;(reduce-rev lambda seq [accum])
-	(if _a (defq _ (length _l))
-		(defq _ (dec (length _l)) _a (elem -2 _l)))
-	(while (ge (setq _ (dec _)) 0)
-		(setq _a (_f _a (elem _ _l)))) _a)
+	(cond
+		(_a (each! -1 0 nil (lambda (_p)
+				(setq _a (_f _a _p))) (list _l)))
+		(t (setq _a (elem -2 _l))
+			(each! -2 0 nil (lambda (_p)
+				(setq _a (_f _a _p))) (list _l)))) _a)
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -321,8 +342,8 @@
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
-(defq min_long (bit-shl -1 63) max_long (bit-shr -1 1)
-	min_int (bit-shl -1 31) max_int (bit-shr -1 33))
+(defq min_long (shl -1 63) max_long (shr -1 1)
+	min_int (shl -1 31) max_int (shr -1 33))
 
 (defun sign (_)
 	;(sign num) -> num
@@ -355,45 +376,16 @@
 	;(divmod num num) -> list
 	(list (div x y) (mod x y)))
 
-(defun bit-not (_)
-	;(bit-not num) -> num
-	(bit-xor _ -1))
+(defun lognot (_)
+	;(lognot num) -> num
+	(logxor _ -1))
 
 ;;;;;;;;;;;;;;;;;;
 ; Fixed point math
 ;;;;;;;;;;;;;;;;;;
 
 (defq fp_shift 16 fp_2pi 411774 fp_pi 205887 fp_hpi 102943 fp_qpi 51471 fp_rpi 20861
-	fp_int_mask (bit-shl -1 fp_shift) fp_frac_mask (bit-not fp_int_mask))
-
-;;;;;;;;;
-; Streams
-;;;;;;;;;
-
-(defun each-line (_f _)
-	;(each-line lambda path)
-	(defq _s (file-stream _))
-	(while (defq _l (read-line _s))
-		(_f _l)))
-
-(defun each-pipe-line (_f _p)
-	;(each-pipe-line lambda pipe)
-	(defq _d "" _v t)
-	(while (and _p _v)
-		(defq _d (cat _d (pipe-read _p)) _i (find (const (char 10)) _d))
-		(when _i
-			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
-				_v (every _f (split _l (const (char 10))))))))
-
-(defmacro import (_)
-	;(import path)
-	`(unless (find ,_ *file-includes*)
-		(push *file-includes* ,_)
-		(repl (file-stream ,_) ,_)))
-
-(defun write-line (s _)
-	;(write-line stream str) -> str
-	(write s _) (write s (const (char 10))) _)
+	fp_int_mask (shl -1 fp_shift) fp_frac_mask (lognot fp_int_mask))
 
 ;;;;;;;;;;;
 ; Utilities
@@ -401,11 +393,15 @@
 
 (defun align (_ _a)
 	;(align num pow2) -> num
-	(bit-and (add _ (dec _a)) (neg _a)))
+	(logand (add _ (dec _a)) (neg _a)))
 
-(defmacro ascii (_)
-	;(ascii str) -> num
+(defmacro ascii-code (_)
+	;(ascii-code char) -> num
 	(code _))
+
+(defmacro ascii-char (_)
+	;(ascii-char num) -> char
+	(char _))
 
 (defun to-base-char (_)
 	;(to-base-char num) -> str
@@ -415,11 +411,11 @@
 	;(from-base-char str) -> num
 	(setq _ (code _))
 	(cond
-		((ge _ (ascii "a"))
-			(sub _ (ascii "a") -10))
-		((ge _ (ascii "A"))
-			(sub _ (ascii "A") -10))
-		(t (sub _ (ascii "0")))))
+		((ge _ (ascii-code "a"))
+			(sub _ (ascii-code "a") -10))
+		((ge _ (ascii-code "A"))
+			(sub _ (ascii-code "A") -10))
+		(t (sub _ (ascii-code "0")))))
 
 (defun to-num (_)
 	;(to-num str) -> num
@@ -443,13 +439,13 @@
 
 (defun trim-start (s &optional c)
 	;(trim-start str [str]) -> str
-	(defq c (if c (code c) (ascii " ")) i -1)
+	(defq c (if c (code c) (ascii-code " ")) i -1)
 	(while (and (ne (setq i (inc i)) (length s)) (eql (code s 1 i) c)))
 	(slice i -1 s))
 
 (defun trim-end (s &optional c)
 	;(trim-end str [str]) -> str
-	(defq c (if c (code c) (ascii " ")) i (length s))
+	(defq c (if c (code c) (ascii-code " ")) i (length s))
 	(while (and (ne (setq i (dec i)) -1) (eql (code s 1 i) c)))
 	(slice 0 (inc i) s))
 
@@ -465,9 +461,9 @@
 
 (defun log2 (_)
 	;(log2 num) -> num
-	(when (and (not (eq 0 _)) (eq _ (bit-and _ (neg _))))
+	(when (and (not (eq 0 _)) (eq _ (logand _ (neg _))))
 		(defq i 0)
-		(while (ne 0 (setq _ (bit-shr _ 1)))
+		(while (ne 0 (setq _ (shr _ 1)))
 			(setq i (inc i))) i))
 
 (defun count-trailing-zeros (_)
@@ -475,16 +471,16 @@
 	(if (eq _ 0) 64)
 		(progn
 			(defq c 0)
-			(while (eq 0 (bit-and _ 1))
-				(setq _ (bit-shr _ 1) c (inc c))) c))
+			(while (eq 0 (logand _ 1))
+				(setq _ (shr _ 1) c (inc c))) c))
 
 (defun count-trailing-ones (_)
 	;(count-trailing-ones num) -> num
 	(if (eq _ -1) 64)
 		(progn
 			(defq c 0)
-			(while (ne 0 (bit-and _ 1))
-				(setq _ (bit-shr _ 1) c (inc c))) c))
+			(while (ne 0 (logand _ 1))
+				(setq _ (shr _ 1) c (inc c))) c))
 
 (defun count-leading-ones (_)
 	;(count-leading-ones num) -> num
@@ -492,26 +488,11 @@
 		(progn
 			(defq c 0)
 			(while (gt 0 _)
-				(setq _ (bit-shl _ 1) c (inc c))) c))
+				(setq _ (shl _ 1) c (inc c))) c))
 
-(defun insert (x y)
-	;(insert list str) -> list
-	(if (notany (lambda (x) (eql x y)) x)
-		(push x y) x))
-
-(defun merge (x y)
-	;(merge list str) -> list
-	(each (lambda (y)
-		(when (notany (lambda (x) (eql x y)) x)
-			(push x y))) y) x)
-
-(defun insert-sym (x &rest y)
-	;(insert-sym list sym) -> list
-	(merge-sym x y))
-
-(defmacro sym-cat (&rest _)
-	;(sym-cat str ...) -> sym
-	`(sym (cat ~_)))
+(defun insert (x &rest y)
+	;(insert list form) -> list
+	(merge x y))
 
 (defun shuffled (_a &optional _l _h)
 	;(shuffled list [start end]) -> list
@@ -523,7 +504,7 @@
 	(setd _l 0 _h (length _a))
 	(defq _s (time))
 	(defun get-next ()
-		(setq _s (abs (bit-xor 0xa5a5a5a5a5a5a5a5 (mul _s 0x1574937f)))))
+		(setq _s (abs (logxor 0xa5a5a5a5a5a5a5a5 (mul _s 0x1574937f)))))
 	(defun get-val (_)
 		(if (gt _ 0) (mod (get-next) _) 0))
 	(each! _h _l nil (lambda (x)
@@ -569,6 +550,72 @@
 		(setq o (inc o)))
 	(slice k o s))
 
+(defmacro debug (&rest _)
+	;(debug [form ...])
+	`(kernel-debug (apply cat (map str (list ~_ ,(ascii-char 10))))))
+
+;;;;;;;;;;;;;;;;;;
+; Anaphoric macros
+;;;;;;;;;;;;;;;;;;
+
+(defmacro aif (x y &optional z)
+	;(aif form form [form])
+	`(let ((it ,x))
+		(if it ,y ,z)))
+
+(defmacro awhen (x &rest _)
+	;(awhen form body)
+	`(let ((it ,x))
+		(when it ~_)))
+
+(defmacro awhile (x &rest _)
+	;(awhile form body)
+	`(while (defq ,(defq _x (gensym)) ,x)
+		(let ((it ,_x)) ~_)))
+
+(defmacro aand (&rest _)
+	;(aand [form] ...)
+	(cond
+		((eq (length _) 0))
+		((eq (length _) 1) (elem 0 _))
+		(t `(aif ,(elem 0 _) (aand ~(slice 1 -1 _))))))
+
+(defmacro acond (&rest _)
+	;(acond (tst body) ...)
+	(reduce (lambda (x _)
+		(push x `((defq ,(defq _x (gensym)) ,(elem 0 _)) (let ((it ,_x)) ~(slice 1 -1 _)))))
+			_ (list 'cond)))
+
+;;;;;;;;;
+; Streams
+;;;;;;;;;
+
+(defun each-line (_f _)
+	;(each-line lambda path)
+	(unless (defq _s (file-stream _))
+		(throw "No such file !" _))
+	(while (defq _l (read-line _s))
+		(_f _l)))
+
+(defun each-pipe-line (_f _p)
+	;(each-pipe-line lambda pipe)
+	(defq _d "" _v t)
+	(while (and _p _v)
+		(defq _d (cat _d (pipe-read _p nil)) _i (find (ascii-char 10) _d))
+		(when _i
+			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
+				_v (every _f (split _l (ascii-char 10)))))))
+
+(defmacro import (_)
+	;(import path)
+	`(unless (find ,_ *file-includes*)
+		(push *file-includes* ,_)
+		(repl (file-stream ,_) ,_)))
+
+(defun write-line (s _)
+	;(write-line stream str) -> str
+	(write s _) (write s (ascii-char 10)) _)
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
 ;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -590,6 +637,8 @@
 	(defq *compile-env* (env 307) *compile-includes* (list))
 	(defmacro defcvar (&rest b)
 		`(def *compile-env* ~b))
+	(defmacro undefc (&rest b)
+		`(undef *compile-env* ~b))
 	(defmacro defcfun (n a &rest b)
 		`(def *compile-env* ',n (lambda ,a ~b)))
 	(defmacro defcmacro (n a &rest b)
@@ -597,7 +646,8 @@
 	(defun include (_)
 		(unless (find _ *compile-includes*)
 			(push *compile-includes* _)
-			(repl (file-stream _) _)))
+			(unless (defq __ (file-stream _)) (throw "No such file !" _))
+			(repl __ _)))
 	(catch (progn (setq _ (_) *compile-env* nil) _) (setq *compile-env* nil)))
 
 ;; (defq *cond-cnt* (list 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0) *cond-cnt-i* -1)

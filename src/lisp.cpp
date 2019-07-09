@@ -129,6 +129,11 @@ void Lisp_String::print(std::ostream &out) const
 	out << '"' << m_string << '"';
 }
 
+void Lisp_String::print1(std::ostream &out) const
+{
+	out << m_string;
+}
+
 long long Lisp_String::length() const
 {
 	return m_string.size();
@@ -416,6 +421,11 @@ void Lisp_String_Stream::print(std::ostream &out) const
 	out << "<string stream>";
 }
 
+void Lisp_String_Stream::print1(std::ostream &out) const
+{
+	out << m_stream.str();
+}
+
 bool Lisp_String_Stream::is_open() const
 {
 	return true;
@@ -482,12 +492,12 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("ge")), std::make_shared<Lisp_Function>(&Lisp::ge));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("eql")), std::make_shared<Lisp_Function>(&Lisp::eql));
 
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("bit-and")), std::make_shared<Lisp_Function>(&Lisp::band));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("bit-or")), std::make_shared<Lisp_Function>(&Lisp::bor));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("bit-xor")), std::make_shared<Lisp_Function>(&Lisp::bxor));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("bit-shl")), std::make_shared<Lisp_Function>(&Lisp::bshl));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("bit-shr")), std::make_shared<Lisp_Function>(&Lisp::bshr));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("bit-asr")), std::make_shared<Lisp_Function>(&Lisp::basr));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("logand")), std::make_shared<Lisp_Function>(&Lisp::band));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("logior")), std::make_shared<Lisp_Function>(&Lisp::bor));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("logxor")), std::make_shared<Lisp_Function>(&Lisp::bxor));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("shl")), std::make_shared<Lisp_Function>(&Lisp::bshl));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("shr")), std::make_shared<Lisp_Function>(&Lisp::bshr));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("asr")), std::make_shared<Lisp_Function>(&Lisp::basr));
 
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("list")), std::make_shared<Lisp_Function>(&Lisp::list));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("push")), std::make_shared<Lisp_Function>(&Lisp::push));
@@ -500,7 +510,7 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("clear")), std::make_shared<Lisp_Function>(&Lisp::clear));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("copy")), std::make_shared<Lisp_Function>(&Lisp::copy));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("find")), std::make_shared<Lisp_Function>(&Lisp::find));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("merge-sym")), std::make_shared<Lisp_Function>(&Lisp::merge));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("merge")), std::make_shared<Lisp_Function>(&Lisp::merge));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("split")), std::make_shared<Lisp_Function>(&Lisp::split));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("match?")), std::make_shared<Lisp_Function>(&Lisp::match));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("some!")), std::make_shared<Lisp_Function>(&Lisp::some));
@@ -539,7 +549,7 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("apply")), std::make_shared<Lisp_Function>(&Lisp::apply));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("eval")), std::make_shared<Lisp_Function>(&Lisp::eval));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("repl")), std::make_shared<Lisp_Function>(&Lisp::repl));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("type?")), std::make_shared<Lisp_Function>(&Lisp::type));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("type-of")), std::make_shared<Lisp_Function>(&Lisp::type));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("throw")), std::make_shared<Lisp_Function>(&Lisp::lthrow));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("macroexpand")), std::make_shared<Lisp_Function>(&Lisp::macroexpand));
 
