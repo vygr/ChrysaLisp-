@@ -46,9 +46,9 @@ enum Lisp_Type
 	lisp_type_integer = 1 << 1,
 	lisp_type_string = 1 << 2,
 	lisp_type_symbol = 1 << 3,
+	lisp_type_function = 1 << 4,
 
-	lisp_type_env = 1 << 4,
-	lisp_type_function = 1 << 5,
+	lisp_type_env = 1 << 5,
 	lisp_type_file_stream = 1 << 6,
 	lisp_type_string_stream = 1 << 7,
 	lisp_type_sys_stream = 1 << 8,
