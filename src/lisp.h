@@ -323,7 +323,7 @@ public:
 	int repl_expand(std::shared_ptr<Lisp_Obj> &obj, int cnt);
 	std::shared_ptr<Lisp_Obj> repl_read_string(std::istream &in, char term) const;
 	std::shared_ptr<Lisp_Obj> repl_read_symbol(std::istream &in);
-	std::shared_ptr<Lisp_Obj> repl_read_number(std::istream &in) const;
+	std::shared_ptr<Lisp_Obj> repl_read_number(std::istream &in);
 	std::shared_ptr<Lisp_Obj> repl_read_list(std::istream &in);
 	std::shared_ptr<Lisp_Obj> repl_read_rmacro(std::istream &in, const std::shared_ptr<Lisp_Symbol> &sym);
 	std::shared_ptr<Lisp_Obj> repl_read(std::istream &in);

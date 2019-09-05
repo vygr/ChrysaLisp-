@@ -84,16 +84,18 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_read_symbol(std::istream &in)
 	return intern(obj);
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::repl_read_number(std::istream &in) const
+std::shared_ptr<Lisp_Obj> Lisp::repl_read_number(std::istream &in)
 {
-	auto obj = std::make_shared<Lisp_Integer>();
 	auto p = in.peek();
 	auto sign = 1;
 	if (p == '-')
 	{
-		sign = -1;
 		in.get();
+		p = in.peek();
+		if (p < '0') return intern(std::make_shared<Lisp_Symbol>("-"));
+		sign = -1;
 	}
+	auto obj = std::make_shared<Lisp_Integer>();
 	auto buffer = std::string{};
 	for (;;)
 	{

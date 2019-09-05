@@ -474,22 +474,22 @@ Lisp::Lisp()
 	m_env->insert(m_sym_stream_line, std::make_shared<Lisp_Integer>(0));
 
 	//prebound functions
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("add")), std::make_shared<Lisp_Function>(&Lisp::add));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("sub")), std::make_shared<Lisp_Function>(&Lisp::sub));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("mul")), std::make_shared<Lisp_Function>(&Lisp::mul));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("div")), std::make_shared<Lisp_Function>(&Lisp::div));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("mod")), std::make_shared<Lisp_Function>(&Lisp::mod));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("+")), std::make_shared<Lisp_Function>(&Lisp::add));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("-")), std::make_shared<Lisp_Function>(&Lisp::sub));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("*")), std::make_shared<Lisp_Function>(&Lisp::mul));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("/")), std::make_shared<Lisp_Function>(&Lisp::div));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("%")), std::make_shared<Lisp_Function>(&Lisp::mod));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("fmul")), std::make_shared<Lisp_Function>(&Lisp::fmul));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("fdiv")), std::make_shared<Lisp_Function>(&Lisp::fdiv));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("max")), std::make_shared<Lisp_Function>(&Lisp::max));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("min")), std::make_shared<Lisp_Function>(&Lisp::min));
 
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("eq")), std::make_shared<Lisp_Function>(&Lisp::eq));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("ne")), std::make_shared<Lisp_Function>(&Lisp::ne));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("lt")), std::make_shared<Lisp_Function>(&Lisp::lt));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("gt")), std::make_shared<Lisp_Function>(&Lisp::gt));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("le")), std::make_shared<Lisp_Function>(&Lisp::le));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("ge")), std::make_shared<Lisp_Function>(&Lisp::ge));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("=")), std::make_shared<Lisp_Function>(&Lisp::eq));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("/=")), std::make_shared<Lisp_Function>(&Lisp::ne));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("<")), std::make_shared<Lisp_Function>(&Lisp::lt));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>(">")), std::make_shared<Lisp_Function>(&Lisp::gt));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("<=")), std::make_shared<Lisp_Function>(&Lisp::le));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>(">=")), std::make_shared<Lisp_Function>(&Lisp::ge));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("eql")), std::make_shared<Lisp_Function>(&Lisp::eql));
 
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("logand")), std::make_shared<Lisp_Function>(&Lisp::band));
