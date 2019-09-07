@@ -495,9 +495,9 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("logand")), std::make_shared<Lisp_Function>(&Lisp::band));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("logior")), std::make_shared<Lisp_Function>(&Lisp::bor));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("logxor")), std::make_shared<Lisp_Function>(&Lisp::bxor));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("shl")), std::make_shared<Lisp_Function>(&Lisp::bshl));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("shr")), std::make_shared<Lisp_Function>(&Lisp::bshr));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("asr")), std::make_shared<Lisp_Function>(&Lisp::basr));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("<<")), std::make_shared<Lisp_Function>(&Lisp::bshl));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>(">>")), std::make_shared<Lisp_Function>(&Lisp::bshr));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>(">>>")), std::make_shared<Lisp_Function>(&Lisp::basr));
 
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("list")), std::make_shared<Lisp_Function>(&Lisp::list));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("push")), std::make_shared<Lisp_Function>(&Lisp::push));
