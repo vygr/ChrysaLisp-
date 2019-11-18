@@ -236,19 +236,19 @@ void Lisp_Env::resize(long long num_buckets)
 
 void Lisp_Env::print(std::ostream &out) const
 {
-	out << '{';
+	out << '(';
 	for (auto itr = begin(m_buckets); itr != end(m_buckets); ++itr)
 	{
 		for (auto itr1 = begin(*itr); itr1 != end(*itr); ++itr1)
 		{
-			out << "[";
+			out << "(";
 			itr1->first->print(out);
-			out << " : ";
+			out << " ";
 			itr1->second->print(out);
-			out << "]";
+			out << ")";
 		}
 	}
-	out << '}';
+	out << ')';
 }
 
 void Lisp_Env::set_parent(const std::shared_ptr<Lisp_Env> &env)
@@ -470,8 +470,10 @@ Lisp::Lisp()
 	m_sym_t = intern(std::make_shared<Lisp_Symbol>("t"));
 	m_sym_stream_name = intern(std::make_shared<Lisp_Symbol>("*stream-name*"));
 	m_sym_stream_line = intern(std::make_shared<Lisp_Symbol>("*stream-line*"));
+	m_sym_file_includes = intern(std::make_shared<Lisp_Symbol>("*file-includes*"));
 	m_env->insert(m_sym_stream_name, std::make_shared<Lisp_String>("ChrysaLisp"));
 	m_env->insert(m_sym_stream_line, std::make_shared<Lisp_Integer>(0));
+	m_env->insert(m_sym_file_includes, std::make_shared<Lisp_List>());
 
 	//prebound functions
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("+")), std::make_shared<Lisp_Function>(&Lisp::add));

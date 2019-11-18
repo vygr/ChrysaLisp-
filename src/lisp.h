@@ -438,6 +438,7 @@ public:
 	std::shared_ptr<Lisp_Symbol> m_sym_underscore;
 	std::shared_ptr<Lisp_Symbol> m_sym_stream_name;
 	std::shared_ptr<Lisp_Symbol> m_sym_stream_line;
+	std::shared_ptr<Lisp_Symbol> m_sym_file_includes;
 	unsigned long m_next_sym = 0;
 	friend void qquote1(Lisp *lisp, const std::shared_ptr<Lisp_Obj> &o, std::shared_ptr<Lisp_List> &cat_list);
 };
