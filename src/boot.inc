@@ -65,14 +65,11 @@
 (ffi env "class/hmap/lisp_env" 0)
 (ffi penv "class/hmap/lisp_parent" 0)
 
-(ffi pipe "class/pipe/lisp_create" 0)
-(ffi pipe-read "class/pipe/lisp_read" 0)
-(ffi pipe-write "class/pipe/lisp_write" 0)
-
 (ffi file-stream "class/stream/lisp_filestream" 0)
 (ffi string-stream "class/stream/lisp_strstream" 0)
 (ffi read-char "class/stream/lisp_readchar" 0)
 (ffi read-line "class/stream/lisp_readline" 0)
+(ffi read-avail "class/stream/lisp_readavail" 0)
 (ffi write-char "class/stream/lisp_writechar" 0)
 (ffi write "class/stream/lisp_write" 0)
 
@@ -136,7 +133,7 @@
 	`(defq ,n (macro ,a ~(bind-fun (macroexpand _)))))
 
 (cond
-	((def? 'pipe)
+	((def? 'points)
 		;to disable pre binding uncomment this line
 		;(defun bind-fun (_) _)
 	)(t
@@ -198,10 +195,10 @@
 ; Control flow
 ;;;;;;;;;;;;;;
 
-(defmacro-bind if (x y &rest _)
+(defmacro-bind if (x y &optional _)
 	;(if tst form [eform])
-	(cond ((= 0 (length _)) `(cond (,x ,y)))
-		(t `(cond (,x ,y) (t ~_)))))
+	(cond (_ `(cond (,x ,y) (t ,_)))
+		(t `(cond (,x ,y)))))
 
 (defmacro-bind not (_)
 	;(not form) -> t|nil
@@ -289,13 +286,13 @@
 	;(each-mergeable-rev lambda seq) -> seq
 	(each! -1 0 _f (list _l)) _l)
 
-(defun-bind each (_f &rest _)
+(defmacro-bind each (f &rest _)
 	;(each lambda seq ...)
-	(each! 0 -1 _f _))
+	`(each! 0 -1 ,f (list ~_)))
 
-(defun-bind each-rev (_f &rest _)
+(defmacro-bind each-rev (f &rest _)
 	;(each-rev lambda seq ...)
-	(each! -1 0 _f _))
+	`(each! -1 0 ,f (list ~_)))
 
 (defun-bind map (_f &rest _)
 	;(map lambda seq ...) -> list
@@ -483,6 +480,10 @@
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
 
+(defun-bind erase (s b e)
+	;(erase seq start end) -> seq
+	(cat (slice 0 b s) (slice e -1 s)))
+
 (defun-bind log2 (_)
 	;(log2 num) -> num
 	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
@@ -579,20 +580,9 @@
 ;;;;;;;;;
 
 (defun-bind each-line (_f _)
-	;(each-line lambda path)
-	(unless (defq _s (file-stream _))
-		(throw "No such file !" _))
-	(while (defq _l (read-line _s))
+	;(each-line lambda stream)
+	(while (defq _l (read-line _))
 		(_f _l)))
-
-(defun-bind each-pipe-line (_f _p)
-	;(each-pipe-line lambda pipe)
-	(defq _d "" _v t)
-	(while (and _p _v)
-		(defq _d (cat _d (pipe-read _p nil)) _i (find (const (ascii-char 10)) _d))
-		(when _i
-			(defq _i (inc _i) _l (slice 0 _i _d) _d (slice _i -1 _d)
-				_v (every _f (split _l (const (ascii-char 10))))))))
 
 (defmacro-bind import (_)
 	;(import path)
@@ -601,12 +591,19 @@
 		(repl (file-stream ,_) ,_)))
 
 (defun-bind write-line (s _)
-	;(write-line stream str) -> str
-	(write s _) (write s (const (ascii-char 10))) _)
+	;(write-line stream str) -> stream
+	(write-char (write s _) 10))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Compilation environment
 ;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;compilation options
+;debug_mode 0, release, strip all error checking
+;debug_mode 1, normal, with error checking
+;debug_mode 2, profiling, with error checking and object stats
+;debug_mode 3, guard page, with error checking, object stats and guard pages
+(defq *debug_mode* 1 *debug_emit* nil *debug_inst* nil)
 
 (defun-bind cpu ()
 	;(cpu) -> sym

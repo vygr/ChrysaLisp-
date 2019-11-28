@@ -185,6 +185,28 @@ std::shared_ptr<Lisp_Obj> Lisp::print(const std::shared_ptr<Lisp_List> &args)
 	return value;
 }
 
+static void rmkdir(const char *path)
+{
+	char *p = NULL;
+	char dirbuf[256];
+	size_t len;
+	len = strlen(path);
+	memcpy(dirbuf, path, len + 1);
+	for (p = dirbuf + 1; *p; p++)
+	{
+		if(*p == '/')
+		{
+			*p = 0;
+#ifdef _WIN64
+			mkdir(dirbuf, _S_IREAD | _S_IWRITE);
+#else
+			mkdir(dirbuf, S_IRWXU);
+#endif
+			*p = '/';
+		}
+	}
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::save(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 2
@@ -194,6 +216,12 @@ std::shared_ptr<Lisp_Obj> Lisp::save(const std::shared_ptr<Lisp_List> &args)
 		std::ofstream f;
 		f.open(std::static_pointer_cast<Lisp_String>(args->m_v[1])->m_string,
 			std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+		if (!f.is_open())
+		{
+			rmkdir(std::static_pointer_cast<Lisp_String>(args->m_v[1])->m_string.c_str());
+			f.open(std::static_pointer_cast<Lisp_String>(args->m_v[1])->m_string,
+				std::ofstream::out | std::ofstream::trunc | std::ofstream::binary);
+		}
 		if (f.is_open())
 		{
 			f << std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string;
