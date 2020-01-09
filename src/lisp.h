@@ -341,6 +341,7 @@ public:
 	std::shared_ptr<Lisp_Obj> fmod(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> max(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> min(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> random(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> eq(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> ne(const std::shared_ptr<Lisp_List> &args);

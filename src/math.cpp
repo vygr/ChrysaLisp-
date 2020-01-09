@@ -321,3 +321,17 @@ std::shared_ptr<Lisp_Obj> Lisp::basr(const std::shared_ptr<Lisp_List> &args)
 	}
 	return repl_error("(asr num cnt)", error_msg_wrong_types, args);
 }
+
+static unsigned long long seed = 1234567890;
+
+std::shared_ptr<Lisp_Obj> Lisp::random(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 1
+		&& args->m_v[0]->is_type(lisp_type_integer))
+	{
+		auto n = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
+		seed = (seed * 17) ^ 0xa5a5a5a5a5a5a5a5;
+		return std::make_shared<Lisp_Integer>(seed % n);
+	}
+	return repl_error("(random num)", error_msg_wrong_types, args);
+}

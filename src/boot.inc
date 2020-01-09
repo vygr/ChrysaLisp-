@@ -21,12 +21,28 @@
 (ffi fdiv "class/num/lisp_fdiv" 0)
 (ffi fmod "class/num/lisp_fmod" 0)
 
-(ffi >> "class/num/lisp_bshr" 0)
-(ffi >>> "class/num/lisp_basr" 0)
-(ffi << "class/num/lisp_bshl" 0)
-(ffi logand "class/num/lisp_band" 0)
-(ffi logior "class/num/lisp_bor" 0)
-(ffi logxor "class/num/lisp_bxor" 0)
+(ffi .= "class/real/lisp_eq" 0)
+(ffi ./= "class/real/lisp_ne" 0)
+(ffi .< "class/real/lisp_lt" 0)
+(ffi .> "class/real/lisp_gt" 0)
+(ffi .<= "class/real/lisp_le" 0)
+(ffi .>= "class/real/lisp_ge" 0)
+
+(ffi .+ "class/real/lisp_add" 0)
+(ffi .- "class/real/lisp_sub" 0)
+(ffi .* "class/real/lisp_mul" 0)
+(ffi ./ "class/real/lisp_div" 0)
+(ffi i2r "class/real/lisp_i2r" 0)
+(ffi f2r "class/real/lisp_f2r" 0)
+(ffi r2i "class/real/lisp_r2i" 0)
+(ffi r2f "class/real/lisp_r2f" 0)
+
+(ffi >> "class/num/lisp_shr" 0)
+(ffi >>> "class/num/lisp_asr" 0)
+(ffi << "class/num/lisp_shl" 0)
+(ffi logand "class/num/lisp_and" 0)
+(ffi logior "class/num/lisp_or" 0)
+(ffi logxor "class/num/lisp_xor" 0)
 
 (ffi length "class/seq/lisp_length" 0)
 (ffi elem "class/seq/lisp_elem" 0)
@@ -103,6 +119,7 @@
 
 (ffi time "sys/pii/lisp_time" 0)
 (ffi age "sys/pii/lisp_age" 0)
+(ffi random "class/num/lisp_random" 0)
 
 (defq t 't nil 'nil
 	lisp_type_lst (<< 1 0)
@@ -350,6 +367,23 @@
 	;(notevery lambda seq ...) -> t|nil
 	(not (some! 0 -1 nil _f _)))
 
+;;;;;;;;;;;
+; Sequences
+;;;;;;;;;;;
+
+(defun-bind erase (s b e)
+	;(erase seq start end) -> seq
+	(cat (slice 0 b s) (slice e -1 s)))
+
+(defun-bind insert (s p e)
+	;(insert seq pos seq) -> seq
+	(cat (slice 0 p s) e (slice p -1 s)))
+
+(defun-bind join (l j)
+	;(join list seq) -> seq
+	(apply cat (map (lambda (x)
+		(if (= _ 0) x (cat j x))) l)))
+
 ;;;;;;;;;;;;;;;;
 ; Math functions
 ;;;;;;;;;;;;;;;;
@@ -480,9 +514,12 @@
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
 
-(defun-bind erase (s b e)
-	;(erase seq start end) -> seq
-	(cat (slice 0 b s) (slice e -1 s)))
+(defun-bind fixed-to-str (n)
+	(defq s "")
+	(if (< n 0)
+		(setq s "-" n (neg n)))
+	(defq i (>> n fp_shift) f (fmul (- n (<< i fp_shift)) 100000))
+	(cat s (str i) "." (pad f 5 "00000")))
 
 (defun-bind log2 (_)
 	;(log2 num) -> num
@@ -515,10 +552,6 @@
 	(while (> _ 0)
 		(setq n (inc n) _ (<< _ 1))) n)
 
-(defun-bind insert (x &rest y)
-	;(insert list form) -> list
-	(merge x y))
-
 (defun-bind shuffled (_a &optional _l _h)
 	;(shuffled list [start end]) -> list
 	(setd _l 0 _h (length _a))
@@ -527,13 +560,8 @@
 (defun-bind shuffle (_a &optional _l _h)
 	;(shuffle list [start end]) -> list
 	(setd _l 0 _h (length _a))
-	(defq _s (time))
-	(defun-bind get-next ()
-		(setq _s (abs (logxor 0xa5a5a5a5a5a5a5a5 (* _s 0x1574937f)))))
-	(defun-bind get-val (_)
-		(if (> _ 0) (% (get-next) _) 0))
 	(each! _h _l (lambda (x)
-		(swap _a _ (get-val (inc _)))) (list _a)) _a)
+		(swap _a _ (random (inc _)))) (list _a)) _a)
 
 (defun-bind sorted (_f _a &optional _l _h)
 	;(sorted list [start end]) -> list
@@ -602,8 +630,8 @@
 ;debug_mode 0, release, strip all error checking
 ;debug_mode 1, normal, with error checking
 ;debug_mode 2, profiling, with error checking and object stats
-;debug_mode 3, guard page, with error checking, object stats and guard pages
-(defq *debug_mode* 1 *debug_emit* nil *debug_inst* nil)
+;debug_mode 3, guarded, with error checking, object stats and guard pages
+(defq *debug_mode* 2 *debug_emit* nil *debug_inst* nil)
 
 (defun-bind cpu ()
 	;(cpu) -> sym
