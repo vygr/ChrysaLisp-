@@ -108,7 +108,7 @@ std::shared_ptr<Lisp_Obj> Lisp::write(const std::shared_ptr<Lisp_List> &args)
 		auto stream = std::static_pointer_cast<Lisp_OStream>(args->m_v[0]);
 		auto value = std::static_pointer_cast<Lisp_String>(args->m_v[1]);
 		stream->write_line(value->m_string);
-		return value;
+		return stream;
 	}
 	return repl_error("(write stream str)", error_msg_wrong_types, args);
 }
@@ -145,7 +145,7 @@ std::shared_ptr<Lisp_Obj> Lisp::writechar(const std::shared_ptr<Lisp_List> &args
 							std::static_pointer_cast<Lisp_OStream>(args->m_v[0])->write_char(*(chars++));
 						} while (--w);
 					}
-					return list->m_v[list->m_v.size() - 1];
+					return args->m_v[0];
 				}
 				return repl_error("(write-char stream list|num [width])", error_msg_wrong_num_of_args, args);
 			}
@@ -157,7 +157,7 @@ std::shared_ptr<Lisp_Obj> Lisp::writechar(const std::shared_ptr<Lisp_List> &args
 				{
 					std::static_pointer_cast<Lisp_OStream>(args->m_v[0])->write_char(*(chars++));
 				} while (--width);
-				return value;
+				return args->m_v[0];
 			}
 			return repl_error("(write-char stream list|num [width])", error_msg_not_a_number, args);
 		}
@@ -197,8 +197,8 @@ static void rmkdir(const char *path)
 		if(*p == '/')
 		{
 			*p = 0;
-#ifdef _WIN64
-			mkdir(dirbuf, _S_IREAD | _S_IWRITE);
+#ifdef WIN32
+			mkdir(dirbuf);
 #else
 			mkdir(dirbuf, S_IRWXU);
 #endif

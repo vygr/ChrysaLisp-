@@ -18,6 +18,7 @@
     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
+
 #ifndef LISP_H
 #define LISP_H
 
@@ -35,7 +36,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#ifdef _WIN64
+#ifdef WIN32
+#include <direct.h>
 #include <algorithm>
 #include <cctype>
 #endif

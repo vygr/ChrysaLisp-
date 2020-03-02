@@ -1,4 +1,7 @@
 .vscode
+.vs
 obj/*.d
 obj/*.o
 chrysalisp
+chrysaLisp.*
+Release/*
