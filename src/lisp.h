@@ -338,9 +338,8 @@ public:
 	std::shared_ptr<Lisp_Obj> mul(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> div(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> mod(const std::shared_ptr<Lisp_List> &args);
-	std::shared_ptr<Lisp_Obj> fmul(const std::shared_ptr<Lisp_List> &args);
-	std::shared_ptr<Lisp_Obj> fdiv(const std::shared_ptr<Lisp_List> &args);
-	std::shared_ptr<Lisp_Obj> fmod(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> neg(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> abs(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> max(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> min(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> random(const std::shared_ptr<Lisp_List> &args);

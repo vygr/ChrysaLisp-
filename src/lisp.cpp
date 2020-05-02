@@ -481,8 +481,8 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("*")), std::make_shared<Lisp_Function>(&Lisp::mul));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("/")), std::make_shared<Lisp_Function>(&Lisp::div));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("%")), std::make_shared<Lisp_Function>(&Lisp::mod));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("fmul")), std::make_shared<Lisp_Function>(&Lisp::fmul));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("fdiv")), std::make_shared<Lisp_Function>(&Lisp::fdiv));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("neg")), std::make_shared<Lisp_Function>(&Lisp::neg));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("abs")), std::make_shared<Lisp_Function>(&Lisp::abs));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("max")), std::make_shared<Lisp_Function>(&Lisp::max));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("min")), std::make_shared<Lisp_Function>(&Lisp::min));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("random")), std::make_shared<Lisp_Function>(&Lisp::random));

@@ -90,34 +90,6 @@ std::shared_ptr<Lisp_Obj> Lisp::mod(const std::shared_ptr<Lisp_List> &args)
 	return repl_error("(mod num num ...)", error_msg_wrong_types, args);
 }
 
-std::shared_ptr<Lisp_Obj> Lisp::fmul(const std::shared_ptr<Lisp_List> &args)
-{
-	if (args->length() > 1
-		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_integer); }))
-	{
-		auto init = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
-		return std::make_shared<Lisp_Integer>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
-		{
-			return (n * std::static_pointer_cast<Lisp_Integer>(o)->m_value) >> 16;
-		}));
-	}
-	return repl_error("(fmul num num ...)", error_msg_wrong_types, args);
-}
-
-std::shared_ptr<Lisp_Obj> Lisp::fdiv(const std::shared_ptr<Lisp_List> &args)
-{
-	if (args->length() > 1
-		&& std::all_of(begin(args->m_v), end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_integer); }))
-	{
-		auto init = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
-		return std::make_shared<Lisp_Integer>(std::accumulate(begin(args->m_v) + 1, end(args->m_v), init, [] (auto n, auto &o)
-		{
-			return (n << 16) / std::static_pointer_cast<Lisp_Integer>(o)->m_value;
-		}));
-	}
-	return repl_error("(fdiv num num ...)", error_msg_wrong_types, args);
-}
-
 std::shared_ptr<Lisp_Obj> Lisp::max(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() > 1
@@ -334,4 +306,26 @@ std::shared_ptr<Lisp_Obj> Lisp::random(const std::shared_ptr<Lisp_List> &args)
 		return std::make_shared<Lisp_Integer>(seed % n);
 	}
 	return repl_error("(random num)", error_msg_wrong_types, args);
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::neg(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 1
+		&& args->m_v[0]->is_type(lisp_type_integer))
+	{
+		auto n = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
+		return std::make_shared<Lisp_Integer>(-n);
+	}
+	return repl_error("(neg num)", error_msg_wrong_types, args);
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::abs(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 1
+		&& args->m_v[0]->is_type(lisp_type_integer))
+	{
+		auto n = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
+		return std::make_shared<Lisp_Integer>(std::abs(n));
+	}
+	return repl_error("(abs num)", error_msg_wrong_types, args);
 }
