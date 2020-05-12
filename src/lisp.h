@@ -369,6 +369,7 @@ public:
 	std::shared_ptr<Lisp_Obj> cat(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> clear(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> copy(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> rfind(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> find(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> merge(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> split(const std::shared_ptr<Lisp_List> &args);

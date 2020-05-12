@@ -513,6 +513,7 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("clear")), std::make_shared<Lisp_Function>(&Lisp::clear));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("copy")), std::make_shared<Lisp_Function>(&Lisp::copy));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("find")), std::make_shared<Lisp_Function>(&Lisp::find));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("find-rev")), std::make_shared<Lisp_Function>(&Lisp::rfind));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("merge")), std::make_shared<Lisp_Function>(&Lisp::merge));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("split")), std::make_shared<Lisp_Function>(&Lisp::split));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("match?")), std::make_shared<Lisp_Function>(&Lisp::match));

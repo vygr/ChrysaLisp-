@@ -193,6 +193,31 @@ std::shared_ptr<Lisp_Obj> Lisp::find(const std::shared_ptr<Lisp_List> &args)
 		{
 			auto str1 = std::static_pointer_cast<Lisp_String>(args->m_v[0]);
 			auto str2 = std::static_pointer_cast<Lisp_String>(args->m_v[1]);
+			auto itr = std::find(cbegin(str2->m_string), cend(str2->m_string), str1->m_string[0]);
+			if (itr == cend(str2->m_string)) return m_sym_nil;
+			return std::make_shared<Lisp_Integer>(itr - cbegin(str2->m_string));
+		}
+		else if (args->m_v[1]->is_type(lisp_type_list))
+		{
+			auto lst = std::static_pointer_cast<Lisp_List>(args->m_v[1]);
+			auto itr = std::find(cbegin(lst->m_v), cend(lst->m_v), args->m_v[0]);
+			if (itr == cend(lst->m_v)) return m_sym_nil;
+			return std::make_shared<Lisp_Integer>(itr - cbegin(lst->m_v));
+		}
+		return repl_error("(find-rev elem seq)", error_msg_not_a_sequence, args);
+	}
+	return repl_error("(find-rev elem seq)", error_msg_wrong_num_of_args, args);
+}
+
+std::shared_ptr<Lisp_Obj> Lisp::rfind(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() == 2)
+	{
+		if (args->m_v[0]->is_type(lisp_type_string)
+			&& args->m_v[1]->is_type(lisp_type_string))
+		{
+			auto str1 = std::static_pointer_cast<Lisp_String>(args->m_v[0]);
+			auto str2 = std::static_pointer_cast<Lisp_String>(args->m_v[1]);
 			auto itr = std::find(crbegin(str2->m_string), crend(str2->m_string), str1->m_string[0]);
 			if (itr == crend(str2->m_string)) return m_sym_nil;
 			return std::make_shared<Lisp_Integer>((crend(str2->m_string) - itr - 1));
@@ -204,9 +229,9 @@ std::shared_ptr<Lisp_Obj> Lisp::find(const std::shared_ptr<Lisp_List> &args)
 			if (itr == crend(lst->m_v)) return m_sym_nil;
 			return std::make_shared<Lisp_Integer>((crend(lst->m_v)) - itr - 1);
 		}
-		return repl_error("(find elem seq)", error_msg_not_a_sequence, args);
+		return repl_error("(find-rev elem seq)", error_msg_not_a_sequence, args);
 	}
-	return repl_error("(find elem seq)", error_msg_wrong_num_of_args, args);
+	return repl_error("(find-rev elem seq)", error_msg_wrong_num_of_args, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::merge(const std::shared_ptr<Lisp_List> &args)
