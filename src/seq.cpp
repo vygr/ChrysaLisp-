@@ -162,6 +162,17 @@ std::shared_ptr<Lisp_Obj> Lisp::slice(const std::shared_ptr<Lisp_List> &args)
 	return repl_error("(slice start end seq)", error_msg_wrong_types, args);
 }
 
+std::shared_ptr<Lisp_Obj> Lisp::cap(const std::shared_ptr<Lisp_List> &args)
+{
+	if (args->length() >= 2
+		&& args->m_v[0]->is_type(lisp_type_integer)
+		&& std::all_of(begin(args->m_v) + 1, end(args->m_v), [] (auto &&o) { return o->is_type(lisp_type_list); }))
+	{
+		return args->m_v[args->length() - 1];
+	}
+	return repl_error("(cap num array)", error_msg_wrong_types, args);
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::cat(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length()

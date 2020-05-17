@@ -360,6 +360,7 @@ public:
 	std::shared_ptr<Lisp_Obj> basr(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> list(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> cap(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> push(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> pop(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> length(const std::shared_ptr<Lisp_List> &args);
