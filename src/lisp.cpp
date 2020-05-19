@@ -468,9 +468,9 @@ Lisp::Lisp()
 	m_sym_splicing = intern(std::make_shared<Lisp_Symbol>("unquote-splicing"));
 	m_sym_nil = intern(std::make_shared<Lisp_Symbol>("nil"));
 	m_sym_t = intern(std::make_shared<Lisp_Symbol>("t"));
-	m_sym_stream_name = intern(std::make_shared<Lisp_Symbol>("*stream-name*"));
-	m_sym_stream_line = intern(std::make_shared<Lisp_Symbol>("*stream-line*"));
-	m_sym_file_includes = intern(std::make_shared<Lisp_Symbol>("*file-includes*"));
+	m_sym_stream_name = intern(std::make_shared<Lisp_Symbol>("*stream_name*"));
+	m_sym_stream_line = intern(std::make_shared<Lisp_Symbol>("*stream_line*"));
+	m_sym_file_includes = intern(std::make_shared<Lisp_Symbol>("*file_includes*"));
 	m_env->insert(m_sym_stream_name, std::make_shared<Lisp_String>("ChrysaLisp"));
 	m_env->insert(m_sym_stream_line, std::make_shared<Lisp_Integer>(0));
 	m_env->insert(m_sym_file_includes, std::make_shared<Lisp_List>());
