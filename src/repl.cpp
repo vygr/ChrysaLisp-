@@ -382,6 +382,7 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_eval(const std::shared_ptr<Lisp_Obj> &obj)
 		case lisp_type_symbol:
 		{
 			auto sym = std::static_pointer_cast<Lisp_Symbol>(obj);
+			if (sym->m_string[0] == ':') return obj;
 			auto obj = m_env->get(sym);
 			if (obj == nullptr)
 			{
