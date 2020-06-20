@@ -86,6 +86,7 @@
 (ffi fixeds "class/array/lisp_fixeds" 0)
 (ffi reals "class/array/lisp_reals" 0)
 
+(ffi hash "class/obj/lisp_hash" 0)
 (ffi type-of "class/lisp/lisp_type" 0)
 (ffi eql "class/lisp/lisp_eql" 0)
 (ffi copy "class/lisp/lisp_copy" 0)
@@ -330,20 +331,44 @@
 (defun-bind reduce (_f _l &optional _a)
 	;(reduce lambda seq [accum]) -> form
 	(cond
-		(_a (each! 0 -1 (lambda (_p)
-				(setq _a (_f _a _p))) (list _l)))
+		(_a (each! 0 -1 (lambda (_e)
+				(setq _a (_f _a _e))) (list _l)))
 		(t (setq _a (elem 0 _l))
-			(each! 1 -1 (lambda (_p)
-				(setq _a (_f _a _p))) (list _l)))) _a)
+			(each! 1 -1 (lambda (_e)
+				(setq _a (_f _a _e))) (list _l)))) _a)
 
 (defun-bind reduce-rev (_f _l &optional _a)
 	;(reduce-rev lambda seq [accum]) -> form
 	(cond
-		(_a (each! -1 0 (lambda (_p)
-				(setq _a (_f _a _p))) (list _l)))
+		(_a (each! -1 0 (lambda (_e)
+				(setq _a (_f _a _e))) (list _l)))
 		(t (setq _a (elem -2 _l))
-			(each! -2 0 (lambda (_p)
-				(setq _a (_f _a _p))) (list _l)))) _a)
+			(each! -2 0 (lambda (_e)
+				(setq _a (_f _a _e))) (list _l)))) _a)
+
+(defun-bind reduced-reduce (_f _l &optional _a)
+	;(reduced-reduce lambda seq [accum]) -> form
+	(defq __x nil)
+	(cond
+		(_a (some! 0 -1 t (lambda (_e)
+				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
+		(t (setq _a (elem 0 _l))
+			(some! 1 -1 t (lambda (_e)
+				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
+
+(defun-bind reduced-reduce-rev (_f _l &optional _a)
+	;(reduced-reduce-rev lambda seq [accum]) -> form
+	(defq __x nil)
+	(cond
+		(_a (some! -1 0 t (lambda (_e)
+				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
+		(t (setq _a (elem -2 _l))
+			(some! -2 0 t (lambda (_e)
+				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
+
+(defmacro-bind reduced (_a)
+	;(reduced accum)
+	`(progn (setq __x t) ,_a))
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -369,6 +394,22 @@
 ; Sequences
 ;;;;;;;;;;;
 
+(defmacro-bind first (s)
+	;(first seq) -> el
+	`(elem 0 ,s))
+
+(defmacro-bind second (s)
+	;(second seq) -> el
+	`(elem 1 ,s))
+
+(defmacro-bind last (s)
+	;(last seq) -> el
+	`(elem -2 ,s))
+
+(defmacro-bind rest (s)
+	;(rest seq) -> seq
+	`(slice 1 -1 ,s))
+
 (defun-bind erase (s b e)
 	;(erase seq start end) -> seq
 	(cat (slice 0 b s) (slice e -1 s)))
@@ -386,6 +427,10 @@
 	;(unzip seq buckets) -> buckets
 	(reduce (lambda (b e)
 		(push (elem (% _ (length b)) b) e) b) l b))
+
+(defun-bind reverse (l)
+	;(reverse list) -> list
+	(map-rev progn l))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
@@ -409,8 +454,12 @@
 ;;;;;;;;;;;
 
 (defmacro-bind def: (_ &optional e)
-	;(def: syms [e])
+	;(def: syms [env])
 	(if e `(eval `(bind ,_ ,_) ,e) `(eval `(bind ,_ ,_))))
+
+(defmacro-bind get (_ b)
+	;(get env form) -> val
+	`(eval ,b ,_))
 
 (defmacro-bind ascii-code (_)
 	;(ascii-code char) -> num

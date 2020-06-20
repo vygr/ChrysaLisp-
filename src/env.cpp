@@ -241,7 +241,17 @@ std::shared_ptr<Lisp_Obj> Lisp::defined(const std::shared_ptr<Lisp_List> &args)
 		if (itr) return itr->second;
 		return m_sym_nil;
 	}
-	return repl_error("(def? var)", error_msg_wrong_types, args);
+	else if (args->length() == 2
+		&& args->m_v[0]->is_type(lisp_type_symbol)
+		&& args->m_v[1]->is_type(lisp_type_env))
+	{
+		auto sym = std::static_pointer_cast<Lisp_Symbol>(args->m_v[0]);
+		auto env = std::static_pointer_cast<Lisp_Env>(args->m_v[1]);
+		auto itr = env->find(sym);
+		if (itr) return itr->second;
+		return m_sym_nil;
+	}
+	return repl_error("(def? var [env])", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::defmacro(const std::shared_ptr<Lisp_List> &args)
