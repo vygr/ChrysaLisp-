@@ -565,7 +565,7 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("def")), std::make_shared<Lisp_Function>(&Lisp::def));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("undef")), std::make_shared<Lisp_Function>(&Lisp::undef));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("set")), std::make_shared<Lisp_Function>(&Lisp::set));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("def?")), std::make_shared<Lisp_Function>(&Lisp::defined));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("get")), std::make_shared<Lisp_Function>(&Lisp::defined));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("sym")), std::make_shared<Lisp_Function>(&Lisp::sym));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("gensym")), std::make_shared<Lisp_Function>(&Lisp::gensym));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("bind")), std::make_shared<Lisp_Function>(&Lisp::bind));

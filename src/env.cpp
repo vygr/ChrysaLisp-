@@ -251,7 +251,7 @@ std::shared_ptr<Lisp_Obj> Lisp::defined(const std::shared_ptr<Lisp_List> &args)
 		if (itr) return itr->second;
 		return m_sym_nil;
 	}
-	return repl_error("(def? var [env])", error_msg_wrong_types, args);
+	return repl_error("(get var [env])", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::defmacro(const std::shared_ptr<Lisp_List> &args)
