@@ -275,15 +275,40 @@ std::shared_ptr<Lisp_Obj> Lisp::split(const std::shared_ptr<Lisp_List> &args)
 		auto str1 = std::static_pointer_cast<Lisp_String>(args->m_v[0]);
 		auto str2 = std::static_pointer_cast<Lisp_String>(args->m_v[1]);
 		auto value = std::make_shared<Lisp_List>();
-		std::stringstream ss(str1->m_string);
-		std::string item;
-		while (std::getline(ss, item, str2->m_string[0]))
+		for (auto itr = begin(str1->m_string); itr != end(str1->m_string);)
 		{
+			while (str2->m_string.find(*itr) != std::string::npos)
+			{
+				itr++;
+				if (itr == end(str1->m_string)) return value;
+			}
+			auto start = itr;
+			if (*itr == '"')
+			{
+				do
+				{
+					itr++;
+					if (*itr == '"')
+					{
+						itr++;
+						break;
+					}
+				} while (itr != end(str1->m_string));
+			}
+			else
+			{
+				while (str2->m_string.find(*itr) == std::string::npos)
+				{
+					itr++;
+					if (itr == end(str1->m_string)) break;
+				}
+			}
+			auto item = std::string(start, itr);
 			value->m_v.push_back(std::make_shared<Lisp_String>(item));
-		}
+		};
 		return value;
 	}
-	return repl_error("(split str char)", error_msg_wrong_types, args);
+	return repl_error("(split str chars)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::match(const std::shared_ptr<Lisp_List> &args)
