@@ -263,7 +263,7 @@ std::shared_ptr<Lisp_Obj> Lisp::merge(const std::shared_ptr<Lisp_List> &args)
 			return lst1;
 		}
 	}
-	return repl_error("(merge list list)", error_msg_wrong_types, args);
+	return repl_error("(merge-obj list list)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::split(const std::shared_ptr<Lisp_List> &args)

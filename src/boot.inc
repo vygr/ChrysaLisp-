@@ -48,7 +48,7 @@
 (ffi pop "class/array/lisp_pop" 0)
 
 (ffi elem-set "class/list/lisp_elemset" 0)
-(ffi merge "class/list/lisp_merge" 0)
+(ffi merge-obj "class/list/lisp_merge" 0)
 (ffi partition "class/list/lisp_part" 0)
 (ffi match? "class/list/lisp_match" 0)
 
@@ -71,6 +71,7 @@
 (ffi undef "class/hmap/lisp_undef" 0)
 (ffi env "class/hmap/lisp_env" 0)
 (ffi penv "class/hmap/lisp_parent" 0)
+(ffi tolist "class/hmap/lisp_list" 0)
 
 (ffi file-stream "class/stream/lisp_filestream" 0)
 (ffi string-stream "class/stream/lisp_strstream" 0)
@@ -121,6 +122,7 @@
 	lisp_type_str (<< 1 2)
 	lisp_type_sym (<< 1 3)
 	lisp_type_fnc (<< 1 4)
+	lisp_type_env (<< 1 5)
  	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
@@ -166,20 +168,23 @@
 	(eval (macroexpand _)))
 
 (defmacro-bind lst? (_)
-	;(lst? form) -> bool
+	;(lst? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_lst))
 (defmacro-bind num? (_)
-	;(num? form) -> bool
+	;(num? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_int))
 (defmacro-bind fnc? (_)
-	;(fnc? form) -> bool
+	;(fnc? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_fnc))
 (defmacro-bind str? (_)
-	;(str? form) -> bool
+	;(str? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_str))
 (defmacro-bind sym? (_)
-	;(sym? form) -> bool
+	;(sym? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_sym))
+(defmacro-bind env? (_)
+	;(env? form) -> t|nil
+	`(= (type-of ,_) ,lisp_type_env))
 
 (defmacro-bind inc (_)
 	;(inc num) -> num
@@ -370,6 +375,13 @@
 	;(reduced accum)
 	`(progn (setq __x t) ,_a))
 
+(defmacro-bind # (x)
+	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
+	`(lambda ,(slice 0 (reduce (lambda (c _)
+		(if (find _ '(%0 %1 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
+		(merge-obj (list) (map sym (split (str x) "( )"))) 0)
+			'(%0 %1 %3 %4 %5 %6 %7 %8 %9)) ,x))
+
 ;;;;;;;;;;;;
 ; Predicates
 ;;;;;;;;;;;;
@@ -427,6 +439,12 @@
 	;(unzip seq buckets) -> buckets
 	(reduce (lambda (b e)
 		(push (elem (% _ (length b)) b) e) b) l b))
+
+(defun-bind zip (&rest b)
+	;(zip seq ...) -> list
+	(defq l (list))
+	(each! 0 -1 (lambda (&rest _)
+		(setq l (cat l _))) b) l)
 
 (defun-bind reverse (l)
 	;(reverse list) -> list
