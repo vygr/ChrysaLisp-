@@ -151,6 +151,8 @@ std::shared_ptr<Lisp_Obj> Lisp::setq(const std::shared_ptr<Lisp_List> &args)
 			if (!(*itr)->is_type(lisp_type_symbol))
 				return repl_error("(setq var val [var val] ...)", error_msg_not_a_symbol, args);
 			auto sym = std::static_pointer_cast<Lisp_Symbol>(*itr);
+			if (sym->m_string[0] == '+')
+				return repl_error("(setq var val [var val] ...)", error_msg_rebind_constant, args);
 			value = repl_eval(*(++itr));
 			if (value->type() == lisp_type_error) break;
 			if (!m_env->set(sym, value))
@@ -220,6 +222,8 @@ std::shared_ptr<Lisp_Obj> Lisp::set(const std::shared_ptr<Lisp_List> &args)
 				if (!(*itr)->is_type(lisp_type_symbol))
 					return repl_error("(set env var val [var val] ...)", error_msg_not_a_symbol, args);
 				auto sym = std::static_pointer_cast<Lisp_Symbol>(*itr);
+				if (sym->m_string[0] == '+')
+					return repl_error("(setq var val [var val] ...)", error_msg_rebind_constant, args);
 				value = (*(++itr));
 				if (!env->set(sym, value))
 					return repl_error("(set env var val [var val] ...)", error_msg_symbol_not_bound, args);

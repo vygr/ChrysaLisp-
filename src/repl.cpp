@@ -270,7 +270,8 @@ std::shared_ptr<Lisp_Obj> Lisp::repl_error(const std::string &msg, int type, con
 		{"open_error"},
 		{"symbol_not_bound"},
 		{"wrong_num_of_args"},
-		{"wrong_types"}
+		{"wrong_types"},
+		{"rebind_constant"}
 	};
 
 	auto file = std::static_pointer_cast<Lisp_String>(m_env->get(m_sym_stream_name));

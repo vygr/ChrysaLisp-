@@ -98,7 +98,8 @@ enum Lisp_Error_Num
 	error_msg_open_error,
 	error_msg_symbol_not_bound,
 	error_msg_wrong_num_of_args,
-	error_msg_wrong_types
+	error_msg_wrong_types,
+	error_msg_rebind_constant
 };
 
 class Lisp;
