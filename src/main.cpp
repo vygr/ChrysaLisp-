@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
 
 	//repl
 	auto lisp = Lisp();
-	auto stream = std::make_shared<Lisp_File_Stream>(arg_b);
+	auto stream = std::make_shared<Lisp_File_IStream>(arg_b);
 	if (!stream->is_open())
 	{
 		std::cout << "No such boot file: " << arg_b << std::endl;
@@ -83,7 +83,7 @@ int main(int argc, char *argv[])
 		{
 			auto file = in_files.front();
 			in_files.pop_front();
-			auto stream = std::make_shared<Lisp_File_Stream>(file);
+			auto stream = std::make_shared<Lisp_File_IStream>(file);
 			if (!stream->is_open())
 			{
 				std::cout << "No such file: " << file << std::endl;

@@ -367,43 +367,79 @@ std::string Lisp_Sys_Stream::read_line(bool &state)
 }
 
 //////////////////
-//Lisp_File_Stream
+//Lisp_File_IStream
 //////////////////
 
-Lisp_File_Stream::Lisp_File_Stream(const std::string &path)
+Lisp_File_IStream::Lisp_File_IStream(const std::string &path)
 	: Lisp_IStream()
 {
 	m_stream.open(path, std::ifstream::in);
 	m_stream >> std::noskipws;
 }
 
-void Lisp_File_Stream::print(std::ostream &out) const
+void Lisp_File_IStream::print(std::ostream &out) const
 {
-	out << "<file stream>";
+	out << "<file istream>";
 }
 
-bool Lisp_File_Stream::is_open() const
+bool Lisp_File_IStream::is_open() const
 {
 	return m_stream.is_open();
 }
 
-std::istream &Lisp_File_Stream::get_stream()
+std::istream &Lisp_File_IStream::get_stream()
 {
 	return m_stream;
 }
 
-int Lisp_File_Stream::read_char()
+int Lisp_File_IStream::read_char()
 {
 	return m_stream.get();
 }
 
-std::string Lisp_File_Stream::read_line(bool &state)
+std::string Lisp_File_IStream::read_line(bool &state)
 {
 	std::string line;
 	state = true;
 	if (std::getline(m_stream, line, '\n')) return line;
 	state = false;
 	return line;
+}
+
+//////////////////
+//Lisp_File_OStream
+//////////////////
+
+Lisp_File_OStream::Lisp_File_OStream(const std::string &path)
+	: Lisp_OStream()
+{
+	m_stream.open(path, std::ofstream::out);
+	m_stream << std::noskipws;
+}
+
+void Lisp_File_OStream::print(std::ostream &out) const
+{
+	out << "<file ostream>";
+}
+
+bool Lisp_File_OStream::is_open() const
+{
+	return m_stream.is_open();
+}
+
+std::ostream &Lisp_File_OStream::get_stream()
+{
+	return m_stream;
+}
+
+void Lisp_File_OStream::write_char(int c)
+{
+	m_stream.put(c);
+}
+
+void Lisp_File_OStream::write_line(const std::string &s)
+{
+	m_stream << s;
 }
 
 ////////////////////

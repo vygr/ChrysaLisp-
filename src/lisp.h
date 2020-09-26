@@ -51,14 +51,15 @@ enum Lisp_Type
 	lisp_type_function = 1 << 4,
 
 	lisp_type_env = 1 << 5,
-	lisp_type_file_stream = 1 << 6,
-	lisp_type_string_stream = 1 << 7,
-	lisp_type_sys_stream = 1 << 8,
-	lisp_type_error = 1 << 9,
+	lisp_type_file_istream = 1 << 6,
+	lisp_type_file_ostream = 1 << 7,
+	lisp_type_string_stream = 1 << 8,
+	lisp_type_sys_stream = 1 << 9,
+	lisp_type_error = 1 << 10,
 
-	lisp_type_seq = 1 << 10,
-	lisp_type_istream = 1 << 11,
-	lisp_type_ostream = 1 << 12,
+	lisp_type_seq = 1 << 11,
+	lisp_type_istream = 1 << 12,
+	lisp_type_ostream = 1 << 13,
 };
 
 const int type_mask_obj = 0;
@@ -73,7 +74,8 @@ const int type_mask_list = type_mask_seq | lisp_type_list;
 const int type_mask_string = type_mask_seq | lisp_type_string;
 const int type_mask_symbol = type_mask_string | lisp_type_symbol;
 const int type_mask_sys_stream = type_mask_istream | lisp_type_sys_stream;
-const int type_mask_file_stream = type_mask_istream | lisp_type_file_stream;
+const int type_mask_file_istream = type_mask_istream | lisp_type_file_istream;
+const int type_mask_file_ostream = type_mask_ostream | lisp_type_file_ostream;
 const int type_mask_string_stream = type_mask_ostream | lisp_type_string_stream;
 
 enum Lisp_Error_Num
@@ -250,18 +252,32 @@ public:
 	std::istream &m_stream;
 };
 
-class Lisp_File_Stream : public Lisp_IStream
+class Lisp_File_IStream : public Lisp_IStream
 {
 public:
-	Lisp_File_Stream(const std::string &path);
-	const Lisp_Type type() const override { return lisp_type_file_stream; }
-	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_file_stream); }
+	Lisp_File_IStream(const std::string &path);
+	const Lisp_Type type() const override { return lisp_type_file_istream; }
+	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_file_istream); }
 	void print(std::ostream &out) const override;
 	bool is_open() const override;
 	std::istream &get_stream() override;
 	int read_char() override;
 	std::string read_line(bool &state) override;
 	std::ifstream m_stream;
+};
+
+class Lisp_File_OStream : public Lisp_OStream
+{
+public:
+	Lisp_File_OStream(const std::string &path);
+	const Lisp_Type type() const override { return lisp_type_file_ostream; }
+	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_file_ostream); }
+	void print(std::ostream &out) const override;
+	bool is_open() const override;
+	std::ostream &get_stream() override;
+	void write_char(int c) override;
+	void write_line(const std::string &s) override;
+	std::ofstream m_stream;
 };
 
 class Lisp_String_Stream : public Lisp_OStream

@@ -22,14 +22,24 @@
 
 std::shared_ptr<Lisp_Obj> Lisp::filestream(const std::shared_ptr<Lisp_List> &args)
 {
-	if (args->length() == 1
-		&& args->m_v[0]->is_type(lisp_type_string))
+	if (args->length() == 1 && args->m_v[0]->is_type(lisp_type_string)
+		|| args->length() == 2 && args->m_v[0]->is_type(lisp_type_string) && args->m_v[1]->is_type(lisp_type_integer))
 	{
-		auto s = std::make_shared<Lisp_File_Stream>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string);
-		if (s->is_open()) return s;
+		auto mode = 0;
+		if (args->length() == 2) mode = std::static_pointer_cast<Lisp_Integer>(args->m_v[1])->m_value;
+		if (mode)
+		{
+			auto s = std::make_shared<Lisp_File_OStream>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string);
+			if (s->is_open()) return s;
+		}
+		else
+		{
+			auto s = std::make_shared<Lisp_File_IStream>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string);
+			if (s->is_open()) return s;
+		}
 		return m_sym_nil;
 	}
-	return repl_error("(file-stream path)", error_msg_wrong_types, args);
+	return repl_error("(file-stream path [mode])", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::strstream(const std::shared_ptr<Lisp_List> &args)

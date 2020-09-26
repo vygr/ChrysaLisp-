@@ -73,8 +73,9 @@
 (ffi penv "class/hmap/lisp_parent" 0)
 (ffi tolist "class/hmap/lisp_list" 0)
 
-(ffi file-stream "class/stream/lisp_filestream" 0)
-(ffi string-stream "class/stream/lisp_strstream" 0)
+(ffi io-stream "class/stream/lisp_iostream" 0)
+(ffi string-stream "class/stream/lisp_sstream" 0)
+(ffi file-stream "class/stream/lisp_fstream" 0)
 (ffi read-char "class/stream/lisp_readchar" 0)
 (ffi read-line "class/stream/lisp_readline" 0)
 (ffi read-avail "class/stream/lisp_readavail" 0)
@@ -185,6 +186,9 @@
 (defmacro-bind env? (_)
 	;(env? form) -> t|nil
 	`(= (type-of ,_) ,lisp_type_env))
+(defmacro-bind seq? (_)
+	;(seq? form) -> t|nil
+	`(or (= (defq ,(defq __ (gensym)) (type-of ,_)) ,lisp_type_lst) (= ,__ ,lisp_type_str)))
 
 (defmacro-bind inc (_)
 	;(inc num) -> num
@@ -253,7 +257,7 @@
 	;(case tst [(key body)] ...)
 	(if (defq _ (reduce-rev (lambda (_x (_ &rest _y))
 			(unless (lst? _) (setq _ (list _)))
-			(if (notevery (lambda (_) (= (type-of _) (const lisp_type_sym))) _)
+			(unless (some! 0 -1 nil (lambda (_) (= (type-of _) (const lisp_type_sym))) (list _))
 				(throw "Key not symbol !" _))
 			(each! 0 -1 (lambda (_)
 					(push (elem 0 _x) _)
@@ -386,41 +390,57 @@
 ; Predicates
 ;;;;;;;;;;;;
 
-(defun-bind some (_f &rest _)
+(defmacro-bind some (f &rest _)
 	;(some lambda seq ...) -> nil|form
-	(some! 0 -1 t _f _))
+	`(some! 0 -1 t ,f (list ~_)))
 
-(defun-bind every (_f &rest _)
+(defmacro-bind every (f &rest _)
 	;(every lambda seq ...) -> nil|form
-	(some! 0 -1 nil _f _))
+	`(some! 0 -1 nil ,f (list ~_)))
 
-(defun-bind notany (_f &rest _)
+(defmacro-bind notany (f &rest _)
 	;(notany lambda seq ...) -> t|nil
-	(not (some! 0 -1 t _f _)))
+	`(not (some! 0 -1 t ,f (list ~_))))
 
-(defun-bind notevery (_f &rest _)
+(defmacro-bind notevery (f &rest _)
 	;(notevery lambda seq ...) -> t|nil
-	(not (some! 0 -1 nil _f _)))
+	`(not (some! 0 -1 nil ,f (list ~_))))
+
+(defun-bind empty? (_)
+	;(empty? form) -> bool
+	; Returns true if form is empty
+	(cond ((seq? _) (= (length _) 0)) (t)))
+
+(defun-bind nempty? (_)
+	;(nempty? form) -> bool
+	; Returns true if form is not empty
+	(cond ((seq? _) (/= (length _) 0))))
 
 ;;;;;;;;;;;
 ; Sequences
 ;;;;;;;;;;;
 
-(defmacro-bind first (s)
-	;(first seq) -> el
-	`(elem 0 ,s))
+(defun-bind first (_)
+	;(first seq) -> el | nil
+	; Returns first element if sequence not empty, otherwise nil
+	(if (> (length _) 0) (elem 0 _)))
 
-(defmacro-bind second (s)
-	;(second seq) -> el
-	`(elem 1 ,s))
+(defun-bind second (_)
+	;(second seq) -> el | nil
+	; Returns second element if sequence not empty and has
+	; more than one element, otherwise nil
+	(if (> (length _) 1) (elem 1 _)))
 
-(defmacro-bind last (s)
-	;(last seq) -> el
-	`(elem -2 ,s))
+(defun-bind last (_)
+	;(last seq) -> el | nil
+	; Returns last element if sequence not empty, otherwise nil
+	(if (> (length _) 0) (elem -2 _)))
 
-(defmacro-bind rest (s)
+(defun-bind rest (_)
 	;(rest seq) -> seq
-	`(slice 1 -1 ,s))
+	; Returns seq from seq after dropping first element
+	; if not empty, otherwise an empty list
+	(if (> (length _) 0) (slice 1 -1 _) (list)))
 
 (defun-bind erase (s b e)
 	;(erase seq start end) -> seq
@@ -446,15 +466,28 @@
 	(each! 0 -1 (lambda (&rest _)
 		(setq l (cat l _))) b) l)
 
-(defun-bind reverse (l)
+(defun-bind reverse (_)
 	;(reverse list) -> list
-	(map-rev progn l))
+	(map-rev progn _))
+
+(defun-bind intern (_l _i &optional _c)
+	;(intern list form [lambda]) -> form
+	(setd _c eql)
+	(cond
+		((some (# (if (_c %0 _i) %0)) _l))
+		(t (push _l _i) _i)))
+
+(defun-bind intern-seq (_s &optional _l _c)
+	;(intern-seq seq [list lambda]) -> list
+	(setd _c eql)
+	(reduce (lambda (_l _e)
+		(push _l (if (defq _i (some (# (if (_c %0 _e) %0)) _l)) _i _e))) _s (opt _l (list))))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
 ;;;;;;;;;;;;;;;;
 
-(defq min_long (<< -1 63) max_long (>> -1 1) min_int (<< -1 31) max_int (>> -1 33))
+(defq +min_long+ (<< -1 63) +max_long+ (>> -1 1) +min_int+ (<< -1 31) +max_int+ (>> -1 33))
 
 (defun-bind lognot (_)
 	;(lognot num) -> num
@@ -464,8 +497,8 @@
 ; Fixed point math
 ;;;;;;;;;;;;;;;;;;
 
-(defq fp_shift 16 fp_int_mask (<< -1 fp_shift) fp_frac_mask (lognot fp_int_mask)
-	fp_2pi 6.283185 fp_pi 3.141592 fp_hpi 1.570796 fp_rpi 0.318309)
+(defq +fp_shift+ 16 +fp_int_mask+ (<< -1 +fp_shift+) +fp_frac_mask+ (lognot +fp_int_mask+)
+	+fp_2pi+ 6.283185 +fp_pi+ 3.141592 +fp_hpi+ 1.570796 +fp_rpi+ 0.318309)
 
 ;;;;;;;;;;;
 ; Utilities
@@ -515,12 +548,18 @@
 
 (defun-bind char-to-num (_)
 	;(char-to-num char) -> num
-	(cond
-		((>= (setq _ (code _)) (ascii-code "a"))
-			(- _ (const (- (ascii-code "a") 10))))
-		((>= _ (ascii-code "A"))
-			(- _ (const (- (ascii-code "A") 10))))
-		(t (- _ (ascii-code "0")))))
+	(elem (code _)
+		(const (cat (list quote) (list (intern-seq
+			'(-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 0 1 2 3
+			4 5 6 7 8 9 -1 -1 -1 -1 -1 -1 -1 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24
+			25 26 27 28 29 30 31 32 33 34 35 -1 -1 -1 -1 -1 -1 10 11 12 13 14 15 16 17 18
+			19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 -1 -1 -1 -1 -1 -1 -1 -1 -1
+			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+			-1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1)))))))
 
 (defun-bind num-to-char (_)
 	;(num-to-char num) -> char
@@ -528,23 +567,19 @@
 
 (defun-bind str-to-num (_)
 	;(str-to-num str) -> num
-	(defq n 0 b 10)
+	(defq n 0 b 10 f 0 m 1)
+	(when (eql (elem 0 _) "-")
+		(setq m -1 _ (slice 1 -1 _)))
 	(when (> (length _) 1)
 		(defq i (elem 1 _))
 		(cond
-			((eql i "x")
-				(setq b 16 _ (slice 2 -1 _)))
-			((eql i "o")
-				(setq b 8 _ (slice 2 -1 _)))
-			((eql i "b")
-				(setq b 2 _ (slice 2 -1 _)))))
-	(defq i -1 f 0)
-	(while (< (setq i (inc i)) (length _))
-		(defq c (elem i _))
-		(if (eql c ".")
+			((eql i "x") (setq b 16 _ (slice 2 -1 _)))
+			((eql i "o") (setq b 8 _ (slice 2 -1 _)))
+			((eql i "b") (setq b 2 _ (slice 2 -1 _)))))
+	(each (# (if (eql %0 ".")
 			(setq f 1)
-			(defq d (char-to-num c) n (+ (* n b) d) f (* f b))))
-	(if (= f 0) n (/ (<< n fp_shift) f)))
+			(setq n (+ (* n b) (char-to-num %0)) f (* f b)))) _)
+	(if (= f 0) (* n m) (/ (<< (* n m) +fp_shift+) f)))
 
 (defun-bind num-to-utf8 (_)
 	;(num-to-utf8 num) -> str
@@ -680,21 +715,13 @@
 		((b ub) 1)
 		(t 8)))
 
-;;;;;;;;
-; Tuples
-;;;;;;;;
-
-(defmacro-bind tuple-set (_i _l _v)
-	;(tuple-set index list value)
-	(list 'elem-set (eval (macroexpand (eval _i))) _l _v))
-
-(defmacro-bind tuple-get (_i _l)
-	;(tuple-get index list) -> value
-	(list 'elem (eval (macroexpand (eval _i))) _l))
-
 ;;;;;;;;;
 ; Streams
 ;;;;;;;;;
+
+(defun-bind load-stream (_)
+	;(load-stream path) -> nil|stream
+	(if (defq _ (load _)) (string-stream _)))
 
 (defun-bind each-line (_f _)
 	;(each-line lambda stream)
