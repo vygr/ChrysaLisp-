@@ -430,6 +430,7 @@ public:
 	std::shared_ptr<Lisp_Obj> macroexpand(const std::shared_ptr<Lisp_List> &args);
 
 	std::shared_ptr<Lisp_Obj> env(const std::shared_ptr<Lisp_List> &args);
+	std::shared_ptr<Lisp_Obj> penv(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> defq(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> setq(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> def(const std::shared_ptr<Lisp_List> &args);

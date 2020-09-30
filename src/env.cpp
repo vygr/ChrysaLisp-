@@ -120,6 +120,22 @@ std::shared_ptr<Lisp_Obj> Lisp::env(const std::shared_ptr<Lisp_List> &args)
 	return repl_error("(env [num])", error_msg_wrong_types, args);
 }
 
+std::shared_ptr<Lisp_Obj> Lisp::penv(const std::shared_ptr<Lisp_List> &args)
+{
+	if (!args->length())
+	{
+		if (!m_env->m_parent) return m_sym_nil;
+		return m_env->m_parent;
+	}
+	else if (args->length() == 1 && args->m_v[0]->is_type(lisp_type_env))
+	{
+		auto env = std::static_pointer_cast<Lisp_Env>(args->m_v[0])->m_parent;
+		if (!env) return m_sym_nil;
+		return env;
+	}
+	return repl_error("(penv [env])", error_msg_wrong_types, args);
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::defq(const std::shared_ptr<Lisp_List> &args)
 {
 	auto len = args->length();

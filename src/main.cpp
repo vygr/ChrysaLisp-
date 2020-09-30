@@ -92,7 +92,13 @@ int main(int argc, char *argv[])
 			args->m_v.clear();
 			args->m_v.push_back(stream);
 			args->m_v.push_back(std::make_shared<Lisp_String>(file));
-			if (lisp.repl(args) != lisp.m_sym_nil) exit(0);
+			auto res = lisp.repl(args);
+			if (res != lisp.m_sym_nil)
+			{
+				res->print(std::cout);
+				std::cout << "\n";
+				exit(0);
+			}
 		}
 		//from stdin
 		auto stream = std::make_shared<Lisp_Sys_Stream>(std::cin);
