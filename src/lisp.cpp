@@ -606,4 +606,6 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("sym")), std::make_shared<Lisp_Function>(&Lisp::sym));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("gensym")), std::make_shared<Lisp_Function>(&Lisp::gensym));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("bind")), std::make_shared<Lisp_Function>(&Lisp::bind));
+
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("pii-dirlist")), std::make_shared<Lisp_Function>(&Lisp::piidirlist));
 }

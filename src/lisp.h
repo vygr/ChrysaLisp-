@@ -443,6 +443,8 @@ public:
 	std::shared_ptr<Lisp_Obj> lambda(const std::shared_ptr<Lisp_List> &args);
 	std::shared_ptr<Lisp_Obj> bind(const std::shared_ptr<Lisp_List> &args);
 
+	std::shared_ptr<Lisp_Obj> piidirlist(const std::shared_ptr<Lisp_List> &args);
+
 	std::set<std::shared_ptr<Lisp_Symbol>, Intern_Cmp> m_intern_sym_set;
 	std::shared_ptr<Lisp_Env> m_env;
 	std::shared_ptr<Lisp_Symbol> m_sym_nil;
