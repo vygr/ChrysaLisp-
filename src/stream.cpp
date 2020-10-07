@@ -20,6 +20,8 @@
 
 #include "lisp.h"
 
+void rmkdir(const char *path);
+
 std::shared_ptr<Lisp_Obj> Lisp::filestream(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 1 && args->m_v[0]->is_type(lisp_type_string)
@@ -29,7 +31,7 @@ std::shared_ptr<Lisp_Obj> Lisp::filestream(const std::shared_ptr<Lisp_List> &arg
 		if (args->length() == 2) mode = std::static_pointer_cast<Lisp_Integer>(args->m_v[1])->m_value;
 		if (mode)
 		{
-			auto s = std::make_shared<Lisp_File_OStream>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string);
+			auto s = std::make_shared<Lisp_File_OStream>(std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string, mode);
 			if (s->is_open()) return s;
 		}
 		else
@@ -193,28 +195,6 @@ std::shared_ptr<Lisp_Obj> Lisp::print(const std::shared_ptr<Lisp_List> &args)
 	auto value = prin(args);
 	std::cout << std::endl;
 	return value;
-}
-
-static void rmkdir(const char *path)
-{
-	char *p = NULL;
-	char dirbuf[256];
-	size_t len;
-	len = strlen(path);
-	memcpy(dirbuf, path, len + 1);
-	for (p = dirbuf + 1; *p; p++)
-	{
-		if(*p == '/')
-		{
-			*p = 0;
-#ifdef WIN32
-			mkdir(dirbuf);
-#else
-			mkdir(dirbuf, S_IRWXU);
-#endif
-			*p = '/';
-		}
-	}
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::save(const std::shared_ptr<Lisp_List> &args)

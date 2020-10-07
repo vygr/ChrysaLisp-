@@ -76,6 +76,28 @@ std::string dirlist(const char *path)
 }
 #endif
 
+void rmkdir(const char *path)
+{
+	char *p = NULL;
+	char dirbuf[256];
+	size_t len;
+	len = strlen(path);
+	memcpy(dirbuf, path, len + 1);
+	for (p = dirbuf + 1; *p; p++)
+	{
+		if(*p == '/')
+		{
+			*p = 0;
+#ifdef WIN32
+			mkdir(dirbuf);
+#else
+			mkdir(dirbuf, S_IRWXU);
+#endif
+			*p = '/';
+		}
+	}
+}
+
 std::shared_ptr<Lisp_Obj> Lisp::piidirlist(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 1)

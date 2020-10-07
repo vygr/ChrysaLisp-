@@ -20,6 +20,8 @@
 
 #include "lisp.h"
 
+void rmkdir(const char *path);
+
 ////////////
 //Lisp_Error
 ////////////
@@ -410,10 +412,17 @@ std::string Lisp_File_IStream::read_line(bool &state)
 //Lisp_File_OStream
 //////////////////
 
-Lisp_File_OStream::Lisp_File_OStream(const std::string &path)
+Lisp_File_OStream::Lisp_File_OStream(const std::string &path, int mode)
 	: Lisp_OStream()
 {
-	m_stream.open(path, std::ofstream::out);
+	if (mode == 1) m_stream.open(path, std::ofstream::out);
+	else m_stream.open(path, std::ofstream::out | std::ios_base::app);
+	if (!m_stream.is_open())
+	{
+		rmkdir(path.data());
+		if (mode == 1) m_stream.open(path, std::ofstream::out);
+		else m_stream.open(path, std::ofstream::out | std::ios_base::app);
+	}
 	m_stream << std::noskipws;
 }
 

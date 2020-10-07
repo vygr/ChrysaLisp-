@@ -269,7 +269,7 @@ public:
 class Lisp_File_OStream : public Lisp_OStream
 {
 public:
-	Lisp_File_OStream(const std::string &path);
+	Lisp_File_OStream(const std::string &path, int mode);
 	const Lisp_Type type() const override { return lisp_type_file_ostream; }
 	Lisp_Type is_type(Lisp_Type t) const override { return (Lisp_Type)(t & type_mask_file_ostream); }
 	void print(std::ostream &out) const override;
