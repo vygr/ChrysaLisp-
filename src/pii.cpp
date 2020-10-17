@@ -31,7 +31,7 @@
 char dirbuf[1024];
 
 #ifdef _WIN64
-std::string pii_dirlist(const char *path)
+std::string dirlist(const char *path)
 {
 	auto out = std::string{};
 	size_t path_len = strlen(path);
@@ -48,10 +48,10 @@ std::string pii_dirlist(const char *path)
 	if (hFind == INVALID_HANDLE_VALUE) return out;
 	do
 	{
-		out.append(indData.cFileName);
+		out.append(FindData.cFileName);
 		out.append(",");
-		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) out.push_back("4");
-		else out.push_back("8");
+		if (FindData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) out.push_back('4');
+		else out.push_back('8');
 		out.append(",");
 	} while (FindNextFile(hFind, &FindData) != 0);
 	FindClose(hFind);
