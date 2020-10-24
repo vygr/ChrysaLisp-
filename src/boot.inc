@@ -49,7 +49,7 @@
 
 (ffi elem-set "class/list/lisp_elemset" 0)
 (ffi merge-obj "class/list/lisp_merge" 0)
-(ffi partition "class/list/lisp_part" 0)
+(ffi pivot "class/list/lisp_part" 0)
 (ffi match? "class/list/lisp_match" 0)
 
 (ffi str "class/str/lisp_str" 0)
@@ -188,7 +188,16 @@
 	`(= (type-of ,_) ,lisp_type_env))
 (defmacro-bind seq? (_)
 	;(seq? form) -> t|nil
-	`(or (= (defq ,(defq __ (gensym)) (type-of ,_)) ,lisp_type_lst) (= ,__ ,lisp_type_str)))
+	`(or (= (defq ,(defq __ (gensym)) (type-of ,_)) ,lisp_type_lst)
+		(= ,__ ,lisp_type_str)))
+(defmacro-bind fun? (_)
+	;(fun? form) -> t|nil
+	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
+		(> (length ,__) 0) (eql (elem 0 ,__) 'lambda)))
+(defmacro-bind macro? (_)
+	;(macro? form) -> t|nil
+	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
+		(> (length ,__) 0) (eql (elem 0 ,__) 'macro)))
 
 (defmacro-bind inc (_)
 	;(inc num) -> num
@@ -381,10 +390,10 @@
 
 (defmacro-bind # (&rest b)
 	;(# (< %0 0)) -> (lambda (%0) (< %0 0))
-	`(lambda ,(slice 0 (reduce (lambda (c _)
-		(if (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) (inc c) c))
-		(merge-obj (list) (map sym (split (str b) "( )"))) 0)
-			'(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)) ~b))
+	(defq s (filter (lambda (_) (find _ '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)))
+				(merge-obj (list) (map sym (split (str b) "( )"))))
+		p (slice 0 (length s) '(%0 %1 %2 %3 %4 %5 %6 %7 %8 %9)))
+	`(lambda ,p ~b))
 
 ;;;;;;;;;;;;
 ; Predicates
@@ -407,18 +416,15 @@
 	`(not (some! 0 -1 nil ,f (list ~_))))
 
 (defun-bind nil? (_)
-  	; (nil? o) -> bool
-  	; Returns true if nil
+  	;(nil? o) -> bool
   	(eql _ nil))
 
 (defun-bind empty? (_)
 	;(empty? form) -> bool
-	; Returns true if form is empty
 	(cond ((seq? _) (= (length _) 0)) (t)))
 
 (defun-bind nempty? (_)
 	;(nempty? form) -> bool
-	; Returns true if form is not empty
 	(cond ((seq? _) (/= (length _) 0))))
 
 ;;;;;;;;;;;
@@ -494,9 +500,62 @@
 
 (defq +min_long+ (<< -1 63) +max_long+ (>> -1 1) +min_int+ (<< -1 31) +max_int+ (>> -1 33))
 
+(defun-bind neg? (_)
+	;(neg? num) -> bool
+	(< _ 0))
+
+(defun-bind pos? (_)
+	;(pos? num) -> bool
+	(> _ 0))
+
+(defun-bind odd? (_)
+	;(odd? num) -> bool
+	(/= 0 (logand 1 _)))
+
+(defun-bind even? (_)
+	;(even? num) -> bool
+	(= 0 (logand 1 _)))
+
 (defun-bind lognot (_)
 	;(lognot num) -> num
 	(logxor _ -1))
+
+(defun-bind log2 (_)
+	;(log2 num) -> num
+	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
+		(defq i 0)
+		(while (/= 0 (setq _ (>> _ 1)))
+			(setq i (inc i))) i))
+
+(defun-bind pow (base exponent)
+	;(pow base exponent) -> integer
+	(defq res 1)
+	(times exponent (setq res (* res base)))
+	res)
+
+(defun-bind ntz (_)
+	;(ntz num) -> num
+	(defq n 64)
+	(while (/= _ 0)
+		(setq n (dec n) _ (<< _ 1))) n)
+
+(defun-bind nto (_)
+	;(nto num) -> num
+	(defq n 64 _ (lognot _))
+	(while (/= _ 0)
+		(setq n (dec n) _ (<< _ 1))) n)
+
+(defun-bind nlz (_)
+	;(nlz num) -> num
+	(defq n 0)
+	(while (> _ 0)
+		(setq n (inc n) _ (<< _ 1))) n)
+
+(defun-bind nlo (_)
+	;(nlo num) -> num
+	(defq n 0 _ (lognot _))
+	(while (> _ 0)
+		(setq n (inc n) _ (<< _ 1))) n)
 
 ;;;;;;;;;;;;;;;;;;
 ; Fixed point math
@@ -508,10 +567,6 @@
 ;;;;;;;;;;;
 ; Utilities
 ;;;;;;;;;;;
-
-(defmacro-bind def: (_ &optional e)
-	;(def: syms [env])
-	(if e `(eval `(bind ,_ ,_) ,e) `(eval `(bind ,_ ,_))))
 
 (defmacro-bind ascii-code (_)
 	;(ascii-code char) -> num
@@ -621,37 +676,6 @@
 	(while (> c (length f)) (setq f (cat f f)))
 	(cat (slice 0 c f) v))
 
-(defun-bind log2 (_)
-	;(log2 num) -> num
-	(when (and (not (= 0 _)) (= _ (logand _ (neg _))))
-		(defq i 0)
-		(while (/= 0 (setq _ (>> _ 1)))
-			(setq i (inc i))) i))
-
-(defun-bind ntz (_)
-	;(ntz num) -> num
-	(defq n 64)
-	(while (/= _ 0)
-		(setq n (dec n) _ (<< _ 1))) n)
-
-(defun-bind nto (_)
-	;(nto num) -> num
-	(defq n 64 _ (lognot _))
-	(while (/= _ 0)
-		(setq n (dec n) _ (<< _ 1))) n)
-
-(defun-bind nlz (_)
-	;(nlz num) -> num
-	(defq n 0)
-	(while (> _ 0)
-		(setq n (inc n) _ (<< _ 1))) n)
-
-(defun-bind nlo (_)
-	;(nlo num) -> num
-	(defq n 0 _ (lognot _))
-	(while (> _ 0)
-		(setq n (inc n) _ (<< _ 1))) n)
-
 (defun-bind shuffled (_a &optional _l _h)
 	;(shuffled list [start end]) -> list
 	(setd _l 0 _h (length _a))
@@ -674,7 +698,7 @@
 	(defq _q (list _l _h))
 	(while (setq _h (pop _q) _l (pop _q))
 		(when (< _l _h)
-			(defq _p (partition _f _a _l _h))
+			(defq _p (pivot _f _a _l _h))
 			(push (push _q _l _p) (inc _p) _h))) _a)
 
 (defun-bind swap (_ _1 _2)
@@ -795,25 +819,23 @@
 
 (defun-bind within-compile-env (_f)
 	;(within-compile-env lambda)
-	(defq *compile_env* (env 307) *compile_includes* (list))
+	(defq *compile_env* (env 401) *compile_includes* (list))
 	(defmacro-bind defcvar (&rest b)
 		`(def *compile_env* ~b))
 	(defmacro-bind undefc (&rest b)
 		`(undef *compile_env* ~b))
-	(defmacro-bind defcfun (n a &rest b)
-		`(def *compile_env* ',n (lambda ,a ~b)))
-	(defmacro-bind defcmacro (n a &rest b)
-		`(def *compile_env* ',n (macro ,a ~b)))
-	(defmacro-bind defcfun-bind (n a &rest b)
-		`(def *compile_env* ',n (lambda ,a ~(prebind (macroexpand b)))))
-	(defmacro-bind defcmacro-bind (n a &rest b)
-		`(def *compile_env* ',n (macro ,a ~(prebind (macroexpand b)))))
 	(defun-bind include (_f)
 		(unless (str? _f) (throw "Not a string !" _f))
 		(if (= (age _f) 0) (throw "No such file !" _f))
 		(unless (some (# (eql %0 _f)) *compile_includes*)
 			(push *compile_includes* _f)
-			(repl (file-stream _f) _f)))
+			(eval `(repl (file-stream ,_f) ,_f) *compile_env*)))
 	(catch (progn (setq _f (_f) *compile_env* nil) _f)
 		(setq *compile_env* nil)))
- 
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+; Boot extension imports
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(import "lib/hmap/hmap.inc")
+

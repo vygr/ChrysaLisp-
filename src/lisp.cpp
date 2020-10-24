@@ -564,7 +564,7 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("match?")), std::make_shared<Lisp_Function>(&Lisp::match));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("some!")), std::make_shared<Lisp_Function>(&Lisp::some));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("each!")), std::make_shared<Lisp_Function>(&Lisp::each));
-	m_env->insert(intern(std::make_shared<Lisp_Symbol>("partition")), std::make_shared<Lisp_Function>(&Lisp::part));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("pivot")), std::make_shared<Lisp_Function>(&Lisp::part));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("cap")), std::make_shared<Lisp_Function>(&Lisp::cap));
 
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("cmp")), std::make_shared<Lisp_Function>(&Lisp::cmp));

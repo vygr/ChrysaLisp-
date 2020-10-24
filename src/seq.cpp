@@ -139,9 +139,9 @@ std::shared_ptr<Lisp_Obj> Lisp::part(const std::shared_ptr<Lisp_List> &args)
 			if (pivot != lower) std::iter_swap(lower, pivot);
 			return std::make_shared<Lisp_Integer>(pivot - begin(lst->m_v));
 		}
-		return repl_error("(partition lambda list start end)", error_msg_not_valid_index, args);
+		return repl_error("(pivot lambda list start end)", error_msg_not_valid_index, args);
 	}
-	return repl_error("(partition lambda list start end)", error_msg_wrong_types, args);
+	return repl_error("(pivot lambda list start end)", error_msg_wrong_types, args);
 }
 
 std::shared_ptr<Lisp_Obj> Lisp::slice(const std::shared_ptr<Lisp_List> &args)
