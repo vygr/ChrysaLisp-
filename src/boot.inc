@@ -68,6 +68,7 @@
 (ffi def "class/hmap/lisp_def" 0)
 (ffi set "class/hmap/lisp_set" 0)
 (ffi get "class/hmap/lisp_get" 0)
+(ffi def? "class/hmap/lisp_def?" 0)
 (ffi undef "class/hmap/lisp_undef" 0)
 (ffi env "class/hmap/lisp_env" 0)
 (ffi penv "class/hmap/lisp_parent" 0)
@@ -758,13 +759,17 @@
 		(_f _l)))
 
 (defun-bind import (lib_path &optional e)
-	;(import path [env])
+	;(import path [env]) -> env
 	(unless (str? lib_path) (throw "Not a string !" lib_path))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd e (penv))
-	(unless (some (# (eql %0 lib_path)) *file_includes*)
-		(push *file_includes* lib_path)
-		(eval `(repl (file-stream ,lib_path) ,lib_path) e)))
+	(unless (def? '*file_includes* e)
+		(def e '*file_includes* (list)))
+	(defq file_list (get '*file_includes* e))
+	(unless (some (# (eql %0 lib_path)) file_list)
+		(push file_list lib_path)
+		(print ".")(print)
+		(eval `(repl (file-stream ,lib_path) ,lib_path) e)) e)
 
 (defmacro-bind read-long (s)
 	;(read-long stream) -> num
@@ -819,7 +824,7 @@
 
 (defun-bind within-compile-env (_f)
 	;(within-compile-env lambda)
-	(defq *compile_env* (env 401) *compile_includes* (list))
+	(defq *compile_env* (env 503) *compile_includes* (list))
 	(defmacro-bind defcvar (&rest b)
 		`(def *compile_env* ~b))
 	(defmacro-bind undefc (&rest b)
@@ -833,9 +838,24 @@
 	(catch (progn (setq _f (_f) *compile_env* nil) _f)
 		(setq *compile_env* nil)))
 
-;;;;;;;;;;;;;;;;;;;;;;;;;
-; Boot extension imports
-;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;
+; classes and methods
+;;;;;;;;;;;;;;;;;;;;;
 
-(import "lib/hmap/hmap.inc")
+(defmacro-bind class (n p &rest _)
+	;(class name ([arg ...]) body)
+	`(defun ,n ,p (defq this (env -1)) ~_ this))
 
+(defmacro-bind method (n p &rest _)
+	;(method name ([arg ...]) body)
+	`(def this ,n (lambda ,p ~_)))
+
+(defmacro-bind method-bind (n p &rest _)
+	;(method-bind name ([arg ...]) body)
+	`(def this ,n (lambda ,p ~(prebind (macroexpand _)))))
+
+(defmacro-bind . (this m &rest _)
+	;(. this method ([arg ...]))
+	(if (sym? this)
+		`((get ,m ,this) ,this ~_)
+		`((get ,m (defq ,(defq _o (gensym)) ,this)) ,_o ~_)))

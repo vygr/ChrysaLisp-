@@ -607,6 +607,7 @@ Lisp::Lisp()
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("env")), std::make_shared<Lisp_Function>(&Lisp::env, 0));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("penv")), std::make_shared<Lisp_Function>(&Lisp::penv, 0));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("defq")), std::make_shared<Lisp_Function>(&Lisp::defq, 1));
+	m_env->insert(intern(std::make_shared<Lisp_Symbol>("def?")), std::make_shared<Lisp_Function>(&Lisp::defx, 0));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("setq")), std::make_shared<Lisp_Function>(&Lisp::setq, 1));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("def")), std::make_shared<Lisp_Function>(&Lisp::def));
 	m_env->insert(intern(std::make_shared<Lisp_Symbol>("undef")), std::make_shared<Lisp_Function>(&Lisp::undef));
