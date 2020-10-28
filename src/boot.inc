@@ -768,7 +768,6 @@
 	(defq file_list (get '*file_includes* e))
 	(unless (some (# (eql %0 lib_path)) file_list)
 		(push file_list lib_path)
-		(print ".")(print)
 		(eval `(repl (file-stream ,lib_path) ,lib_path) e)) e)
 
 (defmacro-bind read-long (s)
