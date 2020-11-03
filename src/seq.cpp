@@ -463,7 +463,7 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 			max_len = std::min(max_len, std::static_pointer_cast<Lisp_Seq>(o)->length());
 		}
 
-		auto value = std::static_pointer_cast<Lisp_Obj>(m_sym_nil);
+		auto value = args->m_v[2];
 		if (max_len != 1000000)
 		{
 			auto start = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
@@ -491,8 +491,8 @@ std::shared_ptr<Lisp_Obj> Lisp::some(const std::shared_ptr<Lisp_List> &args)
 				}
 				value = repl_apply(args->m_v[3], params);
 				if (value->type() == lisp_type_error) break;
-				if (args->m_v[2] != m_sym_nil && value != m_sym_nil) break;
-				if (args->m_v[2] == m_sym_nil && value == m_sym_nil) break;
+				if (args->m_v[2] == m_sym_nil && value != m_sym_nil) break;
+				if (args->m_v[2] != m_sym_nil && value == m_sym_nil) break;
 				start += dir;
 			}
 			env_pop();

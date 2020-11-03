@@ -68,7 +68,7 @@
 (ffi def "class/hmap/lisp_def" 0)
 (ffi set "class/hmap/lisp_set" 0)
 (ffi get "class/hmap/lisp_get" 0)
-(ffi def? "class/hmap/lisp_def?" 0)
+(ffi def? "class/hmap/lisp_defx" 0)
 (ffi undef "class/hmap/lisp_undef" 0)
 (ffi env "class/hmap/lisp_env" 0)
 (ffi penv "class/hmap/lisp_parent" 0)
@@ -267,7 +267,7 @@
 	;(case tst [(key body)] ...)
 	(if (defq _ (reduce-rev (lambda (_x (_ &rest _y))
 			(unless (lst? _) (setq _ (list _)))
-			(unless (some! 0 -1 nil (lambda (_) (= (type-of _) (const lisp_type_sym))) (list _))
+			(unless (some! 0 -1 t (lambda (_) (= (type-of _) (const lisp_type_sym))) (list _))
 				(throw "Key not symbol !" _))
 			(each! 0 -1 (lambda (_)
 					(push (elem 0 _x) _)
@@ -369,20 +369,20 @@
 	;(reduced-reduce lambda seq [accum]) -> form
 	(defq __x nil)
 	(cond
-		(_a (some! 0 -1 t (lambda (_e)
+		(_a (some! 0 -1 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
 		(t (setq _a (elem 0 _l))
-			(some! 1 -1 t (lambda (_e)
+			(some! 1 -1 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
 
 (defun-bind reduced-reduce-rev (_f _l &optional _a)
 	;(reduced-reduce-rev lambda seq [accum]) -> form
 	(defq __x nil)
 	(cond
-		(_a (some! -1 0 t (lambda (_e)
+		(_a (some! -1 0 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))
 		(t (setq _a (elem -2 _l))
-			(some! -2 0 t (lambda (_e)
+			(some! -2 0 nil (lambda (_e)
 				(cond (__x t) (t (setq _a (_f _a _e)) nil))) (list _l)))) _a)
 
 (defmacro-bind reduced (_a)
@@ -402,19 +402,19 @@
 
 (defmacro-bind some (f &rest _)
 	;(some lambda seq ...) -> nil|form
-	`(some! 0 -1 t ,f (list ~_)))
+	`(some! 0 -1 nil ,f (list ~_)))
 
 (defmacro-bind every (f &rest _)
 	;(every lambda seq ...) -> nil|form
-	`(some! 0 -1 nil ,f (list ~_)))
+	`(some! 0 -1 t ,f (list ~_)))
 
 (defmacro-bind notany (f &rest _)
 	;(notany lambda seq ...) -> t|nil
-	`(not (some! 0 -1 t ,f (list ~_))))
+	`(not (some! 0 -1 nil ,f (list ~_))))
 
 (defmacro-bind notevery (f &rest _)
 	;(notevery lambda seq ...) -> t|nil
-	`(not (some! 0 -1 nil ,f (list ~_))))
+	`(not (some! 0 -1 t ,f (list ~_))))
 
 (defun-bind nil? (_)
   	;(nil? o) -> bool
@@ -433,25 +433,19 @@
 ;;;;;;;;;;;
 
 (defun-bind first (_)
-	;(first seq) -> el | nil
-	; Returns first element if sequence not empty, otherwise nil
+	;(first seq) -> el|nil
 	(if (and (not (nil? _)) (> (length _) 0)) (elem 0 _)))
 
 (defun-bind second (_)
-	;(second seq) -> el | nil
-	; Returns second element if sequence not empty and has
-	; more than one element, otherwise nil
+	;(second seq) -> el|nil
 	(if (and (not (nil? _)) (> (length _) 1)) (elem 1 _)))
 
 (defun-bind last (_)
-	;(last seq) -> el | nil
-	; Returns last element if sequence not empty, otherwise nil
+	;(last seq) -> el|nil
 	(if (and (not (nil? _)) (> (length _) 0)) (elem -2 _)))
 
 (defun-bind rest (_)
-	;(rest seq) -> seq
-	; Returns seq from seq after dropping first element
-	; if not empty, otherwise an empty list
+	;(rest seq) -> nil|seq
 	(if (and (not (nil? _)) (> (length _) 0)) (slice 1 -1 _) (list)))
 
 (defun-bind erase (s b e)
@@ -494,6 +488,20 @@
 	(setd _c eql)
 	(reduce (lambda (_l _e)
 		(push _l (if (defq _i (some (# (if (_c %0 _e) %0)) _l)) _i _e))) _s (opt _l (list))))
+
+(defun-bind partition (cnt seq)
+	;(partition count seq) -> list of lists
+	(cond
+		((and (seq? seq) (< cnt (length seq)))
+			(defq
+				base (reverse (copy seq))
+				res (list))
+			(while (nempty? base)
+				(defq nl (list))
+				(times cnt (push nl (pop base)))
+				(push res nl))
+			res)
+		(t (list seq))))
 
 ;;;;;;;;;;;;;;;;
 ; Math functions
@@ -768,7 +776,7 @@
 	(defq file_list (get '*file_includes* e))
 	(unless (some (# (eql %0 lib_path)) file_list)
 		(push file_list lib_path)
-		(eval `(repl (file-stream ,lib_path) ,lib_path) e)) e)
+		(eval `(repl (file-stream ,lib_path) ,lib_path) e)))
 
 (defmacro-bind read-long (s)
 	;(read-long stream) -> num
@@ -858,3 +866,15 @@
 	(if (sym? this)
 		`((get ,m ,this) ,this ~_)
 		`((get ,m (defq ,(defq _o (gensym)) ,this)) ,_o ~_)))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+; Boot extension imports
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(import "lib/collections/collections.inc")
+
+;;;;;;;;;;;;;;;;;;;;;;;;;
+; Service includes
+;;;;;;;;;;;;;;;;;;;;;;;;;
+
+(import "lib/logging/logservice.inc")
