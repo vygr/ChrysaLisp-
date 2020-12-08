@@ -211,9 +211,34 @@ std::shared_ptr<Lisp_Obj> Lisp::find(const std::shared_ptr<Lisp_List> &args)
 		else if (args->m_v[1]->is_type(lisp_type_list))
 		{
 			auto lst = std::static_pointer_cast<Lisp_List>(args->m_v[1]);
-			auto itr = std::find(cbegin(lst->m_v), cend(lst->m_v), args->m_v[0]);
-			if (itr == cend(lst->m_v)) return m_sym_nil;
-			return std::make_shared<Lisp_Integer>(itr - cbegin(lst->m_v));
+			if (args->m_v[0]->is_type(lisp_type_integer))
+			{
+				auto num = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
+				auto itr = std::find_if(cbegin(lst->m_v), cend(lst->m_v), [&] (auto &e)
+				{
+					if (!e->is_type(lisp_type_integer)) return false;
+					return num == std::static_pointer_cast<Lisp_Integer>(e)->m_value;
+				});
+				if (itr == cend(lst->m_v)) return m_sym_nil;
+				return std::make_shared<Lisp_Integer>(itr - cbegin(lst->m_v));
+			}
+			else if (args->m_v[0]->is_type(lisp_type_string))
+			{
+				auto str = std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string;
+				auto itr = std::find_if(cbegin(lst->m_v), cend(lst->m_v), [&] (auto &e)
+				{
+					if (!e->is_type(lisp_type_string)) return false;
+					return str == std::static_pointer_cast<Lisp_String>(e)->m_string;
+				});
+				if (itr == cend(lst->m_v)) return m_sym_nil;
+				return std::make_shared<Lisp_Integer>(itr - cbegin(lst->m_v));
+			}
+			else
+			{
+				auto itr = std::find(cbegin(lst->m_v), cend(lst->m_v), args->m_v[0]);
+				if (itr == cend(lst->m_v)) return m_sym_nil;
+				return std::make_shared<Lisp_Integer>(itr - cbegin(lst->m_v));
+			}
 		}
 		return repl_error("(find-rev elem seq)", error_msg_not_a_sequence, args);
 	}
@@ -236,9 +261,34 @@ std::shared_ptr<Lisp_Obj> Lisp::rfind(const std::shared_ptr<Lisp_List> &args)
 		else if (args->m_v[1]->is_type(lisp_type_list))
 		{
 			auto lst = std::static_pointer_cast<Lisp_List>(args->m_v[1]);
-			auto itr = std::find(crbegin(lst->m_v), crend(lst->m_v), args->m_v[0]);
-			if (itr == crend(lst->m_v)) return m_sym_nil;
-			return std::make_shared<Lisp_Integer>((crend(lst->m_v)) - itr - 1);
+			if (args->m_v[0]->is_type(lisp_type_integer))
+			{
+				auto num = std::static_pointer_cast<Lisp_Integer>(args->m_v[0])->m_value;
+				auto itr = std::find_if(crbegin(lst->m_v), crend(lst->m_v), [&] (auto &e)
+				{
+					if (!e->is_type(lisp_type_integer)) return false;
+					return num == std::static_pointer_cast<Lisp_Integer>(e)->m_value;
+				});
+				if (itr == crend(lst->m_v)) return m_sym_nil;
+				return std::make_shared<Lisp_Integer>((crend(lst->m_v)) - itr - 1);
+			}
+			else if (args->m_v[0]->is_type(lisp_type_string))
+			{
+				auto str = std::static_pointer_cast<Lisp_String>(args->m_v[0])->m_string;
+				auto itr = std::find_if(crbegin(lst->m_v), crend(lst->m_v), [&] (auto &e)
+				{
+					if (!e->is_type(lisp_type_string)) return false;
+					return str == std::static_pointer_cast<Lisp_String>(e)->m_string;
+				});
+				if (itr == crend(lst->m_v)) return m_sym_nil;
+				return std::make_shared<Lisp_Integer>((crend(lst->m_v)) - itr - 1);
+			}
+			else
+			{
+				auto itr = std::find(crbegin(lst->m_v), crend(lst->m_v), args->m_v[0]);
+				if (itr == crend(lst->m_v)) return m_sym_nil;
+				return std::make_shared<Lisp_Integer>((crend(lst->m_v)) - itr - 1);
+			}
 		}
 		return repl_error("(find-rev elem seq)", error_msg_not_a_sequence, args);
 	}
