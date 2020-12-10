@@ -91,9 +91,9 @@
 (ffi reals "class/array/lisp_reals" 0)
 
 (ffi hash "class/obj/lisp_hash" 0)
-(ffi type-of "class/lisp/lisp_type" 0)
 (ffi eql "class/lisp/lisp_eql" 0)
 (ffi copy "class/lisp/lisp_copy" 0)
+(ffi type-of "class/obj/lisp_type" 0)
 
 (ffi macroexpand "class/lisp/lisp_macroexpand" 0)
 
@@ -115,6 +115,7 @@
 (ffi print "class/lisp/lisp_print" 0)
 (ffi prebind "class/lisp/lisp_bindfun" 0)
 (ffi . "class/lisp/lisp_mcall" 0)
+(ffi .super "class/lisp/lisp_scall" 0)
 
 (ffi pii-dirlist "sys/pii/lisp_dirlist" 0)
 (ffi pii-fstat "sys/pii/lisp_fstat" 0) ; -> (array filetime filesize filemode)
@@ -129,12 +130,6 @@
 	((defq prebind (lambda (_) _))))
 
 (defq t 't nil 'nil
-	lisp_type_lst (<< 1 0)
-	lisp_type_int (<< 1 1)
-	lisp_type_str (<< 1 2)
-	lisp_type_sym (<< 1 3)
-	lisp_type_fnc (<< 1 4)
-	lisp_type_env (<< 1 5)
 	defmacro '(macro (n a &rest _) `(defq ,n (macro ,a ~_))))
 
 (defmacro defun (n a &rest _)
@@ -168,35 +163,34 @@
 	; (exec form)
 	(eval (macroexpand _)))
 
-(defmacro lst? (_)
-	; (lst? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_lst))
+(defmacro list? (_)
+	; (list? form) -> t | nil
+	`(find :list (type-of ,_)))
 (defmacro num? (_)
 	; (num? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_int))
-(defmacro fnc? (_)
-	; (fnc? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_fnc))
+	`(find :num (type-of ,_)))
+(defmacro func? (_)
+	; (func? form) -> t | nil
+	`(find :func (type-of ,_)))
 (defmacro str? (_)
 	; (str? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_str))
+	`(find :str (type-of ,_)))
 (defmacro sym? (_)
 	; (sym? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_sym))
+	`(find :sym (type-of ,_)))
 (defmacro env? (_)
 	; (env? form) -> t | nil
-	`(= (type-of ,_) ,lisp_type_env))
+	`(find :hmap (type-of ,_)))
 (defmacro seq? (_)
 	; (seq? form) -> t | nil
-	`(or (= (defq ,(defq __ (gensym)) (type-of ,_)) ,lisp_type_lst)
-		(= ,__ ,lisp_type_str)))
-(defmacro fun? (_)
-	; (fun? form) -> t | nil
-	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
+	`(find :seq (type-of ,_)))
+(defmacro lambda? (_)
+	; (lambda? form) -> t | nil
+	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
 		(> (length ,__) 0) (eql (elem 0 ,__) 'lambda)))
 (defmacro macro? (_)
 	; (macro? form) -> t | nil
-	`(and (= (type-of (defq ,(defq __ (gensym)) ,_)) ,lisp_type_lst)
+	`(and (find :list (type-of (defq ,(defq __ (gensym)) ,_)))
 		(> (length ,__) 0) (eql (elem 0 ,__) 'macro)))
 
 (defmacro inc (_)
@@ -265,8 +259,8 @@
 (defmacro case (form &rest body)
 	; (case form [(key body)] ...)
 	(if (defq table (reduce-rev (lambda (table (keys &rest clause_body))
-			(unless (lst? keys) (setq keys (list keys)))
-			(unless (some! 0 -1 t (lambda (clause) (= (type-of clause) (const lisp_type_sym))) (list keys))
+			(unless (list? keys) (setq keys (list keys)))
+			(unless (some! 0 -1 t (lambda (clause) (find :sym (type-of clause))) (list keys))
 				(throw "Key not symbol !" keys))
 			(each! 0 -1 (lambda (key)
 					(push (elem 0 table) key)
@@ -771,7 +765,7 @@
 
 (defun import (lib_path &optional _e)
 	; (import path [env]) -> env
-	(unless (str? lib_path) (throw "Not a string !" lib_path))
+	(unless (eql :str (pop (type-of lib_path))) (throw "Not a string !" lib_path))
 	(if (starts-with "./" lib_path) (setq lib_path (slice 2 -1 lib_path)))
 	(if (= (age lib_path) 0) (throw "No such file !" lib_path))
 	(setd _e (penv)) (defq _ee _e)
@@ -856,34 +850,47 @@
 ; classes and methods
 ;;;;;;;;;;;;;;;;;;;;;
 
-(defmacro defclass (n p &rest _)
-	; (defclass name ([arg ...]) body)
-	`(defun ,n ,p (defq this (env -1)) ~_ this))
+(defmacro defclass (n p s &rest _)
+	; (defclass name ([arg ...]) (super ...) body)
+	(defq super (sym (cat "*class_" (if s (elem 0 s)) "*"))
+		class (sym (cat "*class_" n "*")) inits (list) methods (list))
+	(each (lambda (form)
+		(cond
+			((and (list? form) (ends-with "method" (elem 0 form)))
+				(push methods form))
+			(t	(push inits form)))) _)
+	(if s
+		`(progn
+			(defq ,class (env -1))
+			(defun ,n ,p
+				(def (defq this ,s) :vtable ,class)
+				(unless (def? :vtable ,class)
+					(def this :vtable (reduce (lambda (e (key val))
+						(def e key val) e) (tolist ,super) ,class))
+					(def ,class :vtable ,super)
+					~methods)
+				~inits this))
+		`(progn
+			(defq ,class (env -1))
+			(defun ,n ,p
+				(def (defq this (env -1)) :vtable ,class)
+				(unless (def? :vtable ,class)
+					(def ,class :vtable t)
+					~methods)
+				~inits this))))
 
 (defmacro defmethod (n p &rest _)
 	; (defmethod name (this [arg ...]) body)
 	; (. this :method [arg ...])
-	`(def this ,n (lambda ,p ~(macroexpand _))))
+	`(def (def? :vtable this) ,n (lambda ,p ~(macroexpand _))))
 
 (defmacro deffimethod (n _)
 	; (deffimethod name ffi)
-	`(def this ,n (ffi _ ,_ 0)))
+	`(def (def? :vtable this) ,n (ffi _ ,_ 0)))
 
 (defmacro .-> (res &rest frm)
 	; (.-> this form ...)
 	(reduce (lambda (res frm)
-		(if (lst? frm)
+		(if (list? frm)
 			(insert frm 0 (list '. res))
 			(list '. res frm))) frm res))
-
-;;;;;;;;;;;;;;;;;;;;;;;;;
-; Boot extension imports
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;(import "lib/collections/collections.inc")
-
-;;;;;;;;;;;;;;;;;;;;;;;;;
-; Service includes
-;;;;;;;;;;;;;;;;;;;;;;;;;
-
-;(import "lib/logging/logservice.inc")

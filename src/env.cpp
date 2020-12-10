@@ -20,6 +20,8 @@
 
 #include "lisp.h"
 
+std::shared_ptr<Lisp_Symbol> intern(const std::shared_ptr<Lisp_Symbol> &sym);
+
 void Lisp::env_push()
 {
 	auto env = std::make_shared<Lisp_Env>();

@@ -20,6 +20,8 @@
 
 #include "lisp.h"
 
+std::shared_ptr<Lisp_Symbol> intern(const std::shared_ptr<Lisp_Symbol> &sym);
+
 std::shared_ptr<Lisp_Obj> Lisp::lcatch(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 3)
@@ -187,7 +189,7 @@ std::shared_ptr<Lisp_Obj> Lisp::type(const std::shared_ptr<Lisp_List> &args)
 {
 	if (args->length() == 1)
 	{
-		return std::make_shared<Lisp_Integer>(args->m_v[0]->type());
+		return args->m_v[0]->type_of();
 	}
 	return repl_error("(type-of obj)", error_msg_wrong_num_of_args, args);
 }

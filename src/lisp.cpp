@@ -21,6 +21,15 @@
 #include "lisp.h"
 
 void rmkdir(const char *path);
+std::set<std::shared_ptr<Lisp_Symbol>, Intern_Cmp> intern_sym_set;
+
+std::shared_ptr<Lisp_Symbol> intern(const std::shared_ptr<Lisp_Symbol> &sym)
+{
+	auto itr = intern_sym_set.find(sym);
+	if (itr != end(intern_sym_set)) return *itr;
+	intern_sym_set.insert(sym);
+	return sym;
+}
 
 ////////////
 //Lisp_Error
@@ -55,6 +64,24 @@ void Lisp_Integer::print(std::ostream &out) const
 	out << m_value;
 }
 
+std::shared_ptr<Lisp_List> Lisp_Integer::type_of() const
+{
+	auto lst = Lisp_Obj::type_of();
+	lst->m_v.push_back(intern(std::make_shared<Lisp_Symbol>(":num")));
+	return lst;
+}
+
+//////////
+//Lisp_Seq
+//////////
+
+std::shared_ptr<Lisp_List> Lisp_Seq::type_of() const
+{
+	auto lst = Lisp_Obj::type_of();
+	lst->m_v.push_back(intern(std::make_shared<Lisp_Symbol>(":seq")));
+	return lst;
+}
+
 ///////////
 //Lisp_List
 ///////////
@@ -62,6 +89,13 @@ void Lisp_Integer::print(std::ostream &out) const
 Lisp_List::Lisp_List()
 	: Lisp_Seq()
 {}
+
+std::shared_ptr<Lisp_List> Lisp_List::type_of() const
+{
+	auto lst = Lisp_Seq::type_of();
+	lst->m_v.push_back(intern(std::make_shared<Lisp_Symbol>(":list")));
+	return lst;
+}
 
 void Lisp_List::print(std::ostream &out) const
 {
@@ -108,6 +142,13 @@ std::shared_ptr<Lisp_Obj> Lisp_List::cat(const std::shared_ptr<Lisp_List> &args)
 Lisp_String::Lisp_String()
 	: Lisp_Seq()
 {}
+
+std::shared_ptr<Lisp_List> Lisp_String::type_of() const
+{
+	auto lst = Lisp_Seq::type_of();
+	lst->m_v.push_back(intern(std::make_shared<Lisp_Symbol>(":str")));
+	return lst;
+}
 
 Lisp_String::Lisp_String(const std::string &s)
 	: Lisp_Seq()
@@ -196,6 +237,13 @@ Lisp_Symbol::Lisp_Symbol()
 	: Lisp_String()
 {}
 
+std::shared_ptr<Lisp_List> Lisp_Symbol::type_of() const
+{
+	auto lst = Lisp_String::type_of();
+	lst->m_v.push_back(intern(std::make_shared<Lisp_Symbol>(":sym")));
+	return lst;
+}
+
 Lisp_Symbol::Lisp_Symbol(const std::string &s)
 	: Lisp_String(s)
 {}
@@ -221,6 +269,13 @@ Lisp_Env::Lisp_Env(long long num_buckets)
 	: Lisp_Obj()
 {
 	m_buckets.resize(num_buckets);
+}
+
+std::shared_ptr<Lisp_List> Lisp_Env::type_of() const
+{
+	auto lst = Lisp_Obj::type_of();
+	lst->m_v.push_back(intern(std::make_shared<Lisp_Symbol>(":hmap")));
+	return lst;
 }
 
 void Lisp_Env::resize(long long num_buckets)

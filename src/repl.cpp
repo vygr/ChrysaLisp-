@@ -21,13 +21,7 @@
 #include "lisp.h"
 extern int arg_v;
 
-std::shared_ptr<Lisp_Symbol> Lisp::intern(const std::shared_ptr<Lisp_Symbol> &sym)
-{
-	auto itr = m_intern_sym_set.find(sym);
-	if (itr != end(m_intern_sym_set)) return *itr;
-	m_intern_sym_set.insert(sym);
-	return sym;
-}
+std::shared_ptr<Lisp_Symbol> intern(const std::shared_ptr<Lisp_Symbol> &sym);
 
 int Lisp::repl_read_char(std::istream &in) const
 {
